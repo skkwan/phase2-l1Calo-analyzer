@@ -1,7 +1,7 @@
 // Usage: root -l -b -q runDistributionPlots.C
 // Create plots of variables from a TTree
 
-#include "../baseCodeForPlots/singleDistribution.C"
+#include "../baseCodeForPlots/singleDistribution.cpp"
 #include "../baseCodeForPlots/scatterPlot.cpp"
 
 // sampleName: name of folder                      (e.g. "RelValElectronGunPt2To100_NoPU")
@@ -12,6 +12,7 @@
 // descriptor, bonusDescriptor: second line of description in plot, LaTeX OK 
 // SF: scale factor for cluster pT (specific to this project)
 void makeDistributionPlots(TString sampleName, TString legend, TString inputDirectory,
+                           TString outputDirectory,
                            TString cut = "", 
                            TString descriptor = "",
                            TString bonusDescriptor = "",
@@ -22,8 +23,6 @@ void makeDistributionPlots(TString sampleName, TString legend, TString inputDire
  
   std::cout << sampleName << " " << legend << " " << inputDirectory << std::endl;
   TString treePath = "l1NtupleProducer/efficiencyTree";
-  //  TString inputDirectory  = "/eos/user/s/skkwan/signalNanoAOD/2018/SUSYVBFToHToAA_AToBB_AToTauTau_M-40/SUSYVBFToHToAA_AToBB_AToTauTau_M-40_BATCH_1_NANO.root";
-  TString outputDirectory = "/Users/stephaniekwan/Dropbox/Princeton_G4/Phase2RCT/analyzer/studies/" + sampleName + "/"; 
   gSystem->Exec("mkdir -p " + outputDirectory);
 
   // TString cut = "(gct_cPt > 20) && (gct_cPt < 75) && (genPt > 30) && (genPt < 70)";    // changed from genPt > 0
@@ -82,4 +81,10 @@ void makeDistributionPlots(TString sampleName, TString legend, TString inputDire
 
   singleDistributionPlots("gct_eta_diff", "genEta - gct_cEta", cut, legend, treePath, inputDirectory, outputDirectory, "Gen #eta - GCT Cluster #eta", descriptor, bonusDescriptor, nBins, -0.06, 0.06, ymaxDummyValue);
   singleDistributionPlots("gct_phi_diff", "genPhi - gct_cPhi", cut, legend, treePath, inputDirectory, outputDirectory, "Gen #phi - GCT Cluster #phi", descriptor, bonusDescriptor, nBins, -0.06, 0.06, ymaxDummyValue);
+
+  // GCT isolation 
+  singleDistributionPlots("gct_iso", "gct_iso", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Isolation (GeV)",                     descriptor, bonusDescriptor, 40, 0, 4, ymaxDummyValue);
+  singleDistributionPlots("gct_relIso", "(gct_iso/ (gct_cPt/" + SF + "))", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Iso/p_{T}", descriptor, bonusDescriptor, 35, -0.02, 0.10, ymaxDummyValue);
+  singleDistributionPlots("gct_relIso_zoomout", "(gct_iso/ (gct_cPt/" + SF + "))", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Iso/p_{T}", descriptor, bonusDescriptor, nBins, -0.1, 1.2, ymaxDummyValue);
+
 }

@@ -43,8 +43,7 @@ void plotNRates(std::vector<TH1F*> hists,
                 TString outputName,
                 TString outputDir,
                 bool useLogy
-                )
-{
+                ) {
   assert((hists.size() == labels.size()) && (hists.size() == colors.size()));
 
   setTDRStyle();
@@ -109,10 +108,10 @@ void plotNRates(std::vector<TH1F*> hists,
   //  leg->SetHeader(legendName); 
   for (itHist = hists.begin(), itLabel = labels.begin();
        itHist != hists.end();
-       itHist++, itLabel++)
-    {
-      leg->AddEntry(*itHist, *itLabel,  "l");
-    }
+       itHist++, itLabel++) {
+    
+    leg->AddEntry(*itHist, "#scale[0.8]{" + *itLabel + "}",  "l");
+  }
   leg->Draw();
 
 
@@ -122,11 +121,11 @@ void plotNRates(std::vector<TH1F*> hists,
     emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.8]{#it{Phase 2 RCT emulator}}";  
   }
   latex->DrawLatex(0.17, 0.960, emuLabel); 
-  latex->DrawLatex(0.89, 0.960, "#scale[0.8]{200 PU}"); 
+  latex->DrawLatex(0.75, 0.960, "#scale[0.8]{200 PU, MinBias}"); 
 
   float commentaryXpos = 0.54;
-  latex->DrawLatex(commentaryXpos, 0.850, "#scale[0.8]{EG Barrel, MinBias 200 PU}");
-  latex->DrawLatex(commentaryXpos, 0.790, "#scale[0.8]{Phase 2 HLT TDR Winter20}");
+  latex->DrawLatex(commentaryXpos, 0.9, "#scale[0.8]{Phase-2 L1EG (Crystal, Barrel)}");
+  //  latex->DrawLatex(commentaryXpos, 0.790, "#scale[0.8]{Phase 2 HLT TDR Winter20}");
 
   Tcan->Update();
 
