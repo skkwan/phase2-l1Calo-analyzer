@@ -35,19 +35,28 @@
 /*******************************************************************/
 
 void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs, 
-             std::vector<TString> labels,
-             std::vector<int> colors,
-             TString xAxisLabel,
-             TString legendName,
-             TString outputName,
-             TString outputDir,
-             TString additionalComment = ""
+                      std::vector<TString> labels,
+                      std::vector<int> colors,
+                      TString xAxisLabel,
+                      TString legendName,
+                      TString outputName,
+                      TString outputDir,
+                      TString additionalComment = "",
+                      float yMin = 0.0,
+                      float yMax = 1.1,
+                      TString legendPos = "bottomright"
              ) {
   assert((graphs.size() == labels.size()) && (graphs.size() == colors.size()));
 
   setTDRStyle();
   TCanvas* Tcan = new TCanvas("Tcan","", 100, 20, 1000, 800);
-  TLegend* leg = new TLegend(0.55,0.15,0.90,0.45);
+  TLegend *leg;
+  if (legendPos == "bottomright") {
+    leg = new TLegend(0.55,0.15,0.90,0.45);
+  } 
+  else if (legendPos == "topright") {
+    leg = new TLegend(0.55,0.65,0.90,0.87);
+  }
   applySmallerLegStyle(leg);
 
   Tcan->SetGrid();
@@ -81,7 +90,7 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
     (*itGraph)->SetMarkerStyle(kFullCircle);
     (*itGraph)->SetLineWidth(2);
     (*itGraph)->SetLineColor(*itColor);
-    (*itGraph)->SetMarkerSize(2);
+    (*itGraph)->SetMarkerSize(1);
   }
 
   histDummy->SetMarkerColor(0);
@@ -97,7 +106,7 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
   histDummy->GetYaxis()->SetTitle("L1 Efficiency");
   histDummy->GetXaxis()->SetTitleSize(0.06); // default is 0.03                                                                    
   /* Set y-axis limits */  
-  histDummy->GetYaxis()->SetRangeUser(0.0, 1.1);
+  histDummy->GetYaxis()->SetRangeUser(yMin, yMax);
   // histDummy->GetYaxis()->SetRangeUser(0.8, 1.02);
 
   // Customize legend 
@@ -121,12 +130,20 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
 
   // Commentary x and y-position
   float commentaryXpos = 0.50;
-  float yRow1 = 0.540;
-  float yRow2 = 0.480;
-  float yRow3 = 0.420;
+  
+  float offset = 0.0;
+  if (legendPos == "bottomright") {
+    offset = 0;
+  }
+  else if (legendPos == "topright") {
+    offset = 0.42;
+  }
+  float yRow1 = 0.540 + offset;
+  float yRow2 = 0.480 + offset;
+  float yRow3 = 0.420 + offset;
 
-  latex->DrawLatex(commentaryXpos, yRow2, "#scale[0.8]{Phase-2 L1EG (Crystal, Barrel)}");
-  latex->DrawLatex(commentaryXpos, yRow3, "#scale[0.8]{L1 p_{T} > 25, |#eta^{Gen}| < 1.4841" + additionalComment + "}");
+  latex->DrawLatex(commentaryXpos, yRow2, "#scale[0.7]{Phase-2 L1EG (Crystal, Barrel)}");
+  latex->DrawLatex(commentaryXpos, yRow3, "#scale[0.7]{L1 p_{T} > 25, |#eta^{Gen}| < 1.4841" + additionalComment + "}");
   Tcan->Update();
 
 
