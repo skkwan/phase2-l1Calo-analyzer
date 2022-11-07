@@ -25,7 +25,7 @@
 #include "tdrstyle.C"
 #include "CMS_lumi.h"
 
-#include "singleDistribution.C"
+#include "singleDistribution.cpp"
 
 #ifndef SCATTER_PLOT_C_INCL
 #define SCATTER_PLOT_C_INCL

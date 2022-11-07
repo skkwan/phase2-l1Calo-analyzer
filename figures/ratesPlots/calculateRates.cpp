@@ -42,7 +42,7 @@ TH1F* calculateRates(TString histPath,
                      TString nEventsHistPath,
                      TString rootFileDirectory)
 {
-  /* Load file */
+  // Load file
   TFile *file = new TFile(rootFileDirectory);
   if (!file->IsOpen() || file==0 )
     {
@@ -68,25 +68,23 @@ TH1F* calculateRates(TString histPath,
   TH1F* ratesHist = new TH1F("Rates", "Rates", nBins+2, xMin, xMax);
   ratesHist->Sumw2();
 
-  /* Loop through bins in the Rates histogram, in reverse order. */
+  // Loop through bins in the Rates histogram, in reverse order
   int Sum = 0;
 
-  for (int i = nBins; i > 0; i--)
-    {
-      std::cout << "Bin number " << i << " out of " << nBins << ": sum is " << Sum << std::endl;
-      Sum += hist->GetBinContent(i);
-      ratesHist->SetBinContent(i, Sum);
-    }
+  for (int i = nBins; i > 0; i--) {
+    std::cout << histPath << ": Bin number " << i << " out of " << nBins << ": sum is " << Sum << std::endl;
+    Sum += hist->GetBinContent(i);
+    ratesHist->SetBinContent(i, Sum);
+  }
 
-  /* Calculate (# of all events passing the BDT) / (# all events) */
+  // (# of all events passing cut) and (# all events) 
   double nPass = hist->GetEntries();
   double nEvents = getEvents(rootFileDirectory, nEventsHistPath);
 
-  /* Convert each bin to a fraction of total events. */
-  float firstBin = ratesHist->GetBinContent(1);
-  ratesHist->Scale((double) 1.00 / firstBin);
+  // Convert each bin to a fraction of total events. 
+  ratesHist->Scale((double) 1.00 / nEvents);
   
-  /* kHz */
+  // kHz 
   ratesHist->Scale(40.0 * 1000000.0 / 1000.0);
 
   return ratesHist;

@@ -35,19 +35,28 @@
 /*******************************************************************/
 
 void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs, 
-             std::vector<TString> labels,
-             std::vector<int> colors,
-             TString xAxisLabel,
-             TString legendName,
-             TString outputName,
-             TString outputDir
-             )
-{
+                      std::vector<TString> labels,
+                      std::vector<int> colors,
+                      TString xAxisLabel,
+                      TString legendName,
+                      TString outputName,
+                      TString outputDir,
+                      TString additionalComment = "",
+                      float yMin = 0.0,
+                      float yMax = 1.1,
+                      TString legendPos = "bottomright"
+             ) {
   assert((graphs.size() == labels.size()) && (graphs.size() == colors.size()));
 
   setTDRStyle();
   TCanvas* Tcan = new TCanvas("Tcan","", 100, 20, 1000, 800);
-  TLegend* leg = new TLegend(0.55,0.15,0.90,0.45);
+  TLegend *leg;
+  if (legendPos == "bottomright") {
+    leg = new TLegend(0.55,0.15,0.90,0.45);
+  } 
+  else if (legendPos == "topright") {
+    leg = new TLegend(0.55,0.65,0.90,0.87);
+  }
   applySmallerLegStyle(leg);
 
   Tcan->SetGrid();
@@ -57,7 +66,8 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
   latex->SetTextFont(42);
   latex->SetTextColor(kBlack);
 
-  Tcan->cd();     /* Set current canvas */
+  // Set current canvas
+  Tcan->cd();  
   Tcan->SetFillColor(0);
 
 
@@ -68,44 +78,44 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
   TGraphAsymmErrors* histDummy;
   for (itGraph = graphs.begin(), itLabel = labels.begin(), itColor = colors.begin();
        itGraph != graphs.end();
-       itGraph++, itLabel++, itColor++)
-    {
-      if (itGraph == graphs.begin()) // only do this once 
-   {
-     histDummy = new TGraphAsymmErrors(**itGraph);
-   }
-      
-      // De-reference the iterator to get the TGraphAsymmErrors*
-      (*itGraph)->SetMarkerColor(*itColor);
-      (*itGraph)->SetMarkerStyle(kFullCircle);
-      (*itGraph)->SetLineWidth(2);
-      (*itGraph)->SetLineColor(*itColor);
-      (*itGraph)->SetMarkerSize(2);
+       itGraph++, itLabel++, itColor++) {
+
+    // only do this once 
+    if (itGraph == graphs.begin()) {
+      histDummy = new TGraphAsymmErrors(**itGraph);
     }
+      
+    // De-reference the iterator to get the TGraphAsymmErrors*
+    (*itGraph)->SetMarkerColor(*itColor);
+    (*itGraph)->SetMarkerStyle(kFullCircle);
+    (*itGraph)->SetLineWidth(2);
+    (*itGraph)->SetLineColor(*itColor);
+    (*itGraph)->SetMarkerSize(1);
+  }
 
   histDummy->SetMarkerColor(0);
   histDummy->SetLineColor(0);
 
   histDummy->Draw("");
 
-  for (itGraph = graphs.begin(); itGraph != graphs.end(); itGraph++)
-    {
-      (*itGraph)->Draw("P");
-    }
+  for (itGraph = graphs.begin(); itGraph != graphs.end(); itGraph++)  {
+    (*itGraph)->Draw("P");
+  }
 
   histDummy->GetXaxis()->SetTitle(xAxisLabel);
   histDummy->GetYaxis()->SetTitle("L1 Efficiency");
   histDummy->GetXaxis()->SetTitleSize(0.06); // default is 0.03                                                                    
   /* Set y-axis limits */  
-  histDummy->GetYaxis()->SetRangeUser(0.0, 1.1);
+  histDummy->GetYaxis()->SetRangeUser(yMin, yMax);
   // histDummy->GetYaxis()->SetRangeUser(0.8, 1.02);
 
-  /* Customize legend */
+  // Customize legend 
+
   for (itGraph = graphs.begin(), itLabel = labels.begin();
        itGraph != graphs.end();
        itGraph++, itLabel++)
     {
-      leg->AddEntry(*itGraph, *itLabel,  "P");
+      leg->AddEntry(*itGraph, "#scale[0.8]{" + *itLabel + "}",  "P");
     }
   leg->Draw();
 
@@ -116,22 +126,24 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
     emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.8]{#it{Phase 2 RCT emulator}}";  
   }
   latex->DrawLatex(0.16, 0.960, emuLabel); 
-  latex->DrawLatex(0.91, 0.960, "#scale[0.8]{0 PU}"); 
+  latex->DrawLatex(0.58, 0.960, "#scale[0.8]{200 PU, DoubleEle Pt 1 to 100}"); 
 
-  if (!(outputName.Contains("genEta"))) {  // genPt: put legend below the efficiecy curve
-    float commentaryXpos = 0.54;
-    latex->DrawLatex(commentaryXpos, 0.550, "#scale[0.8]{EG Barrel}");
-    latex->DrawLatex(commentaryXpos, 0.490, "#scale[0.8]{RelVal ElectronGun Pt 2 to 100}");
-    latex->DrawLatex(commentaryXpos, 0.430, "#scale[0.8]{L1 p_{T} > 25, |#eta^{Gen}| < 1.4841}");
-  //latex->DrawLatex(commentaryXpos, 0.700, "#scale[0.7]{}");
-  //latex->DrawLatex(commentaryXpos, 0.660, bonusDescriptor);
-  }  
-  else { // genEta: put legend above the efficiency curve
-    float commentaryXpos = 0.54;
-    latex->DrawLatex(commentaryXpos, 0.900, "#scale[0.8]{EG Barrel}");
-    latex->DrawLatex(commentaryXpos, 0.840, "#scale[0.8]{RelVal ElectronGun Pt 2 to 100}");
-    latex->DrawLatex(commentaryXpos, 0.780, "#scale[0.8]{L1 p_{T} > 25, |#eta^{Gen}| < 1.4841}");
-  } 
+  // Commentary x and y-position
+  float commentaryXpos = 0.50;
+  
+  float offset = 0.0;
+  if (legendPos == "bottomright") {
+    offset = 0;
+  }
+  else if (legendPos == "topright") {
+    offset = 0.42;
+  }
+  float yRow1 = 0.540 + offset;
+  float yRow2 = 0.480 + offset;
+  float yRow3 = 0.420 + offset;
+
+  latex->DrawLatex(commentaryXpos, yRow2, "#scale[0.7]{Phase-2 L1EG (Crystal, Barrel)}");
+  latex->DrawLatex(commentaryXpos, yRow3, "#scale[0.7]{L1 p_{T} > 25, |#eta^{Gen}| < 1.4841" + additionalComment + "}");
   Tcan->Update();
 
 

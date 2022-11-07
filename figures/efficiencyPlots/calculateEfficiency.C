@@ -107,14 +107,14 @@ TGraphAsymmErrors* calculateEfficiency(TString variable,
   tree->Draw(variable+">>+Denom", recoCut);
   tree->Draw(variable+">>+Num", l1Cut);
 
-  /*
-  for (int i = 0; i < 10; i++)
-    {
-      printf("Num bin %d content is %f, with error %f\n", i,
-        Num->GetBinContent(i),
-             Num->GetBinError(i));
-    }
-  */
+  // /*
+  // for (int i = 0; i < 10; i++)
+  //   {
+  //     printf("Num bin %d content is %f, with error %f\n", i,
+  //       Num->GetBinContent(i),
+  //            Num->GetBinError(i));
+  //   }
+  // */
 
   Num->Divide(Denom);
 

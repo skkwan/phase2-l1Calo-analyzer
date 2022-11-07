@@ -25,8 +25,8 @@
 #include "tdrstyle.C"
 #include "CMS_lumi.h"
 
-#ifndef SINGLE_DISTRIBUTION_C_INCL
-#define SINGLE_DISTRIBUTION_C_INCL 
+#ifndef SINGLE_DISTRIBUTION_CPP_INCL
+#define SINGLE_DISTRIBUTION_CPP_INCL 
  
 /* Apply template style to a TPad* pad1. */
 void applyPadStyle(TPad* pad1){
@@ -132,63 +132,83 @@ int singleDistributionPlots(TString name, TString variable, TString cut, TString
     TLine *line = new TLine(crystalSize, 0, crystalSize, 1.10* hist->GetMaximum());
     line->SetLineColor(kRed);
     line->SetLineStyle(kDashed);
-    line->SetLineWidth(5);
-    line->Draw();
-
-    TLatex *l = new TLatex(); 
-    l->SetNDC();
-    l->SetTextFont(42);
-    l->SetTextColor(kRed);
-    l->DrawLatex(0.25, 0.75, "#scale[0.8]{Crystal size}");
-    Tcan->Update();
-  }
-
-  // More specifics: if the plot is the pT difference %, draw a line at x = 0
-  float zeroDiff = 0;
-  if (name.Contains("pT_fractional_diff") || name.Contains("pT_resolution")) {
-        TLine *line = new TLine(zeroDiff, 0, zeroDiff, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
-    line->SetLineColor(kBlue);
-    line->SetLineStyle(kDashed);
     line->SetLineWidth(3);
     line->Draw();
 
     TLatex *l = new TLatex(); 
     l->SetNDC();
     l->SetTextFont(42);
-    l->SetTextColor(kBlue);
-    l->DrawLatex(0.538, 0.091, "#scale[0.9]{0}");
-    Tcan->Update();
-
-    // Make line at -0.10 for debugging studies
-    float debugDiff = -0.1;
-    TLine *lineDebug = new TLine(debugDiff, 0, debugDiff, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
-    lineDebug->SetLineColor(kBlack);
-    lineDebug->SetLineStyle(kDashed);
-    lineDebug->SetLineWidth(3);
-    lineDebug->Draw();
-    // Make line at -0.10 for debugging studies
-    TLatex *lDebug = new TLatex(); 
-    lDebug->SetNDC();
-    lDebug->SetTextFont(42);
-    lDebug->SetTextColor(kBlack);
-    lDebug->DrawLatex(0.410, 0.50, "#scale[0.9]{-0.1}");
+    l->SetTextColor(kRed);
+    l->DrawLatex(0.46, 0.60, "#scale[0.7]{Crystal size}");
     Tcan->Update();
   }
 
-  // More specifics: overlay the eta boundaries
-    // More specifics: if the plot is the pT difference %, draw a line at x = 0
-  if (name.Contains("Eta")) {
-    std:vector<float> etaBoundaries{-1.479, -1.3096, -1.0476, -0.7857, -0.5238, -0.2619, 0, 0.2619, 0.5238, 0.7857, 1.0476, 1.3096, 1.479};
-    for (float b : etaBoundaries) {
-
-  //      TLine *line = new TLine(b, 0.012, b, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
-      TLine *line = new TLine(b, 0.012, b, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
+  // More specifics: if the plot is the pT difference %, draw a line at x = 0
+  float zeroDiff = 0;
+  if (name.Contains("pT_fractional_diff") || name.Contains("pT_resolution") || name.Contains("relIso")) {
+      TLine *line = new TLine(zeroDiff, 0, zeroDiff, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
       line->SetLineColor(kBlue);
       line->SetLineStyle(kDashed);
       line->SetLineWidth(3);
       line->Draw();
+
+      TLatex *l = new TLatex(); 
+      l->SetNDC();
+      l->SetTextFont(42);
+      l->SetTextColor(kBlue);
+      if (name.Contains("pT_fractional_diff") || name.Contains("pT_resolution"))  { l->DrawLatex(0.538, 0.091, "#scale[0.9]{0}"); }
+      else if (name.Contains("relIso")) { l->DrawLatex(0.265, 0.50, "#scale[0.9]{0}");  }
       Tcan->Update();
+
     }
+
+
+   //  // rel-iso: line at 1.0 because we have a weird double peak
+   // if (name.Contains("relIso")) {  // 
+   //      TLine *line = new TLine(1.0, 0, 1.0, 1.05* hist->GetMaximum());
+   //      line->SetLineColor(kGray+3);
+   //      line->SetLineStyle(kDashed);
+   //      line->SetLineWidth(3);
+   //      line->Draw();
+
+   //      TLatex *l = new TLatex(); 
+   //      l->SetNDC();
+   //      l->SetTextFont(42);
+   //      l->SetTextColor(kGray+3);
+   //      l->DrawLatex(0.80, 0.50, "#scale[0.9]{1.0}"); 
+   //      Tcan->Update();
+   //  } 
+
+  if (name.Contains("pT_fractional_diff") || name.Contains("pT_resolution") ) {
+        // // Make line at -0.10 for debugging studies
+        // float debugDiff = -0.1;
+        // TLine *lineDebug = new TLine(debugDiff, 0, debugDiff, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
+        // lineDebug->SetLineColor(kBlack);
+        // lineDebug->SetLineStyle(kDashed);
+        // lineDebug->SetLineWidth(3);
+        // lineDebug->Draw();
+        // // Label line at -0.10 for debugging studies
+        // TLatex *lDebug = new TLatex(); 
+        // lDebug->SetNDC();
+        // lDebug->SetTextFont(42);
+        // lDebug->SetTextColor(kBlack);
+        // lDebug->DrawLatex(0.410, 0.50, "#scale[0.9]{-0.1}");
+        // Tcan->Update();
+  }
+
+  // More specifics: if the plot is the pT difference %, draw a line at x = 0
+  if (name.Contains("Eta")) {
+      std:vector<float> etaBoundaries{-1.479, -1.3096, -1.0476, -0.7857, -0.5238, -0.2619, 0, 0.2619, 0.5238, 0.7857, 1.0476, 1.3096, 1.479};
+      for (float b : etaBoundaries) {
+
+        //      TLine *line = new TLine(b, 0.012, b, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
+        TLine *line = new TLine(b, 0.012, b, 1.05* hist->GetMaximum()); // 1.10* hist->GetMaximum());
+        line->SetLineColor(kBlue);
+        line->SetLineStyle(kDashed);
+        line->SetLineWidth(3);
+        line->Draw();
+        Tcan->Update();
+      }
   }
 
   // Finicky ymax values
@@ -224,19 +244,16 @@ int singleDistributionPlots(TString name, TString variable, TString cut, TString
 
 
   float commentaryXpos = 0.47;
-//  float commentaryXpos = 0.40;
-  latex->DrawLatex(0.80, 0.920, "#scale[0.8]{0 PU}");
-  latex->DrawLatex(commentaryXpos, 0.820, "#scale[0.6]{EG Barrel}");
-  latex->DrawLatex(commentaryXpos, 0.780, "#scale[0.6]{" + legend + "}");
+  latex->DrawLatex(0.73, 0.92, "#scale[0.8]{200 PU}");
+  latex->DrawLatex(commentaryXpos, 0.83, "#scale[0.6]{EG Barrel}");
+  latex->DrawLatex(commentaryXpos, 0.79, "#scale[0.6]{" + legend + "}");
   //  latex->DrawLatex(commentaryXpos, 0.740, "#scale[0.6]{v0 ECAL propagation,}");
-  latex->DrawLatex(commentaryXpos, 0.740, "#scale[0.6]{" + descriptor + "}");
+  latex->DrawLatex(commentaryXpos, 0.75, "#scale[0.6]{" + descriptor + "}");
 
   if (bonusDescriptor != "") { // 
-    latex->DrawLatex(commentaryXpos, 0.700, "#scale[0.6]{" + bonusDescriptor + "}");
+    latex->DrawLatex(commentaryXpos, 0.71, "#scale[0.6]{" + bonusDescriptor + "}");
   }
-  else {
-    // latex->DrawLatex(commentaryXpos, 0.700, "#scale[0.6]{|#eta^{Gen}| < 1.4841}");
-  }
+
   Tcan->Update();
 
   Tcan->SaveAs(outputDirectory+name+".png");
@@ -247,6 +264,7 @@ int singleDistributionPlots(TString name, TString variable, TString cut, TString
   return 1;
 
 }
+
 
 
 
