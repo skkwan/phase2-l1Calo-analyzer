@@ -111,35 +111,50 @@ class L1TCaloEGammaAnalyzerRates : public edm::EDAnalyzer {
   std::vector<TLorentzVector> *recoJets  = new std::vector<TLorentzVector>; 
   std::vector<double> *recoJetsDr  = new std::vector<double>;
 
+  // Struct representing a cluster
+  struct Cluster {
+
+    TLorentzVector p4;
+    double et2x5;
+    double et5x5;
+    double iso;
+    bool is_ss;
+    bool is_looseTkss;
+    bool is_iso;
+    bool is_looseTkiso;
+  };
+
   // Outputs of the emulator
-  std::vector<TLorentzVector> *rctClusters  = new std::vector<TLorentzVector>; 
-  std::vector<TLorentzVector> *rctTowers    = new std::vector<TLorentzVector>;
 
   std::vector<TLorentzVector> *gctClusters  = new std::vector<TLorentzVector>;
+  std::vector<L1TCaloEGammaAnalyzerRates::Cluster> *gctClusterInfo = new std::vector<L1TCaloEGammaAnalyzerRates::Cluster>; 
+
   std::vector<TLorentzVector> *gctTowers    = new std::vector<TLorentzVector>;
 
-  // Vectors for rates
-  std::vector<TLorentzVector> *gctClusters_VLoose = new std::vector<TLorentzVector>;
-  std::vector<TLorentzVector> *gctClusters_Loose  = new std::vector<TLorentzVector>;
-  std::vector<TLorentzVector> *gctClusters_Medium = new std::vector<TLorentzVector>;
-  std::vector<TLorentzVector> *gctClusters_Tight  = new std::vector<TLorentzVector>;
 
   TH1F* nEvents;
   TTree* efficiencyTree;
 
   int run, lumi, event;
   double genPt, genEta, genPhi;
-  double rct_cPt, rct_cEta, rct_cPhi;
-  double rct_deltaR;
+
 
   double gct_cPt, gct_cEta, gct_cPhi;
   double gct_deltaR;
+  double gct_et2x5, gct_et5x5;
+  double gct_iso;   
+  int gct_is_ss, gct_is_looseTkss;
+  int gct_is_iso, gct_is_looseTkiso;
 
   TH1F* l1eg_pt; 
   TH1F* l1egVLoose_pt;    
   TH1F* l1egLoose_pt;  
   TH1F* l1egMedium_pt; 
-  TH1F* l1egTight_pt;  
+  TH1F* l1egTight_pt; 
+
+  TH1F* l1eg_pt_is_iso;
+  TH1F* l1eg_pt_is_ss;
+  TH1F* l1eg_pt_is_iso_is_ss; 
   
   void initializeHCALTPGMap(const edm::Handle<HcalTrigPrimDigiCollection> hcal, const  edm::ESHandle<L1CaloHcalScale> hcalScale, double hTowerETMap[73][57], bool testMode = false);
   void initializeECALTPGMap(edm::Handle<EcalTrigPrimDigiCollection> ecal, double eTowerETMap[73][57], bool testMode = false);
@@ -420,6 +435,11 @@ int get5x5TPGs(const int maxTPGPt_eta,
   static bool comparePt(const TLorentzVector& lhs,
 			const TLorentzVector& rhs) {
     return ( lhs.Pt() > rhs.Pt() );
+  }
+
+  static bool compareClusterPt(const Cluster& lhs,
+				const Cluster& rhs) {
+    return (lhs.p4.Pt() > rhs.p4.Pt());
   }
 
 };
