@@ -1,7 +1,8 @@
+#include "cutoffValues.h"
 #include "fillTH2D.h"
 
 /*
- *
+ * Set title and axis labels of a TH2D. 
  */
 void setPlotStyle(TH2D*& myHist, TString title, TString xLabel, TString yLabel) {
     myHist->GetXaxis()->SetTitle(xLabel);
@@ -14,38 +15,84 @@ void setPlotStyle(TH2D*& myHist, TString title, TString xLabel, TString yLabel) 
 }
 
 /*
- * Make canvas larger so side label won't run off the side
+ * Set title and axis labels of a TGraph.
  */
+void setPlotStyleTGraph(TGraph*& myGraph, TString title, TString xLabel, TString yLabel) {
+    if (myGraph != NULL) {
+        myGraph->GetXaxis()->SetTitle(xLabel);
+        myGraph->GetYaxis()->SetTitle(yLabel);
+        myGraph->SetTitle(title);
 
-void setCanvasMargins(TCanvas*& myCan) {
-
-    myCan->SetRightMargin(0.15);
-    myCan->SetLeftMargin(0.15);
+        myGraph->GetXaxis()->SetTitleSize(0.04); // default is 0.03                                                                    
+        myGraph->GetYaxis()->SetTitleSize(0.04); // default is 0.03 
+    }
 }
 
 /*
- * Draw and save the provided h2 to the output name.
+ * Set plot style of a parametric line represented as a TGraph.
  */
 
-void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TString outputName) {
+void setParametricLinePlotStyle(TGraph*& myGraph) {
+    if (myGraph != NULL) {
+        myGraph->SetLineColor(kRed);
+        myGraph->SetLineWidth(6);
+    }
+}
 
-    TCanvas *c1 = new TCanvas("c1", "c1",1900,1900);
-    setCanvasMargins(c1);
+
+/*
+ * Make canvas larger so side label won't run off the side.
+ */
+
+void setPadMargins(TPad*& myPad) {
+
+    myPad->SetRightMargin(0.15);
+    myPad->SetLeftMargin(0.15);
+}
+
+/*
+ * Draw and save the provided h2 to the output name. If h2Cutoff (TH2D) is provided, also draw it.
+ */
+
+void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TString outputName, TGraph* tGraph = NULL) {
+
+    TCanvas *c1 = new TCanvas("c1", "c1", 1900, 1900);
+    TPad *pad1 = new TPad("pad1", "The pad", 0, 0, 1, 1);
+    setPadMargins(pad1);
     
     gStyle->SetOptStat(0);
 
-    c1->cd();
-    h2->Draw("COLZ 1");
-    setPlotStyle(h2, title, xLabel, yLabel);
+    pad1->Draw();
+    pad1->cd();
+    
+    h2->Draw("COLZ 1 SAME");
 
+    if (tGraph != NULL) {
+        std::cout << ">>> Cutoff TH2D found!" << std::endl;
+        setParametricLinePlotStyle(tGraph);
+        tGraph->Draw("L"); 
+    }
+    else {
+        std::cout << ">>> Cutoff TH2D not found" << std::endl;
+    }
+
+
+    setPlotStyle(h2, title, xLabel, yLabel);
+    setPlotStyleTGraph(tGraph, title, xLabel, yLabel);
     c1->SaveAs(outputName);
 
+    delete pad1;
     delete c1;
 }
 
+/*
+ * Main function: Create TH2D of the isolation and et2x5/et5x5 vs. the cluster pT for a given TTree.
+ * Also finds and overlays the cut-off points (one per x-axis bin) where 95% of the events fall above (or below) the cut-off point.
+ * Saves the plots as pdfs.
+ */
+
 int drawParametricTH2D(void) {
 
-    // Temp: just for developing script
     TString rootFileDirectory = "/Users/stephaniekwan/Dropbox/Princeton_G5/Phase2EGamma/analyzer/compare_Oct_25_2022_Iso_7x7_fullECALHCALtowers/analyzer.root";
     TString treePath = "l1NtupleProducer/efficiencyTree";
 
@@ -53,9 +100,13 @@ int drawParametricTH2D(void) {
     TH2D *h2_iso = fillTH2DIsolationVsPt(rootFileDirectory, treePath);
     TH2D *h2_ss = fillTH2DShapeVarVsPt(rootFileDirectory, treePath);
 
+    TGraph *tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
+    bool countUpwards = false; // just for ss
+    TGraph *tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
+
     TString processName = "Single Electron, full tower iso (incorrect scheme)";
-    drawAndSaveTH2D(h2_iso, processName, "Cluster p_{T} [GeV]", "Isolation [GeV]", "parametric_isolation_vs_clusterPt.pdf");
-    drawAndSaveTH2D(h2_ss,  processName, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     "parametric_et2x5_over_et5x5_vs_clusterPt.pdf");
+    drawAndSaveTH2D(h2_iso, processName, "Cluster p_{T} [GeV]", "Isolation [GeV]", "parametric_isolation_vs_clusterPt.pdf", tGraph_iso);
+    drawAndSaveTH2D(h2_ss,  processName, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     "parametric_et2x5_over_et5x5_vs_clusterPt.pdf", tGraph_ss);
 
 
     return 1;

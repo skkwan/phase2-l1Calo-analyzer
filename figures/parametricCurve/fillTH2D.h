@@ -30,7 +30,7 @@ TH2D* fillTH2DIsolationVsPt(TString rootFileDirectory, TString treePath) {
     TTreeReaderValue<Double_t> reader_cPt(myReader, "gct_cPt");
 
     // Create and fill a 2D histogram
-    TH2D *h2 = new TH2D("h2", "h2", 20, 0.0, 100.0, 50, 0.0, 5.0);
+    TH2D *h2 = new TH2D("h2", "h2", 20, 0.0, 100.0, 100, 0.0, 50.0);
 
     // Loop over all entries of the TTree
     while (myReader.Next()) {
