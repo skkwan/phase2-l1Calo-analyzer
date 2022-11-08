@@ -93,7 +93,7 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
 
 int drawParametricTH2D(void) {
 
-    TString rootFileDirectory = "/Users/stephaniekwan/Dropbox/Princeton_G5/Phase2EGamma/analyzer/compare_Oct_25_2022_Iso_7x7_fullECALHCALtowers/analyzer.root";
+    TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
     TString treePath = "l1NtupleProducer/efficiencyTree";
 
 
@@ -104,9 +104,9 @@ int drawParametricTH2D(void) {
     bool countUpwards = false; // just for ss
     TGraph *tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
 
-    TString processName = "Single Electron, full tower iso (incorrect scheme)";
-    drawAndSaveTH2D(h2_iso, processName, "Cluster p_{T} [GeV]", "Isolation [GeV]", "parametric_isolation_vs_clusterPt.pdf", tGraph_iso);
-    drawAndSaveTH2D(h2_ss,  processName, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     "parametric_et2x5_over_et5x5_vs_clusterPt.pdf", tGraph_ss);
+    TString processName = "Double Electron, ECAL tower iso";
+    drawAndSaveTH2D(h2_iso, processName, "Cluster p_{T} [GeV]", "Isolation [GeV]", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/parametric_isolation_vs_clusterPt.pdf", tGraph_iso);
+    drawAndSaveTH2D(h2_ss,  processName, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/parametric_et2x5_over_et5x5_vs_clusterPt.pdf", tGraph_ss);
 
 
     return 1;
