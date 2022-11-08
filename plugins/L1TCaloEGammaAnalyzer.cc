@@ -70,6 +70,7 @@ L1TCaloEGammaAnalyzer::L1TCaloEGammaAnalyzer( const ParameterSet & cfg ) :
   genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
 
     folderName_          = cfg.getUntrackedParameter<std::string>("folderName");
+    requireGenMatching_ = cfg.getUntrackedParameter<bool>("requireGenMatching");
     efficiencyTree = tfs_->make<TTree>("efficiencyTree", "Efficiency Tree");
     
     ////putting bufsize at 32000 and changing split level to 0 so that the branch isn't split into multiple branches
@@ -156,7 +157,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
   HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
   es.get<CaloTPGRecord>().get(decoder_);
 
-  std::cout << "Doing event " << event << "...." << std::endl;
+  std::cout << "Doing event " << event << "....: require gen matching? " <<  requireGenMatching_ << std::endl;
 
   // Get the RCT clusters from the emulator and sort them by pT
   if(evt.getByToken(rctClustersSrc_, rctCaloCrystalClusters)){
@@ -430,155 +431,189 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
   //************************************************************************************/ 
   // Loop through the gen-level clusters and match to the RCT clusters, then the GCT clusters.
   //************************************************************************************/ 
-  for (auto genElectron : propagatedGenElectrons) {
+  if (requireGenMatching_) {
 
-    genPt = genElectron.Pt();
-    genEta = genElectron.Eta();
-    genPhi = genElectron.Phi();
+    for (auto genElectron : propagatedGenElectrons) {
 
-    rctClustersMatched.clear();
-    gctClustersMatched.clear();
+      genPt = genElectron.Pt();
+      genEta = genElectron.Eta();
+      genPhi = genElectron.Phi();
 
-    rct_cPt    = 0;    rct_cEta   = -999;    rct_cPhi   = -999;
-    rct_deltaR = 999;
+      rctClustersMatched.clear();
+      gctClustersMatched.clear();
 
-    // Loop through the RCT clusters which are already sorted in decreasing pT, and check for
-    // the first cluster within deltaR < 0.5. 
-    std::cout << "Event " << event << ": check that RCT clusters are sorted!" << std::endl;
-    for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
-      std::cout << "sorted? RCT Cluster found: pT " << rctClusterInfo->at(i).p4.Pt()  << ", "
-                << "eta "                   << rctClusterInfo->at(i).p4.Eta() << ", "
-                << "phi "                   << rctClusterInfo->at(i).p4.Phi() << std::endl;
-    }
-    
-    for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
+      rct_cPt    = 0;    rct_cEta   = -999;    rct_cPhi   = -999;
+      rct_deltaR = 999;
 
-      float this_rct_deltaR = reco::deltaR(rctClusterInfo->at(i).p4.Eta(), rctClusterInfo->at(i).p4.Phi(),
-					   genElectron.Eta(), genElectron.Phi());
-      // std::cout << "   Comparing "<< this_rct_deltaR << " to current rct_deltaR " << rct_deltaR << std::endl;
-
-      if (this_rct_deltaR < 0.5) {
-
-	// std::cout << "rctClusterInfo pT " << rctClusterInfo->at(i).Pt() 
-	// 	  << " eta " << rctClusterInfo->at(i).Eta()
-	// 	  << " phi " << rctClusterInfo->at(i).Phi() << std::endl;
-	
-	TLorentzVector temp_p4;
-	temp_p4.SetPtEtaPhiE(rctClusterInfo->at(i).p4.Pt(), rctClusterInfo->at(i).p4.Eta(),
-			     rctClusterInfo->at(i).p4.Phi(), rctClusterInfo->at(i).p4.M());
-	Cluster temp;
-	temp.p4 = temp_p4;
-	temp.et2x5 = rctClusterInfo->at(i).et2x5;
-	temp.et5x5 = rctClusterInfo->at(i).et5x5;
-	temp.is_ss = rctClusterInfo->at(i).is_ss;
-	temp.is_looseTkss = rctClusterInfo->at(i).is_looseTkss;
-	rctClustersMatched.push_back(temp);
+      // Loop through the RCT clusters which are already sorted in decreasing pT, and check for
+      // the first cluster within deltaR < 0.5. 
+      std::cout << "Event " << event << ": check that RCT clusters are sorted!" << std::endl;
+      for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
+        std::cout << "sorted? RCT Cluster found: pT " << rctClusterInfo->at(i).p4.Pt()  << ", "
+                  << "eta "                   << rctClusterInfo->at(i).p4.Eta() << ", "
+                  << "phi "                   << rctClusterInfo->at(i).p4.Phi() << std::endl;
       }
-    }
-    
-    // For this gen electron, sort the matched clusters by pT, and only save the highest pT one
-    std::sort(rctClustersMatched.begin(), rctClustersMatched.end(), L1TCaloEGammaAnalyzer::compareClusterPt);
-    if (rctClustersMatched.size() > 0) {
-      rct_cPt  = rctClustersMatched.at(0).p4.Pt();
-      rct_cEta = rctClustersMatched.at(0).p4.Eta();
-      rct_cPhi = rctClustersMatched.at(0).p4.Phi();
-      rct_deltaR = reco::deltaR(rct_cEta, rct_cPhi,
-				genElectron.Eta(), genElectron.Phi());
-      rct_et2x5 = rctClustersMatched.at(0).et2x5;
-      rct_et5x5 = rctClustersMatched.at(0).et5x5; 
-
-      std::cout << "--> Matched RCT cluster " << rct_cPt 
-		<< " eta: " << rct_cEta
-		<< " phi: " << rct_cPhi
-		<< " with genElectron " << genPt
-		<< " eta: " << genEta
-		<< " phi: " << genPhi 
-		<< " et2x5: " << rct_et2x5 
-		<< " et5x5: " << rct_et5x5 << std::endl;
-    }
-    
-    //************************************************************************************/
-    // Loop through the GCT cluster 4-vectors, and gen-match. Only take the first 
-    // GCT cluster which has deltaR < 0.5.
-    //************************************************************************************/ 
-    std::cout << ">>> Doing GCT clusters..." << std::endl;
-    
-    gct_cPt   = 0;    gct_cEta   = -999;   gct_cPhi  = -999;
-    gct_deltaR = 999;
-    gct_iso = 0;
-    gct_et2x5 = 0; gct_et5x5 = 0;
-    gct_is_ss = 0; gct_is_looseTkss = 0;
-    gct_is_iso = 0; gct_is_looseTkiso = 0;
-
-    for (size_t i = 0; i < gctClusterInfo->size(); ++i) {
-      std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
-		<< " eta "               << gctClusterInfo->at(i).p4.Eta()
-		<< " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
-      float this_gct_deltaR = reco::deltaR(gctClusterInfo->at(i).p4.Eta(), gctClusterInfo->at(i).p4.Phi(),
-					   genElectron.Eta(), genElectron.Phi());
-      if (this_gct_deltaR < 0.5) {
-	TLorentzVector temp_p4;
-        temp_p4.SetPtEtaPhiE(gctClusterInfo->at(i).p4.Pt(), gctClusterInfo->at(i).p4.Eta(),
-			     gctClusterInfo->at(i).p4.Phi(), gctClusterInfo->at(i).p4.M());
-
-	Cluster myTemp;
-	myTemp.p4    = temp_p4;
-	myTemp.iso   = gctClusterInfo->at(i).iso;
-	myTemp.et2x5 = gctClusterInfo->at(i).et2x5;
-	myTemp.et5x5 = gctClusterInfo->at(i).et5x5;
-	myTemp.is_ss = gctClusterInfo->at(i).is_ss;
-	myTemp.is_looseTkss = gctClusterInfo->at(i).is_looseTkss;
-	myTemp.is_iso = gctClusterInfo->at(i).is_iso;
-	myTemp.is_looseTkiso = gctClusterInfo->at(i).is_looseTkiso;
-
-        gctClustersMatched.push_back(myTemp);
-
-      }
-    }
-	
-    // For this gen electron, sort the matched clusters by pT, and only save the highest pT one     
-    
-    std::sort(gctClustersMatched.begin(), gctClustersMatched.end(), L1TCaloEGammaAnalyzer::compareClusterPt);
-
-    if (gctClustersMatched.size() > 0) {
-      gct_cPt  = gctClustersMatched.at(0).p4.Pt();
-      gct_cEta = gctClustersMatched.at(0).p4.Eta();
-      gct_cPhi = gctClustersMatched.at(0).p4.Phi();
-      gct_deltaR = reco::deltaR(gct_cEta, gct_cPhi,
-    				genElectron.Eta(), genElectron.Phi());
-      gct_iso   = gctClustersMatched.at(0).iso;
-      gct_et2x5 = gctClustersMatched.at(0).et2x5;
-      gct_et5x5 = gctClustersMatched.at(0).et5x5; 
-      gct_is_ss = gctClustersMatched.at(0).is_ss;
-      gct_is_looseTkss = gctClustersMatched.at(0).is_looseTkss;
-      gct_is_iso = gctClustersMatched.at(0).is_iso;
-      gct_is_looseTkiso = gctClustersMatched.at(0).is_looseTkiso;
       
-      std::cout << "--> Matched GCT cluster " << gct_cPt
-    		<< " eta: " << gct_cEta
-    		<< " phi: " << gct_cPhi
-    		<< " with genElectron " << genPt
-    		<< " eta: " << genEta
-    		<< " phi: " << genPhi  << ". "
-		<< " iso: "   << gct_iso
-    		<< " et2x5: " << gct_et2x5 
-		<< " et5x5: " << gct_et5x5 
-		<< " is_ss: " << gct_is_ss 
-		<< " is_looseTkss: " << gct_is_looseTkss 
-		<< " is_iso: " << gct_is_iso 
-		<< " is_looseTkiso: " << gct_is_looseTkiso 
-		<< std::endl;
-    }
-    efficiencyTree->Fill();
+      for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
 
-  } // end of loop over gen electrons
+        float this_rct_deltaR = reco::deltaR(rctClusterInfo->at(i).p4.Eta(), rctClusterInfo->at(i).p4.Phi(),
+              genElectron.Eta(), genElectron.Phi());
+        // std::cout << "   Comparing "<< this_rct_deltaR << " to current rct_deltaR " << rct_deltaR << std::endl;
+
+        if (this_rct_deltaR < 0.5) {
+
+          // std::cout << "rctClusterInfo pT " << rctClusterInfo->at(i).Pt() 
+          // 	  << " eta " << rctClusterInfo->at(i).Eta()
+          // 	  << " phi " << rctClusterInfo->at(i).Phi() << std::endl;
+          
+          TLorentzVector temp_p4;
+          temp_p4.SetPtEtaPhiE(rctClusterInfo->at(i).p4.Pt(), rctClusterInfo->at(i).p4.Eta(),
+                  rctClusterInfo->at(i).p4.Phi(), rctClusterInfo->at(i).p4.M());
+          Cluster temp;
+          temp.p4 = temp_p4;
+          temp.et2x5 = rctClusterInfo->at(i).et2x5;
+          temp.et5x5 = rctClusterInfo->at(i).et5x5;
+          temp.is_ss = rctClusterInfo->at(i).is_ss;
+          temp.is_looseTkss = rctClusterInfo->at(i).is_looseTkss;
+          rctClustersMatched.push_back(temp);
+        }
+      }
+      
+      // For this gen electron, sort the matched clusters by pT, and only save the highest pT one
+      std::sort(rctClustersMatched.begin(), rctClustersMatched.end(), L1TCaloEGammaAnalyzer::compareClusterPt);
+      if (rctClustersMatched.size() > 0) {
+        rct_cPt  = rctClustersMatched.at(0).p4.Pt();
+        rct_cEta = rctClustersMatched.at(0).p4.Eta();
+        rct_cPhi = rctClustersMatched.at(0).p4.Phi();
+        rct_deltaR = reco::deltaR(rct_cEta, rct_cPhi,
+          genElectron.Eta(), genElectron.Phi());
+        rct_et2x5 = rctClustersMatched.at(0).et2x5;
+        rct_et5x5 = rctClustersMatched.at(0).et5x5; 
+
+        std::cout << "--> Matched RCT cluster " << rct_cPt 
+                  << " eta: " << rct_cEta
+                  << " phi: " << rct_cPhi
+                  << " with genElectron " << genPt
+                  << " eta: " << genEta
+                  << " phi: " << genPhi 
+                  << " et2x5: " << rct_et2x5 
+                  << " et5x5: " << rct_et5x5 << std::endl;
+      }
+      
+      //************************************************************************************/
+      // Loop through the GCT cluster 4-vectors, and gen-match. Only take the first 
+      // GCT cluster which has deltaR < 0.5.
+      //************************************************************************************/ 
+      std::cout << ">>> Doing GCT clusters..." << std::endl;
+      
+      gct_cPt   = 0;    gct_cEta   = -999;   gct_cPhi  = -999;
+      gct_deltaR = 999;
+      gct_iso = 0;
+      gct_et2x5 = 0; gct_et5x5 = 0;
+      gct_is_ss = 0; gct_is_looseTkss = 0;
+      gct_is_iso = 0; gct_is_looseTkiso = 0;
+
+      for (size_t i = 0; i < gctClusterInfo->size(); ++i) {
+        std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
+                  << " eta "               << gctClusterInfo->at(i).p4.Eta()
+                  << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
+        float this_gct_deltaR = reco::deltaR(gctClusterInfo->at(i).p4.Eta(), gctClusterInfo->at(i).p4.Phi(),
+                                             genElectron.Eta(), genElectron.Phi());
+        if (this_gct_deltaR < 0.5) {
+          TLorentzVector temp_p4;
+          temp_p4.SetPtEtaPhiE(gctClusterInfo->at(i).p4.Pt(), gctClusterInfo->at(i).p4.Eta(),
+                               gctClusterInfo->at(i).p4.Phi(), gctClusterInfo->at(i).p4.M());
+
+          Cluster myTemp;
+          myTemp.p4    = temp_p4;
+          myTemp.iso   = gctClusterInfo->at(i).iso;
+          myTemp.et2x5 = gctClusterInfo->at(i).et2x5;
+          myTemp.et5x5 = gctClusterInfo->at(i).et5x5;
+          myTemp.is_ss = gctClusterInfo->at(i).is_ss;
+          myTemp.is_looseTkss = gctClusterInfo->at(i).is_looseTkss;
+          myTemp.is_iso = gctClusterInfo->at(i).is_iso;
+          myTemp.is_looseTkiso = gctClusterInfo->at(i).is_looseTkiso;
+
+          gctClustersMatched.push_back(myTemp);
+
+        }
+    
+    
+      // For this gen electron, sort the matched clusters by pT, and only save the highest pT one     
+      std::sort(gctClustersMatched.begin(), gctClustersMatched.end(), L1TCaloEGammaAnalyzer::compareClusterPt);
+
+      if (gctClustersMatched.size() > 0) {
+        gct_cPt  = gctClustersMatched.at(0).p4.Pt();
+        gct_cEta = gctClustersMatched.at(0).p4.Eta();
+        gct_cPhi = gctClustersMatched.at(0).p4.Phi();
+        gct_deltaR = reco::deltaR(gct_cEta, gct_cPhi, genElectron.Eta(), genElectron.Phi());
+        gct_iso   = gctClustersMatched.at(0).iso;
+        gct_et2x5 = gctClustersMatched.at(0).et2x5;
+        gct_et5x5 = gctClustersMatched.at(0).et5x5; 
+        gct_is_ss = gctClustersMatched.at(0).is_ss;
+        gct_is_looseTkss = gctClustersMatched.at(0).is_looseTkss;
+        gct_is_iso = gctClustersMatched.at(0).is_iso;
+        gct_is_looseTkiso = gctClustersMatched.at(0).is_looseTkiso;
+        
+        std::cout << "--> Matched GCT cluster " << gct_cPt
+                  << " eta: " << gct_cEta
+                  << " phi: " << gct_cPhi
+                  << " with genElectron " << genPt
+                  << " eta: " << genEta
+                  << " phi: " << genPhi  << ". "
+                  << " iso: "   << gct_iso
+                  << " et2x5: " << gct_et2x5 
+                  << " et5x5: " << gct_et5x5 
+                  << " is_ss: " << gct_is_ss 
+                  << " is_looseTkss: " << gct_is_looseTkss 
+                  << " is_iso: " << gct_is_iso 
+                  << " is_looseTkiso: " << gct_is_looseTkiso 
+                  << std::endl;
+        }
+        efficiencyTree->Fill();
+
+      } // end of loop over gen electrons
   
+    }
+  } // end of requireGenMatching = true block
+  else {
+
+    // Do not require gen matching: not an event-level consideration, save all the clusters we can get
+    std::cout << ">>> [!!!] Saving all GCT Clusters without gen-matching..." << std::endl;
+      
+      gct_cPt   = 0;    gct_cEta   = -999;   gct_cPhi  = -999;
+      gct_deltaR = 999;
+      gct_iso = 0;
+      gct_et2x5 = 0; gct_et5x5 = 0;
+      gct_is_ss = 0; gct_is_looseTkss = 0;
+      gct_is_iso = 0; gct_is_looseTkiso = 0;
+
+      for (size_t i = 0; i < gctClusterInfo->size(); ++i) {
+        std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
+                  << " eta "               << gctClusterInfo->at(i).p4.Eta()
+                  << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
+
+        gct_cPt  = gctClusterInfo->at(i).p4.Pt();
+        gct_cEta = gctClusterInfo->at(i).p4.Eta();
+        gct_cPhi = gctClusterInfo->at(i).p4.Phi();
+        gct_iso   = gctClusterInfo->at(i).iso;
+        gct_et2x5 = gctClusterInfo->at(i).et2x5;
+        gct_et5x5 = gctClusterInfo->at(i).et5x5; 
+        gct_is_ss = gctClusterInfo->at(i).is_ss;
+        gct_is_looseTkss = gctClusterInfo->at(i).is_looseTkss;
+        gct_is_iso = gctClusterInfo->at(i).is_iso;
+        gct_is_looseTkiso = gctClusterInfo->at(i).is_looseTkiso;
+
+        efficiencyTree->Fill();
+      }
+      
+  }
  }
 
 
 
-
-void L1TCaloEGammaAnalyzer::endJob() {
+void L1TCaloEGammaAnalyzer::endJob() { 
+    
 }
 
 L1TCaloEGammaAnalyzer::~L1TCaloEGammaAnalyzer(){

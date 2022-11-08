@@ -148,6 +148,8 @@ class L1TCaloEGammaAnalyzer : public edm::EDAnalyzer {
   TH1F* recoTau_phi;
   TTree* efficiencyTree;
 
+  bool requireGenMatching_;
+
   int run, lumi, event;
   double genPt, genEta, genPhi;
   double rct_cPt, rct_cEta, rct_cPhi;

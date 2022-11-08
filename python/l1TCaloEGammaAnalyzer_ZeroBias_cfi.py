@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 l1NtupleProducer = cms.EDAnalyzer("L1TCaloEGammaAnalyzer",
                                   folderName              = cms.untracked.string("firstFolder"),
-                                  requireGenMatching      = cms.untracked.bool(True),
+                                  requireGenMatching      = cms.untracked.bool(False),
                                   genParticles     = cms.InputTag("genParticles", "", "HLT"),
                                   #packedPfCands           = cms.InputTag("packedPFCandidates"),
                                   #pfCands                 = cms.InputTag("particleFlow"),
