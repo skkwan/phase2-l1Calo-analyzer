@@ -8,8 +8,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 
-process.options.numberOfThreads=cms.untracked.uint32(8)
-process.options.numberOfStreams=cms.untracked.uint32(0)
+# process.options.numberOfThreads=cms.untracked.uint32(4)
+# process.options.numberOfStreams=cms.untracked.uint32(0)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -18,9 +18,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 #  /DoubleElectron_FlatPt-1To100/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v2/GEN-SIM-DIGI-RAW
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-                                    'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v3/10000/004299CF-ED4D-9140-BECA-772B15D9FDF4.root',
-                                                      ),
+                            fileNames = cms.untracked.vstring( 
+                                'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/00F57906-175B-1F45-8E1E-4695880ADE12.root',
+),
                             inputCommands = cms.untracked.vstring(
                                 "keep *"
                             )
@@ -73,18 +73,9 @@ process.Out = cms.OutputModule( "PoolOutputModule",
 
 process.end = cms.EndPath( process.Out )
 
-process.schedule = cms.Schedule(process.pL1EG, process.end)
+process.schedule = cms.Schedule(process.pL1EG)
 
 # dump_file = open("dump_file.py", "w")
 # dump_file.write(process.dumpPython())
 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-
-# Input source
-process.source.fileNames = cms.untracked.vstring($inputFileNames)
-
-
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("$outputFileName")
-)

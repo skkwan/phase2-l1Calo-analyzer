@@ -1,0 +1,15 @@
+# Dataset configuration
+
+requestname: "Analyzer"
+
+signal:
+  year: 2022
+  # Path within CMSSW_BASE
+  script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_signal.py
+  bash: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_bash_signal.sh
+  prodtag: Phase2HLTTDRWinter20DIGI
+  inputDBS: global
+  datasets:
+    DoubleElectron_FlatPt-1To100: /DoubleElectron_FlatPt-1To100/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v2/GEN-SIM-DIGI-RAW
+
+
