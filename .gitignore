@@ -1,3 +1,5 @@
 *~
 *.root
 *.pyc
+test/crab/crab_projects/*
+test/crab/crabJobConfigs/*

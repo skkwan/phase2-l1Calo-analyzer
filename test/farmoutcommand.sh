@@ -1,0 +1,1 @@
+ farmoutAnalysisJobs --job-count=1 --input-file-list=listDoubleElectronFiles.txt /afs/cern.ch/work/s/skkwan/private/phase2RCTDev/CMSSW_11_1_7/ /afs/cern.ch/work/s/skkwan/private/phase2RCTDev/CMSSW_11_1_7/src/L1Trigger/L1CaloPhase2Analyzer/test/test-analyzer-farmout.py 
