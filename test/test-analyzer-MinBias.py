@@ -18,8 +18,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
 
-                             'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/00F57906-175B-1F45-8E1E-4695880ADE12.root',
-
+                                    'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v3/10000/004299CF-ED4D-9140-BECA-772B15D9FDF4.root',
+                                    # 'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v3/10000/00494C5E-BC6A-1E43-A41E-DEDC290A46CB.root',
+                                    # 'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v3/10000/0067A78C-C66F-ED4E-A543-1CC1C5ACA2D4.root',
+       
                                                       ),
                             inputCommands = cms.untracked.vstring(
                                 "keep *"
@@ -50,17 +52,17 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 # ----    Produce the L1EGCrystal clusters using Emulator
 
 process.load('L1Trigger.L1CaloTrigger.Phase2L1CaloEGammaEmulator_cfi')
-process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloEGammaAnalyzer_cfi')
+process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloEGammaAnalyzer_ZeroBias_cfi')  # use ZeroBias config file that does not require gen-matching
 
 process.pL1EG = cms.Path( process.Phase2L1CaloEGammaEmulatorProducer*process.l1NtupleProducer )
 
 # output file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzer.root')
+    fileName = cms.string('analyzer_MinBias_noGenMatching.root')
 )
 
 # process.Out = cms.OutputModule( "PoolOutputModule",
-#     fileName = cms.untracked.string( "phase2L1EGammaAnalyzer.root" ),
+#     fileName = cms.untracked.string( "phase2L1EGammaAnalyzer_MinBias_noGenMatching.root" ),
 #     outputCommands = cms.untracked.vstring(
 #         "drop *"
 # #        "keep *_Phase2L1CaloEGammaEmulatorProducer_*_*",
@@ -73,7 +75,7 @@ process.TFileService = cms.Service("TFileService",
 
 # process.end = cms.EndPath( process.Out )
 
-process.schedule = cms.Schedule(process.pL1EG) #, process.end)
+process.schedule = cms.Schedule(process.pL1EG)
 
 dump_file = open("dump_file.py", "w")
 dump_file.write(process.dumpPython())
