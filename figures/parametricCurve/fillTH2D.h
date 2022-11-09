@@ -9,18 +9,10 @@
 #define FILL_TH2D_H_INCL
 
 /*
- * Return a TH2D with the isolation vs. cluster pT. Optional arguments to use the input list of files scheme instead. If you use the second scheme then the first argument does not matter.
+ * Return a TH2D with the isolation vs. cluster pT using the provided TChain.
  */
 
-TH2D* fillTH2DIsolationVsPt(TString rootFileDirectory, TString treePath, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1) {
-
-  TChain *ch;
-  if (inputListOfFiles == "") {
-    ch = getTChainFromSingleFile(rootFileDirectory, treePath);
-  }
-  else {
-    ch = getTChainFromListOfFiles(inputListOfFiles, treePath);
-  }
+TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 11.0) {
 
   // Declare the branches we want to read
   TTreeReader myReader(ch);
@@ -28,7 +20,7 @@ TH2D* fillTH2DIsolationVsPt(TString rootFileDirectory, TString treePath, TString
   TTreeReaderValue<Double_t> reader_cPt(myReader, "gct_cPt");
 
   // Create and fill a 2D histogram
-  TH2D *h2 = new TH2D("h2", "h2", 20, 0.0, 100.0, 100, 0.0, 11.0);
+  TH2D *h2 = new TH2D("h2", "h2", 20, 0.0, 100.0, 100, 0.0, ymax);
 
   // Loop over all entries of the TChain
   while (myReader.Next()) {
@@ -46,15 +38,8 @@ TH2D* fillTH2DIsolationVsPt(TString rootFileDirectory, TString treePath, TString
  * Same but for et2x5/et5x5 vs. pT.
  */
 
-TH2D* fillTH2DShapeVarVsPt(TString rootFileDirectory, TString treePath, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1) {
+TH2D* fillTH2DShapeVarVsPt(TChain *ch) {
 
-  TChain *ch;
-  if (inputListOfFiles == "") {
-    ch = getTChainFromSingleFile(rootFileDirectory, treePath);
-  }
-  else {
-    ch = getTChainFromListOfFiles(inputListOfFiles, treePath);
-  }
 
   // Declare the branches we want to read
   TTreeReader myReader(ch);

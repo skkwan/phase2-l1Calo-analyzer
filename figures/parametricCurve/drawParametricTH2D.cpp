@@ -88,10 +88,19 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
 /*
  * Produce parametric plots for an input file and processName (description to put in the output file). 
  */
-int produceParametric(TString rootFileDirectory, TString processName, TString label, TString plotFolder, TString inputTextFile = "", int startLine = -1, int nLinesToRead = -1) {
+int produceParametric(TString rootFileDirectory, TString treePath, TString processName, TString label, TString plotFolder, double iso_y_max, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1) {
 
-    TH2D *h2_iso = fillTH2DIsolationVsPt(rootFileDirectory, "l1NtupleProducer/efficiencyTree", inputTextFile, startLine, nLinesToRead);
-    TH2D *h2_ss = fillTH2DShapeVarVsPt(rootFileDirectory, "l1NtupleProducer/efficiencyTree", inputTextFile, startLine, nLinesToRead);
+
+    TChain *ch;
+    if (inputListOfFiles == "") {
+        ch = getTChainFromSingleFile(rootFileDirectory, treePath);
+    }
+    else {
+        ch = getTChainFromListOfFiles(inputListOfFiles, treePath, startLine, nLinesToRead);
+    }
+
+    TH2D *h2_iso = fillTH2DIsolationVsPt(ch, iso_y_max);
+    TH2D *h2_ss = fillTH2DShapeVarVsPt(ch);
     
     TGraph *tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
     bool countUpwards = false; // just for ss
@@ -114,8 +123,10 @@ int produceParametric(TString rootFileDirectory, TString processName, TString la
 
 int drawParametricTH2D(void) {
 
-    // produceParametric("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
-    produceParametric("",                                                                                 "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt");
+    double iso_y_max_signal = 11.0;
+    double iso_y_max_background = 20.0;
+    // produceParametric("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", iso_y_max_signal);
+    produceParametric("", "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", iso_y_max_background, "../data/listMinBiasAnalyzerFiles.txt");
 
     return 1;
 }
