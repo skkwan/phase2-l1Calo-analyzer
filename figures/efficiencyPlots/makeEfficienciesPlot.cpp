@@ -17,8 +17,8 @@ void makeEfficienciesPlot(void)
   gROOT->ProcessLine(".L calculateEfficiency.cpp");
 
   TString treePath = "l1NtupleProducer/efficiencyTree";
-  TString rootFileDirectory = "/Users/stephaniekwan/Dropbox/Princeton_G5/Phase2EGamma/analyzer/compare_Oct_25_2022/analyzer.root";
-  TString outputDirectory = "/Users/stephaniekwan/Dropbox/Princeton_G5/Phase2EGamma/analyzer/compare_Oct_25_2022/";
+  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
+  TString outputDirectory = "/eos/user/s/skkwan/phase2RCTDevel/figures/efficiencies/";
  
 
   float xMin, xMax;
@@ -33,9 +33,9 @@ void makeEfficienciesPlot(void)
   // of the vs. pT plots at the same time (the vs. eta plots are OK to do two at a time)
   // So you need to only make one vs. pT plot at a time, by commenting out the other
 
-  /*******************************************************/
-  /* efficiency as a function of genPt: GCT              */
-  /*******************************************************/
+  // /*******************************************************/
+  // /* efficiency as a function of genPt: GCT              */
+  // /*******************************************************/
 
   // vGraphs.clear();  vLabels.clear();  vColors.clear();
   // xMin = 0;
@@ -78,6 +78,7 @@ void makeEfficienciesPlot(void)
   //                 "efficiency_genPt_barrel_GCT",        
   //                 outputDirectory, "", 0.8, 1.02);    
   
+  // delete loose, medium, tight, all;
   /*******************************************************/
   /* efficiency as a function of genPt: GCT, iso and ss   */
   /*******************************************************/
@@ -122,7 +123,7 @@ void makeEfficienciesPlot(void)
                   "Phase 2 GCT, with iso and ss flags",                                                                
                   "efficiency_genPt_barrel_GCT_with_ss_iso",        
                   outputDirectory,
-                  ", ss + iso", 0.8, 1.02, "topright");
+                  ", ss + iso", 0.8, 1.02, "bottomright");
   delete loose2, medium2, tight2, all2;
 
   /*******************************************************/
@@ -172,6 +173,7 @@ void makeEfficienciesPlot(void)
                     "efficiency_genEta_barrel",        
                     outputDirectory);    
   
+  delete loose3, medium3, tight3, all3;
 
   /************************************************************/
   /* efficiency as a function of genEta: GCT with iso and ss  */
@@ -222,5 +224,6 @@ void makeEfficienciesPlot(void)
                     ", iso and ss");    
   
   
+  delete loose4, medium4, tight4, all4;
 }
 /*********************************************************************/
