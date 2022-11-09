@@ -16,7 +16,7 @@ config.General.transferLogs = True
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName   = 'CRAB_PYTHON_SCRIPT_PATH'
-config.JobType.outputFiles = ['analyzer.root']
+config.JobType.outputFiles = ['OUTPUT_FILE_NAME']
 
 config.section_("Data")
 config.Data.inputDataset = 'DAS_NAME'
