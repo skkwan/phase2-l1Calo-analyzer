@@ -19,13 +19,13 @@ TChain* getTChainFromSingleFile(TString rootFileDirectory, TString treeName) {
 /*
  * Returns TChain containing the specified tree using an input text file with file names separated by new lines. If startLine and nLinesToRead are specified, read the specified block from the file.
  */
-TChain* getTChainFromListOfFiles(std::string inputListOfFiles, std::string treeName, int startLine = -1, int nLinesToRead = -1) {
+TChain* getTChainFromListOfFiles(TString inputListOfFiles, TString treeName, int startLine = -1, int nLinesToRead = -1) {
 
-    TChain *ch = new TChain(treeName.c_str());
+    TChain *ch = new TChain(treeName);
 
     ifstream file;
     std::cout << "Attempting to open input list of files: " << inputListOfFiles << std::endl;
-    file.open(inputListOfFiles, ifstream::in);
+    file.open(inputListOfFiles.Data(), ifstream::in);
     std::string line;
     std::cout << "Input " << inputListOfFiles << " opened successfully" << std::endl;
 

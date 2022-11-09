@@ -86,6 +86,27 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
 }
 
 /*
+ * Produce parametric plots for an input file and processName (description to put in the output file). 
+ */
+int produceParametric(TString rootFileDirectory, TString processName, TString label, TString plotFolder, TString inputTextFile = "", int startLine = -1, int nLinesToRead = -1) {
+
+    TH2D *h2_iso = fillTH2DIsolationVsPt(rootFileDirectory, "l1NtupleProducer/efficiencyTree", inputTextFile, startLine, nLinesToRead);
+    TH2D *h2_ss = fillTH2DShapeVarVsPt(rootFileDirectory, "l1NtupleProducer/efficiencyTree", inputTextFile, startLine, nLinesToRead);
+    
+    TGraph *tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
+    bool countUpwards = false; // just for ss
+    TGraph *tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
+
+    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Isolation [GeV]", plotFolder + processName + "_parametric_isolation_vs_clusterPt.pdf",       tGraph_iso);
+    drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", tGraph_ss);
+
+    delete h2_iso, h2_ss;
+    delete tGraph_iso, tGraph_ss;
+
+    return 1;
+}
+
+/*
  * Main function: Create TH2D of the isolation and et2x5/et5x5 vs. the cluster pT for a given TTree.
  * Also finds and overlays the cut-off points (one per x-axis bin) where 95% of the events fall above (or below) the cut-off point.
  * Saves the plots as pdfs.
@@ -93,21 +114,8 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
 
 int drawParametricTH2D(void) {
 
-    TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
-    TString treePath = "l1NtupleProducer/efficiencyTree";
-
-
-    TH2D *h2_iso = fillTH2DIsolationVsPt(rootFileDirectory, treePath);
-    TH2D *h2_ss = fillTH2DShapeVarVsPt(rootFileDirectory, treePath);
-
-    TGraph *tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
-    bool countUpwards = false; // just for ss
-    TGraph *tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
-
-    TString processName = "Double Electron, ECAL tower iso";
-    drawAndSaveTH2D(h2_iso, processName, "Cluster p_{T} [GeV]", "Isolation [GeV]", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/DoubleElectron_parametric_isolation_vs_clusterPt.pdf", tGraph_iso);
-    drawAndSaveTH2D(h2_ss,  processName, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/DoubleElectron_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", tGraph_ss);
-
+    // produceParametric("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
+    produceParametric("",                                                                                 "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt");
 
     return 1;
 }
