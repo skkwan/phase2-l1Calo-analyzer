@@ -21,7 +21,7 @@ double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
     }
 
     // 95% of cutoff
-    double nEventsBelowCutoff = nEvents * 0.95;
+    double nEventsBelowCutoff = nEvents * 0.99;
 
     std::cout << "nEvents and nEvents below cut-off: " << nEvents << ", " << nEventsBelowCutoff << std::endl;
 
