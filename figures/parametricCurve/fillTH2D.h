@@ -29,6 +29,7 @@ TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 20.0) {
     h2->Fill(*reader_cPt, *reader_iso);
   }
 
+
   return h2;
 
 }
@@ -49,6 +50,7 @@ TH2D* fillTH2DShapeVarVsPt(TChain *ch) {
 
   // Create and fill a 2D histogram
   TH2D *h2 = new TH2D("Shape var", "Shape var", 20, 0.0, 100.0, 200, 0.4, 1.05);
+
 
   // Loop over all entries of the TChain
   while (myReader.Next()) {

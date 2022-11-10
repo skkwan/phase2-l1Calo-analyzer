@@ -127,6 +127,7 @@ int produceParametric(TString rootFileDirectory, TString treePath, TString proce
         tGraph_ss =  getCutoffOfTH2DAsTGraph(fillTH2DShapeVarVsPt(getTChainFromSingleFile("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree")));
     }
 
+
     drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Isolation [GeV]", plotFolder + processName + "_parametric_isolation_vs_clusterPt.pdf",        plot_iso_ymin, plot_iso_ymax, tGraph_iso);
     drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", plot_ss_ymin, plot_ss_ymax, tGraph_ss);
 
@@ -143,6 +144,7 @@ int produceParametric(TString rootFileDirectory, TString treePath, TString proce
  */
 
 int drawParametricTH2D(void) {
+
 
     // Set this to be large so we do not miss any values
     double iso_y_max_signal = 20.0;

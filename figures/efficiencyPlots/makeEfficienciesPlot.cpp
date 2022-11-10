@@ -37,94 +37,95 @@ void makeEfficienciesPlot(void)
   // /* efficiency as a function of genPt: GCT              */
   // /*******************************************************/
 
-  // vGraphs.clear();  vLabels.clear();  vColors.clear();
-  // xMin = 0;
-  // xMax = 100;
-  // genCut  = "(abs(genEta) < 1.4841)";
-  // l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 25)";
-  // useVariableBinning = false;
-
-  // TGraphAsymmErrors *loose = calculateEfficiency("genPt", treePath, rootFileDirectory,
-  //               l1Cut + "&& gct_cPt > 30",
-  //               genCut, xMin, xMax, useVariableBinning);
-  // vGraphs.push_back(loose);
-  // vLabels.push_back("L1 p_{T} > 30");
-  // vColors.push_back(kGreen + 2);
-
-  // TGraphAsymmErrors *medium = calculateEfficiency("genPt", treePath, rootFileDirectory,
-  //                l1Cut + "&& gct_cPt > 35",
-  //                genCut, xMin, xMax, useVariableBinning);
-  // vGraphs.push_back(medium);
-  // vLabels.push_back("L1 p_{T} > 35");
-  // vColors.push_back(kBlue);
-  
-  // TGraphAsymmErrors *tight = calculateEfficiency("genPt", treePath, rootFileDirectory,
-  //               l1Cut + "&& gct_cPt > 40",
-  //               genCut, xMin, xMax, useVariableBinning);
-  // vGraphs.push_back(tight);
-  // vLabels.push_back("L1 p_{T} > 40");
-  // vColors.push_back(kBlack);
-
-  // TGraphAsymmErrors *all = calculateEfficiency("genPt", treePath, rootFileDirectory,
-  //             l1Cut,
-  //             genCut, xMin, xMax, useVariableBinning);
-  // vGraphs.push_back(all);
-  // vLabels.push_back("No additional cut");
-  // vColors.push_back(kRed);
-
-  // plotNEfficiencies(vGraphs, vLabels, vColors,
-  //                 "Gen Electron p_{T} [GeV]",
-  //                 "Phase 2 GCT",                                                                
-  //                 "efficiency_genPt_barrel_GCT",        
-  //                 outputDirectory, "", 0.8, 1.02);    
-  
-  // delete loose, medium, tight, all;
-  /*******************************************************/
-  /* efficiency as a function of genPt: GCT, iso and ss   */
-  /*******************************************************/
 
   vGraphs.clear();  vLabels.clear();  vColors.clear();
   xMin = 0;
   xMax = 100;
   genCut  = "(abs(genEta) < 1.4841)";
-  l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 25) && gct_is_iso && gct_is_ss";
+  l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 25)";
   useVariableBinning = false;
 
-  TGraphAsymmErrors *loose2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  TGraphAsymmErrors *loose = calculateEfficiency("genPt", treePath, rootFileDirectory,
                 l1Cut + "&& gct_cPt > 30",
                 genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(loose2);
+  vGraphs.push_back(loose);
   vLabels.push_back("L1 p_{T} > 30");
   vColors.push_back(kGreen + 2);
 
-  TGraphAsymmErrors *medium2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  TGraphAsymmErrors *medium = calculateEfficiency("genPt", treePath, rootFileDirectory,
                  l1Cut + "&& gct_cPt > 35",
                  genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(medium2);
+  vGraphs.push_back(medium);
   vLabels.push_back("L1 p_{T} > 35");
   vColors.push_back(kBlue);
   
-  TGraphAsymmErrors *tight2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  TGraphAsymmErrors *tight = calculateEfficiency("genPt", treePath, rootFileDirectory,
                 l1Cut + "&& gct_cPt > 40",
                 genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(tight2);
+  vGraphs.push_back(tight);
   vLabels.push_back("L1 p_{T} > 40");
   vColors.push_back(kBlack);
 
-  TGraphAsymmErrors *all2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  TGraphAsymmErrors *all = calculateEfficiency("genPt", treePath, rootFileDirectory,
               l1Cut,
               genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(all2);
+  vGraphs.push_back(all);
   vLabels.push_back("No additional cut");
   vColors.push_back(kRed);
 
   plotNEfficiencies(vGraphs, vLabels, vColors,
                   "Gen Electron p_{T} [GeV]",
-                  "Phase 2 GCT, with iso and ss flags",                                                                
-                  "efficiency_genPt_barrel_GCT_with_ss_iso",        
-                  outputDirectory,
-                  ", ss + iso", 0.8, 1.02, "bottomright");
-  delete loose2, medium2, tight2, all2;
+                  "Phase 2 GCT",                                                                
+                  "efficiency_genPt_barrel_GCT",        
+                  outputDirectory, "", 0.8, 1.02);    
+  
+  /*******************************************************/
+  /* efficiency as a function of genPt: GCT, iso and ss   */
+  /*******************************************************/
+
+  // vGraphs.clear();  vLabels.clear();  vColors.clear();
+  // xMin = 0;
+  // xMax = 100;
+  // genCut  = "(abs(genEta) < 1.4841)";
+  // l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 25) && gct_is_iso && gct_is_ss";
+  // useVariableBinning = false;
+
+  // TGraphAsymmErrors *loose2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  //               l1Cut + "&& gct_cPt > 30",
+  //               genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(loose2);
+  // vLabels.push_back("L1 p_{T} > 30");
+  // vColors.push_back(kGreen + 2);
+
+  // TGraphAsymmErrors *medium2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  //                l1Cut + "&& gct_cPt > 35",
+  //                genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(medium2);
+  // vLabels.push_back("L1 p_{T} > 35");
+  // vColors.push_back(kBlue);
+  
+  // TGraphAsymmErrors *tight2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  //               l1Cut + "&& gct_cPt > 40",
+  //               genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(tight2);
+  // vLabels.push_back("L1 p_{T} > 40");
+  // vColors.push_back(kBlack);
+
+  // TGraphAsymmErrors *all2 = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  //             l1Cut,
+  //             genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(all2);
+  // vLabels.push_back("No additional cut");
+  // vColors.push_back(kRed);
+
+  // plotNEfficiencies(vGraphs, vLabels, vColors,
+  //                 "Gen Electron p_{T} [GeV]",
+  //                 "Phase 2 GCT, with iso and ss flags",                                                                
+  //                 "efficiency_genPt_barrel_GCT_with_ss_iso",        
+  //                 outputDirectory,
+  //                 ", ss + iso", 0.8, 1.02, "bottomright");
+  // delete loose2, medium2, tight2, all2;
+
 
   /*******************************************************/
   /* efficiency as a function of genEta: GCT             */
