@@ -32,14 +32,14 @@ double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
         for (int iBinY = 0; (iBinY < nBinsYToScan); iBinY++) {
             if (nEventsCounting >= nEventsBelowCutoff) {
                 yCutoff = h2->GetYaxis()->GetBinCenter(iBinY);
-                std::cout << ">>> Cut-off reached at iBinY " << iBinY << " and cut-off " << yCutoff << ", breaking out of loop" << std::endl;
+                // std::cout << ">>> Cut-off reached at iBinY " << iBinY << " and cut-off " << yCutoff << ", breaking out of loop" << std::endl;
 
                 break;
             }
             else {
                 nEventsCounting += h2->GetBinContent(iBinX, iBinY);
-                std::cout << ">>> Cut-off not reached, adding iBinY " << iBinY << " with content " << h2->GetBinContent(iBinX, iBinY)
-                          << " to get a running total of " << nEventsCounting << std::endl;
+                // std::cout << ">>> Cut-off not reached, adding iBinY " << iBinY << " with content " << h2->GetBinContent(iBinX, iBinY)
+                //           << " to get a running total of " << nEventsCounting << std::endl;
 
             }
         }
@@ -49,14 +49,14 @@ double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
         for (int iBinY = nBinsYToScan; iBinY >= 0; iBinY--) {
             if (nEventsCounting >= nEventsBelowCutoff) {
                 yCutoff = h2->GetYaxis()->GetBinCenter(iBinY);
-                std::cout << ">>> Cut-off reached at iBinY " << iBinY << " and cut-off " << yCutoff << ", breaking out of loop" << std::endl;
+//                std::cout << ">>> Cut-off reached at iBinY " << iBinY << " and cut-off " << yCutoff << ", breaking out of loop" << std::endl;
 
                 break;
             }
             else {
                 nEventsCounting += h2->GetBinContent(iBinX, iBinY);
-                std::cout << ">>> Cut-off not reached, adding iBinY " << iBinY << " with content " << h2->GetBinContent(iBinX, iBinY)
-                        << " to get a running total of " << nEventsCounting << std::endl;
+                // std::cout << ">>> Cut-off not reached, adding iBinY " << iBinY << " with content " << h2->GetBinContent(iBinX, iBinY)
+                //         << " to get a running total of " << nEventsCounting << std::endl;
 
             }
         }
@@ -78,7 +78,7 @@ TGraph* getCutoffOfTH2DAsTGraph(TH2D* h2, bool countUpwards = true) {
     // Need to add 2 to get full coverage to overflow bin
     int nBinsXToScan = h2->GetNbinsX() + 2;
 
-    for (int iBinX = 0; iBinX < nBinsXToScan; iBinX++) {
+    for (int iBinX = 1; iBinX < nBinsXToScan; iBinX++) {
 
         double thisXValue = h2->GetXaxis()->GetBinCenter(iBinX);
         double thisCutoff = getCutoffValue(h2, iBinX, countUpwards);

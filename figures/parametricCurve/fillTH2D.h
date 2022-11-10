@@ -9,10 +9,10 @@
 #define FILL_TH2D_H_INCL
 
 /*
- * Return a TH2D with the isolation vs. cluster pT using the provided TChain.
+ * Return a TH2D with the relative isolation vs. cluster pT using the provided TChain.
  */
 
-TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 20.0) {
+TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 10.0) {
 
   // Declare the branches we want to read
   TTreeReader myReader(ch);
@@ -26,7 +26,9 @@ TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 20.0) {
   while (myReader.Next()) {
     // Access data as if iso and cPt were iterators (note the '*' in front of them)
     // std::cout << "iso and cpt:" << *reader_iso << " and " << *reader_cPt << std::endl;
-    h2->Fill(*reader_cPt, *reader_iso);
+    double cPt = *reader_cPt;
+    double cIso = *reader_iso;
+    h2->Fill(cPt, cIso/cPt);
   }
 
 
