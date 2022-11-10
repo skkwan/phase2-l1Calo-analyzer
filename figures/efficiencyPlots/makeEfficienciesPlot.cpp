@@ -61,7 +61,7 @@ void makeEfficienciesPlot(void)
                     "Gen Electron p_{T}",
                     "Phase 2 GCT",                                                                
                     "efficiency_genPt_barrel_GCT",        
-                    outputDirectory, "", 0.8, 1.02);    
+                    outputDirectory, "L1 p_{T} > 25, |#eta^{Gen}| < 1.4841", 0.8, 1.02);    
   
 
 

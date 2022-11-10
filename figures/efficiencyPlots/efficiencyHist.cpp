@@ -41,7 +41,7 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
                       TString legendName,
                       TString outputName,
                       TString outputDir,
-                      TString additionalComment = "",
+                      TString comment = "",
                       float yMin = 0.0,
                       float yMax = 1.1,
                       TString legendPos = "bottomright"
@@ -143,7 +143,7 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
   float yRow3 = 0.420 + offset;
 
   latex->DrawLatex(commentaryXpos, yRow2, "#scale[0.7]{Phase-2 L1EG (Crystal, Barrel)}");
-  latex->DrawLatex(commentaryXpos, yRow3, "#scale[0.7]{L1 p_{T} > 25, |#eta^{Gen}| < 1.4841" + additionalComment + "}");
+  latex->DrawLatex(commentaryXpos, yRow3, "#scale[0.7]{" + comment + "}");
   Tcan->Update();
 
 
