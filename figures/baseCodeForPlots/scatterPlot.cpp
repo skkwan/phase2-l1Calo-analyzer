@@ -54,7 +54,7 @@ int scatterPlot(TString name, TString variable, TString cut, TString legend,
                             int xbins, float xlow, float xhigh,
                             int ybins, float ylow, float yhigh){ 
  
-  gROOT->LoadMacro("/Users/stephaniekwan/Documents/Phase2L1Calo/phase2-l1Calo-analyzer/figures/baseCodeForPlots/CMS_lumi.C");
+  gROOT->LoadMacro("/afs/cern.ch/work/s/skkwan/private/phase2RCTDev/CMSSW_11_1_7/src/L1Trigger/L1CaloPhase2Analyzer/figures/baseCodeForPlots/CMS_lumi.C");
   //gROOT->ProcessLine(".L ~/Documents/work/Analysis/PhaseIIStudies/2018/tdrstyle.C");
   setTDRStyle();
 

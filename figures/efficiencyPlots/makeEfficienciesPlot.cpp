@@ -33,9 +33,10 @@ void makeEfficienciesPlot(void)
   // of the vs. pT plots at the same time (the vs. eta plots are OK to do two at a time)
   // So you need to only make one vs. pT plot at a time, by commenting out the other
 
-  /*******************************************************/
-  /* efficiency as a function of genPt: GCT              */
-  /*******************************************************/
+  // /*******************************************************/
+  // /* efficiency as a function of genPt: GCT              */
+  // /*******************************************************/
+
 
   vGraphs.clear();  vLabels.clear();  vColors.clear();
   xMin = 0;
@@ -125,6 +126,7 @@ void makeEfficienciesPlot(void)
   //                 ", ss + iso", 0.8, 1.02, "bottomright");
   // delete loose2, medium2, tight2, all2;
 
+
   /*******************************************************/
   /* efficiency as a function of genEta: GCT             */
   /*******************************************************/
@@ -172,6 +174,7 @@ void makeEfficienciesPlot(void)
                     "efficiency_genEta_barrel",        
                     outputDirectory);    
   
+  delete loose3, medium3, tight3, all3;
 
   /************************************************************/
   /* efficiency as a function of genEta: GCT with iso and ss  */
@@ -222,5 +225,6 @@ void makeEfficienciesPlot(void)
                     ", iso and ss");    
   
   
+  delete loose4, medium4, tight4, all4;
 }
 /*********************************************************************/

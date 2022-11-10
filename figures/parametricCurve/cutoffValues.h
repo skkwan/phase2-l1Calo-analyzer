@@ -21,7 +21,7 @@ double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
     }
 
     // 95% of cutoff
-    double nEventsBelowCutoff = nEvents * 0.95;
+    double nEventsBelowCutoff = nEvents * 0.99;
 
     std::cout << "nEvents and nEvents below cut-off: " << nEvents << ", " << nEventsBelowCutoff << std::endl;
 
@@ -39,7 +39,7 @@ double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
             else {
                 nEventsCounting += h2->GetBinContent(iBinX, iBinY);
                 std::cout << ">>> Cut-off not reached, adding iBinY " << iBinY << " with content " << h2->GetBinContent(iBinX, iBinY)
-                        << " to get a running total of " << nEventsCounting << std::endl;
+                          << " to get a running total of " << nEventsCounting << std::endl;
 
             }
         }

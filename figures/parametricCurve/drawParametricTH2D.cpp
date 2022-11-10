@@ -1,10 +1,14 @@
+/*
+ * Usage: root -l -b -q drawParametricTH2D.cpp
+ */
+
 #include "cutoffValues.h"
 #include "fillTH2D.h"
 
 /*
- * Set title and axis labels of a TH2D. 
+ * Set plot style, title and axis labels of a TH2D. 
  */
-void setPlotStyle(TH2D*& myHist, TString title, TString xLabel, TString yLabel) {
+void setPlotStyle(TH2D*& myHist, TString title, TString xLabel, TString yLabel, double plot_ymin, double plot_ymax) {
     myHist->GetXaxis()->SetTitle(xLabel);
     myHist->GetYaxis()->SetTitle(yLabel);
     myHist->SetTitle(title);
@@ -12,6 +16,7 @@ void setPlotStyle(TH2D*& myHist, TString title, TString xLabel, TString yLabel) 
     myHist->GetXaxis()->SetTitleSize(0.04); // default is 0.03                                                                    
     myHist->GetYaxis()->SetTitleSize(0.04); // default is 0.03 
 
+    myHist->GetYaxis()->SetRangeUser(plot_ymin, plot_ymax);
 }
 
 /*
@@ -54,7 +59,7 @@ void setPadMargins(TPad*& myPad) {
  * Draw and save the provided h2 to the output name. If h2Cutoff (TH2D) is provided, also draw it.
  */
 
-void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TString outputName, TGraph* tGraph = NULL) {
+void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TString outputName, double plot_ymin, double plot_ymax, TGraph* tGraph = NULL) {
 
     TCanvas *c1 = new TCanvas("c1", "c1", 1900, 1900);
     TPad *pad1 = new TPad("pad1", "The pad", 0, 0, 1, 1);
@@ -77,12 +82,59 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
     }
 
 
-    setPlotStyle(h2, title, xLabel, yLabel);
+    setPlotStyle(h2, title, xLabel, yLabel, plot_ymin, plot_ymax);
     setPlotStyleTGraph(tGraph, title, xLabel, yLabel);
     c1->SaveAs(outputName);
 
     delete pad1;
     delete c1;
+}
+
+/*
+ * Produce parametric plots for an input file and processName (description to put in the output file). 
+ */
+int produceParametric(TString rootFileDirectory, TString treePath, TString processName, TString label, TString plotFolder, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1, bool overlaySignal = false) {
+
+    // Use same axis limits as TDR
+    double plot_iso_ymax = 5.0;
+    double plot_iso_ymin = 0.0;
+
+    double plot_ss_ymax = 1.05;
+    double plot_ss_ymin = 0.7;
+
+    TChain *ch;
+    if (inputListOfFiles == "") {
+        ch = getTChainFromSingleFile(rootFileDirectory, treePath);
+    }
+    else {
+        ch = getTChainFromListOfFiles(inputListOfFiles, treePath, startLine, nLinesToRead);
+    }
+
+    TH2D *h2_iso = fillTH2DIsolationVsPt(ch);
+    TH2D *h2_ss = fillTH2DShapeVarVsPt(ch);
+    
+    TGraph *tGraph_iso;
+    TGraph *tGraph_ss;
+
+    if (!overlaySignal) {
+        tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
+        bool countUpwards = false; // just for ss
+        tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
+    }
+    else {
+        // Get the signal parametric curves
+        tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree")));
+        tGraph_ss =  getCutoffOfTH2DAsTGraph(fillTH2DShapeVarVsPt(getTChainFromSingleFile("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree")));
+    }
+
+
+    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Isolation [GeV]", plotFolder + processName + "_parametric_isolation_vs_clusterPt.pdf",        plot_iso_ymin, plot_iso_ymax, tGraph_iso);
+    drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", plot_ss_ymin, plot_ss_ymax, tGraph_ss);
+
+    delete h2_iso, h2_ss;
+    delete tGraph_iso, tGraph_ss;
+
+    return 1;
 }
 
 /*
@@ -93,21 +145,12 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
 
 int drawParametricTH2D(void) {
 
-    TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
-    TString treePath = "l1NtupleProducer/efficiencyTree";
 
-
-    TH2D *h2_iso = fillTH2DIsolationVsPt(rootFileDirectory, treePath);
-    TH2D *h2_ss = fillTH2DShapeVarVsPt(rootFileDirectory, treePath);
-
-    TGraph *tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
-    bool countUpwards = false; // just for ss
-    TGraph *tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
-
-    TString processName = "Double Electron, ECAL tower iso";
-    drawAndSaveTH2D(h2_iso, processName, "Cluster p_{T} [GeV]", "Isolation [GeV]", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/parametric_isolation_vs_clusterPt.pdf", tGraph_iso);
-    drawAndSaveTH2D(h2_ss,  processName, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/parametric_et2x5_over_et5x5_vs_clusterPt.pdf", tGraph_ss);
-
+    // Set this to be large so we do not miss any values
+    double iso_y_max_signal = 20.0;
+    double iso_y_max_background = 20.0;
+    produceParametric("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
+    produceParametric("", "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt", -1, -1, true);
 
     return 1;
 }
