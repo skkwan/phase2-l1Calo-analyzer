@@ -78,7 +78,7 @@ TGraph* getCutoffOfTH2DAsTGraph(TH2D* h2, bool countUpwards = true) {
     // Need to add 2 to get full coverage to overflow bin
     int nBinsXToScan = h2->GetNbinsX() + 2;
 
-    for (int iBinX = 0; iBinX < nBinsXToScan; iBinX++) {
+    for (int iBinX = 1; iBinX < nBinsXToScan; iBinX++) {
 
         double thisXValue = h2->GetXaxis()->GetBinCenter(iBinX);
         double thisCutoff = getCutoffValue(h2, iBinX, countUpwards);
