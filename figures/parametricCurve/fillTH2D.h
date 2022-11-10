@@ -12,7 +12,7 @@
  * Return a TH2D with the isolation vs. cluster pT using the provided TChain.
  */
 
-TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 11.0) {
+TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 20.0) {
 
   // Declare the branches we want to read
   TTreeReader myReader(ch);
@@ -20,7 +20,7 @@ TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 11.0) {
   TTreeReaderValue<Double_t> reader_cPt(myReader, "gct_cPt");
 
   // Create and fill a 2D histogram
-  TH2D *h2 = new TH2D("h2", "h2", 20, 0.0, 100.0, 100, 0.0, ymax);
+  TH2D *h2 = new TH2D("h2", "h2", 20, 0.0, 100.0, 200, 0.0, ymax);
 
   // Loop over all entries of the TChain
   while (myReader.Next()) {
@@ -48,7 +48,7 @@ TH2D* fillTH2DShapeVarVsPt(TChain *ch) {
   TTreeReaderValue<Double_t> reader_et5x5(myReader, "gct_et5x5");
 
   // Create and fill a 2D histogram
-  TH2D *h2 = new TH2D("Shape var", "Shape var", 20, 0.0, 100.0, 50, 0.4, 1.05);
+  TH2D *h2 = new TH2D("Shape var", "Shape var", 20, 0.0, 100.0, 200, 0.4, 1.05);
 
   // Loop over all entries of the TChain
   while (myReader.Next()) {
