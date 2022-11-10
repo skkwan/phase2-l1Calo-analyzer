@@ -83,8 +83,8 @@ void makeDistributionPlots(TString sampleName, TString legend, TString inputDire
   singleDistributionPlots("gct_phi_diff", "genPhi - gct_cPhi", cut, legend, treePath, inputDirectory, outputDirectory, "Gen #phi - GCT Cluster #phi", descriptor, bonusDescriptor, nBins, -0.06, 0.06, ymaxDummyValue);
 
   // GCT isolation 
-  singleDistributionPlots("gct_iso", "gct_iso", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Isolation (GeV)",                     descriptor, bonusDescriptor, 40, 0, 4, ymaxDummyValue);
-  singleDistributionPlots("gct_relIso", "(gct_iso/ (gct_cPt/" + SF + "))", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Iso/p_{T}", descriptor, bonusDescriptor, 35, -0.02, 0.10, ymaxDummyValue);
+  singleDistributionPlots("gct_iso", "gct_iso", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Isolation (GeV)",                     descriptor, bonusDescriptor, 40, 0, 0.8, ymaxDummyValue);
+  singleDistributionPlots("gct_relIso", "(gct_iso/ (gct_cPt/" + SF + "))", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Iso/p_{T}", descriptor, bonusDescriptor, 35, -0.02, 0.05, ymaxDummyValue);
   singleDistributionPlots("gct_relIso_zoomout", "(gct_iso/ (gct_cPt/" + SF + "))", cut, legend, treePath, inputDirectory, outputDirectory, "GCT Cluster Iso/p_{T}", descriptor, bonusDescriptor, nBins, -0.1, 1.2, ymaxDummyValue);
 
 }
