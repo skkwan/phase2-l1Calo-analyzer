@@ -37,8 +37,8 @@ void makeRatesPlots(void)
   gROOT->ProcessLine(".L calculateRates.cpp");
 
   // Input file and output directory
-  TString rootFileDirectory = "/Users/stephaniekwan/Dropbox/Princeton_G5/Phase2EGamma/analyzer/compare_Nov_01_2022/analyzer-rates.root";
-  TString outputDirectory = "/Users/stephaniekwan/Dropbox/Princeton_G5/Phase2EGamma/analyzer/compare_Nov_01_2022/";
+  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer-rates_MinBias.root";
+  TString outputDirectory = "/eos/user/s/skkwan/phase2RCTDevel/figures/rates/";
 
   float xMin, xMax;
   float yMin, yMax;
