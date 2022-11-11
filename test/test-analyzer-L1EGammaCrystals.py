@@ -17,10 +17,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
                                 #'file:/afs/cern.ch/work/s/skkwan/public/phase2RCT/RelValElectronGunPt2To100_71C02E39-ED72-054B-871F-6B1FD1A1C14A_1_32_3108.root'
-                                'file:/afs/cern.ch/work/s/skkwan/public/phase2RCT/RelValElectronGunPt2To100_71C02E39-ED72-054B-871F-6B1FD1A1C14A.root',
-                                'file:/afs/cern.ch/work/s/skkwan/public/phase2RCT/RelValElectronGunPt2To100_8B75BCAF-FF0C-094C-AB40-08F104148BC0.root',
-                                'file:/afs/cern.ch/work/s/skkwan/public/phase2RCT/RelValElectronGunPt2To100_190EDE9F-770B-174A-8BA6-F7814FC67FD4.root'
-# `
+                                'root://cmsxrootd.fnal.gov///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/00F57906-175B-1F45-8E1E-4695880ADE12.root'
                                 # 'root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0_patch2/RelValElectronGunPt2To100/GEN-SIM-DIGI-RAW/106X_upgrade2023_realistic_v3_2023D41noPU-v1/10000/190EDE9F-770B-174A-8BA6-F7814FC67FD4.root',
                                                               # 'root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0_patch2/RelValElectronGunPt2To100/GEN-SIM-DIGI-RAW/106X_upgrade2023_realistic_v3_2023D41noPU-v1/10000/283255C6-1E20-6F48-8B8B-31E6A62BD48D.root',
                                                               # 'root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0_patch2/RelValElectronGunPt2To100/GEN-SIM-DIGI-RAW/106X_upgrade2023_realistic_v3_2023D41noPU-v1/10000/71C02E39-ED72-054B-871F-6B1FD1A1C14A.root',
@@ -31,6 +28,8 @@ process.source = cms.Source("PoolSource",
                                 "keep *"
                             )
                         )
+
+process.source.eventsToProcess = cms.untracked.VEventRange("1:33817")
 
 
 # --------------------------------------------------------------------------------------------                                                    
@@ -62,11 +61,11 @@ process.pL1EG = cms.Path( process.L1EGammaClusterEmuProducer*process.l1NtuplePro
 
 # output file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzer-l1egammaCrystals.root')
+    fileName = cms.string('analyzer-l1egammaCrystals_debug.root')
 )
 
 process.Out = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "l1egammaCrystals.root" ),
+    fileName = cms.untracked.string( "l1egammaCrystals_debug.root" ),
     outputCommands = cms.untracked.vstring(
         "keep *_L1EGammaClusterEmuProducer_*_*",
 #        "keep *_TriggerResults_*_*",
