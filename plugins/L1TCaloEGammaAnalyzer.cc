@@ -163,13 +163,13 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
   if(evt.getByToken(rctClustersSrc_, rctCaloCrystalClusters)){
     for(const auto & rctCluster : *rctCaloCrystalClusters){
 
-      std::cout << "RCT Cluster found: pT " << rctCluster.pt()  << ", "
-		<< "eta "                   << rctCluster.eta() << ", "
-		<< "phi "                   << rctCluster.phi() << ", " 
-		<< "et 2x5"                 << rctCluster.e2x5() << ", "
-		<< "et 5x5"                 << rctCluster.e5x5() << ", "
-		<< "is_ss"                  << rctCluster.experimentalParam("standaloneWP_showerShape") << ", "
-		<< "is_looseTkss"           << rctCluster.experimentalParam("trkMatchWP_showerShape") << std::endl;
+    //   std::cout << "RCT Cluster found: pT " << rctCluster.pt()  << ", "
+		// << "eta "                   << rctCluster.eta() << ", "
+		// << "phi "                   << rctCluster.phi() << ", " 
+		// << "et 2x5"                 << rctCluster.e2x5() << ", "
+		// << "et 5x5"                 << rctCluster.e5x5() << ", "
+		// << "is_ss"                  << rctCluster.experimentalParam("standaloneWP_showerShape") << ", "
+		// << "is_looseTkss"           << rctCluster.experimentalParam("trkMatchWP_showerShape") << std::endl;
       
       Cluster temp ;
       TLorentzVector temp_p4;
@@ -221,8 +221,8 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       std::cout << "GCT Cluster found: pT " << gctCluster.pt()  << ", "
                 << "eta "               << gctCluster.eta() << ", "
                 << "phi "               << gctCluster.phi() << ", " 
-		<< "iso "               << gctCluster.isolation() << ", " 
-		<< std::endl;
+		            << "iso "               << gctCluster.isolation() << ", " 
+		            << std::endl;
       temp_p4.SetPtEtaPhiE(gctCluster.pt(),gctCluster.eta(),gctCluster.phi(),gctCluster.pt());
 
       temp.p4 = temp_p4;
@@ -234,11 +234,11 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       temp.is_iso        = gctCluster.experimentalParam("standaloneWP_isolation");
       temp.is_looseTkss  = gctCluster.experimentalParam("trkMatchWP_showerShape");
       temp.is_looseTkiso = gctCluster.experimentalParam("trkMatchWP_isolation");
-      std::cout << " with flags: " 
-		<< "is_ss " << temp.is_ss << ","
-		<< "is_iso " << temp.is_iso << ", "
-		<< "is_looseTkss " << temp.is_looseTkss << ", "
-		<< "is_looseTkiso " << temp.is_looseTkiso << std::endl;
+      // std::cout << " with flags: " 
+      //           << "is_ss " << temp.is_ss << ","
+      //           << "is_iso " << temp.is_iso << ", "
+      //           << "is_looseTkss " << temp.is_looseTkss << ", "
+      //           << "is_looseTkiso " << temp.is_looseTkiso << std::endl;
       
       // Save the 4-vector
       gctClusters->push_back(temp_p4);
@@ -448,12 +448,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       // Loop through the RCT clusters which are already sorted in decreasing pT, and check for
       // the first cluster within deltaR < 0.5. 
       std::cout << "Event " << event << ": check that RCT clusters are sorted!" << std::endl;
-      for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
-        std::cout << "sorted? RCT Cluster found: pT " << rctClusterInfo->at(i).p4.Pt()  << ", "
-                  << "eta "                   << rctClusterInfo->at(i).p4.Eta() << ", "
-                  << "phi "                   << rctClusterInfo->at(i).p4.Phi() << std::endl;
-      }
-      
+    
       for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
 
         float this_rct_deltaR = reco::deltaR(rctClusterInfo->at(i).p4.Eta(), rctClusterInfo->at(i).p4.Phi(),
@@ -514,9 +509,9 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       gct_is_iso = 0; gct_is_looseTkiso = 0;
 
       for (size_t i = 0; i < gctClusterInfo->size(); ++i) {
-        std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
-                  << " eta "               << gctClusterInfo->at(i).p4.Eta()
-                  << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
+        // std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
+        //           << " eta "               << gctClusterInfo->at(i).p4.Eta()
+        //           << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
         float this_gct_deltaR = reco::deltaR(gctClusterInfo->at(i).p4.Eta(), gctClusterInfo->at(i).p4.Phi(),
                                              genElectron.Eta(), genElectron.Phi());
         if (this_gct_deltaR < 0.5) {
