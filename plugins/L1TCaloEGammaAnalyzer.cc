@@ -537,6 +537,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
           gctClustersMatched.push_back(myTemp);
 
         }
+      }
     
     
       // For this gen electron, sort the matched clusters by pT, and only save the highest pT one     
@@ -569,12 +570,11 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
                   << " is_iso: " << gct_is_iso 
                   << " is_looseTkiso: " << gct_is_looseTkiso 
                   << std::endl;
-        }
-        efficiencyTree->Fill();
+      }
+      
+      efficiencyTree->Fill();
 
-      } // end of loop over gen electrons
-  
-    }
+    } // end of loop over gen electrons
   } // end of requireGenMatching = true block
   else {
 
