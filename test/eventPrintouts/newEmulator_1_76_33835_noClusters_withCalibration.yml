@@ -1,0 +1,93 @@
+
+[Computing isolation...]
+ - Current cluster: 
+    pT 77.125 GeV at (1.19601, 0.706862) 
+ - Isolation components: 
+    Adding tower pT 0 GeV at (1.00395, 0.567232) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0 GeV at (1.00395, 0.654498) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0 GeV at (1.00395, 0.741765) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0 GeV at (1.00395, 0.829031) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0.75 GeV at (1.00395, 0.916298) (corresponds to calib_(0, 1.00395): 1.309)  <--- see end of file
+    Adding tower pT 0 GeV at (1.09125, 0.567232) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (1.09125, 0.654498) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (1.09125, 0.741765) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (1.09125, 0.829031) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (1.09125, 0.916298) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (1.17855, 0.567232) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (1.17855, 0.654498) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (1.17855, 0.741765) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (1.17855, 0.829031) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (1.17855, 0.916298) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (1.26585, 0.567232) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (1.26585, 0.654498) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (1.26585, 0.741765) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (1.26585, 0.829031) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0.75 GeV at (1.26585, 0.916298) (corresponds to calib_(0, 1.26585): 1.309)  <---- see end of file
+    Adding tower pT 0 GeV at (1.35315, 0.567232) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (1.35315, 0.654498) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (1.35315, 0.741765) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (1.35315, 0.829031) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (1.35315, 0.916298) (corresponds to calib_(0, 1.35315): 1.32)
+
+    Total: 1.5 GeV
+ - Isolation: 
+    Summed over 19 towers
+    Scaling by (25.0/19)
+    Total, scaled: 1.5
+    Relative isolation: 0.0194489
+
+
+    [Computing isolation...]
+ - Current cluster: 
+    pT 78.375 GeV at (-1.14363, -2.45218) 
+ - Isolation components: 
+    Adding tower pT 0 GeV at (-1.35315, -2.66163) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (-1.35315, -2.57436) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (-1.35315, -2.48709) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (-1.35315, -2.39983) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (-1.35315, -2.31256) (corresponds to calib_(0, 1.35315): 1.32)
+    Adding tower pT 0 GeV at (-1.26585, -2.66163) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (-1.26585, -2.57436) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (-1.26585, -2.48709) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (-1.26585, -2.39983) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (-1.26585, -2.31256) (corresponds to calib_(0, 1.26585): 1.309)
+    Adding tower pT 0 GeV at (-1.17855, -2.66163) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (-1.17855, -2.57436) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (-1.17855, -2.48709) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (-1.17855, -2.39983) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (-1.17855, -2.31256) (corresponds to calib_(0, 1.17855): 1.32)
+    Adding tower pT 0 GeV at (-1.09125, -2.66163) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (-1.09125, -2.57436) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (-1.09125, -2.48709) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (-1.09125, -2.39983) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (-1.09125, -2.31256) (corresponds to calib_(0, 1.09125): 1.309)
+    Adding tower pT 0 GeV at (-1.00395, -2.66163) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0 GeV at (-1.00395, -2.57436) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0 GeV at (-1.00395, -2.48709) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0 GeV at (-1.00395, -2.39983) (corresponds to calib_(0, 1.00395): 1.309)
+    Adding tower pT 0 GeV at (-1.00395, -2.31256) (corresponds to calib_(0, 1.00395): 1.309)
+
+    Total: 0 GeV
+ - Isolation: 
+    Summed over 19 towers
+    Scaling by (25.0/19)
+    Total, scaled: 0
+    Relative isolation: 0
+
+
+
+n.b. Calibration switching from unsigned int to float back to unsigned int is causing loss of precision
+
+... Calibrating tower with (eta, phi) (1.00395, 0.916298)
+    applyCalibration: old data as hex 0x5
+                      uncalibrated Et (unsigned int): 0x5, float: 0.625, calibration factor: 1.309, giving new Et (float): 0.818125.       Multiplying by 8.0 to convert to unsigned int: 6
+      New Et as bits: 0x6, old data as hex 0x6
+
+   (uint) 6 converted to float is 0.75 GeV.
+
+... Calibrating tower with (eta, phi) (1.26585, 0.916298)
+    applyCalibration: old data as hex 0x5
+                      uncalibrated Et (unsigned int): 0x5, float: 0.625, calibration factor: 1.309, giving new Et (float): 0.818125.       Multiplying by 8.0 to convert to unsigned int: 6
+      New Et as bits: 0x6, old data as hex 0x6
+
+   (uint) 6 converted to float is 0.75 GeV.

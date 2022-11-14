@@ -26,9 +26,7 @@ TH2D* fillTH2DIsolationVsPt(TChain *ch, double ymax = 10.0) {
   while (myReader.Next()) {
     // Access data as if iso and cPt were iterators (note the '*' in front of them)
     // std::cout << "iso and cpt:" << *reader_iso << " and " << *reader_cPt << std::endl;
-    double cPt = *reader_cPt;
-    double cIso = *reader_iso;
-    h2->Fill(cPt, cIso/cPt);
+    h2->Fill(*reader_cPt, *reader_iso);
   }
 
 

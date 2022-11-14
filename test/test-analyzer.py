@@ -17,16 +17,14 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-
-                             'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/00F57906-175B-1F45-8E1E-4695880ADE12.root',
-
+                                'root://cmsxrootd.fnal.gov///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/00F57906-175B-1F45-8E1E-4695880ADE12.root'
                                                       ),
                             inputCommands = cms.untracked.vstring(
                                 "keep *"
                             )
                         )
 
-
+process.source.eventsToProcess = cms.untracked.VEventRange("1:33835")
 # --------------------------------------------------------------------------------------------                                                    
 #                                                                                                                                                            
 # ----   Run the relevant algorithms
@@ -56,7 +54,7 @@ process.pL1EG = cms.Path( process.Phase2L1CaloEGammaEmulatorProducer*process.l1N
 
 # output file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzer.root')
+    fileName = cms.string('analyzer_debug.root')
 )
 
 # process.Out = cms.OutputModule( "PoolOutputModule",
