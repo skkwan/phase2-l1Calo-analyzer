@@ -24,8 +24,7 @@ process.source = cms.Source("PoolSource",
                             )
                         )
 
-process.source.eventsToProcess = cms.untracked.VEventRange("1:33817")
-
+process.source.eventsToProcess = cms.untracked.VEventRange("1:33835")
 # --------------------------------------------------------------------------------------------                                                    
 #                                                                                                                                                            
 # ----   Run the relevant algorithms
