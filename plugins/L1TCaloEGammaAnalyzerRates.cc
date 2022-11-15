@@ -209,7 +209,9 @@ void L1TCaloEGammaAnalyzerRates::analyze( const Event& evt, const EventSetup& es
     gct_et5x5 = gctClusterInfo->at(0).et5x5; 
     gct_is_ss = gctClusterInfo->at(0).is_ss;
     gct_is_looseTkss = gctClusterInfo->at(0).is_looseTkss;
-    gct_is_iso = gctClusterInfo->at(0).is_iso;
+    // gct_is_iso = gctClusterInfo->at(0).is_iso;
+    // Try in-line newly derived isolation function
+    gct_is_iso = ((gct_cPt >= 70) && (gct_iso <= 0.439722)) || ( (gct_cPt < 70) && ( gct_iso < ((-0.013667 * gct_cPt) + (1.396389)) ) );
     gct_is_looseTkiso = gctClusterInfo->at(0).is_looseTkiso;
     std::cout << "GCT cluster (highest pT in this event): " << gct_cPt<< std::endl;
     
