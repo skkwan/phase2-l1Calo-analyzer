@@ -35,11 +35,12 @@ void makeEfficienciesPlot(void)
   std::vector<int> vColors;
 
 
-  // TGraph *tGraph_iso;
-  // tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")));
-  // parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0, 1);
-  // TString inLineNewIso = paramFitIso.linearFitStringRepr();
-  // paramFitIso.tGraphRepr();
+  TGraph *tGraph_iso;
+  tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")));
+  // Start fit at bin = 5 which corresponds to cluster pT = 27.5 GeV
+  parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0, 4);
+  TString inLineNewIso = paramFitIso.linearFitStringRepr();
+  paramFitIso.tGraphRepr();
 
   /*******************************************************/
   /* efficiency as a function of genPt: GCT              */
@@ -62,7 +63,7 @@ void makeEfficienciesPlot(void)
   vColors.push_back(kBlack);
 
   TGraphAsymmErrors *tight = calculateEfficiency("genPt", treePath, rootFileDirectory,  
-                                                  l1Cut + "&&" + "( ((gct_cPt >= 70) && (gct_iso <= 0.080332)) || ( (gct_cPt < 70) && (gct_iso <= (-0.009406*gct_cPt + 0.738724)) ) )",
+                                                  l1Cut + "&&" + inLineNewIso,
                                                   genCut, xMin, xMax, useVariableBinning);
   vGraphs.push_back(tight);
   vLabels.push_back("with in-line new iso only");
