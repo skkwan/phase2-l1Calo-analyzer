@@ -131,7 +131,7 @@ int produceParametric(TString rootFileDirectory, TString signalFileDirectory, TS
         tGraph_ss =  getCutoffOfTH2DAsTGraph(fillTH2DShapeVarVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")));
     }
 
-    parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0) ;
+    parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0, 1); // skip 0th and 1st bins in linear fit
     paramFitIso.linearFitStringRepr();
     TGraph tgraphParamFitIso = paramFitIso.tGraphRepr();
 
@@ -160,7 +160,7 @@ int drawParametricTH2D(void) {
     double iso_y_max_signal = 20.0;
     double iso_y_max_background = 20.0;
     produceParametric(signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
-    // produceParametric("", signalFileDirectory, "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt", -1, -1, true);
+    //produceParametric("", signalFileDirectory, "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt", 0, 5, true);
 
     return 1;
 }

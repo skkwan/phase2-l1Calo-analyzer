@@ -37,8 +37,9 @@ class parametricFit {
 
         /*
          * Constructor
+         * E.g. if maxBinToSkip is 0, skip the 0th bin in the linear fit. If 1, skip the 0th and 1st bin in the fit.
          */
-        parametricFit(TGraph* tgraphIn, double xThresholdForPlateau) {
+        parametricFit(TGraph* tgraphIn, double xThresholdForPlateau, int maxBinToSkip) {
 
             xPlateauThreshold = xThresholdForPlateau;
             yPlateauPoint = -99;  // initialize
@@ -47,14 +48,14 @@ class parametricFit {
 
                 double xVal = tgraphIn->GetPointX(i);
                 double yVal = tgraphIn->GetPointY(i);
-                // std::cout << "Input point: " << i << "(" << xVal << ", " << yVal << ")" << std::endl;
+                std::cout << "Input point: " << i << "(" << xVal << ", " << yVal << ")" << std::endl;
 
                 // Save each input point
                 xInVals.push_back(xVal);
                 yInVals.push_back(yVal);
 
-                // Skip the first point
-                if (i == 0) {
+                // Skip the first, or first and second point
+                if (i <= maxBinToSkip) {
                     continue;
                 }
                 // Save each point in the linear portion separately
@@ -75,12 +76,16 @@ class parametricFit {
             fitLinearPortion();
         }
 
-        // The linear fit function as a string expression
-        void linearFitStringRepr() {
+        /*
+         * Get the linear fit function as a string expression
+         */
+        TString linearFitStringRepr() {
             double p0 = fLinearPortion.GetParameter(0);
             double p1 = fLinearPortion.GetParameter(1);
-
-            std::cout << "Parameters are " << p0 << " and " << p1 << std::endl;
+            TString strRepr;
+            strRepr.Form("( (gct_cPt >= %.2f) || ( gct_iso < ((%f * gct_cPt) + (%f)) ) )", xPlateauThreshold, p1, p0);
+            std::cout << strRepr << std::endl;
+            return strRepr;
         }
 
         /*
@@ -91,6 +96,11 @@ class parametricFit {
             // Also extrapolate to x = 0 for plotting purposes
             xGraphVals.push_back(0.0);
             yGraphVals.push_back(fLinearPortion.Eval(0.0));
+
+            // Test: at 70 GeV, the function is 0.322611
+            // Where is at 0.325?
+            double thres = 70.0;
+            std::cout << "Test: at " << thres << " GeV, the function is " << fLinearPortion.Eval(thres) << std::endl;
 
             for (int i = 0; i < xInVals.size(); i++) {
 
