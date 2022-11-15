@@ -93,7 +93,7 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
 /*
  * Produce parametric plots for an input file and processName (description to put in the output file). 
  */
-int produceParametric(TString rootFileDirectory, TString treePath, TString processName, TString label, TString plotFolder, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1, bool overlaySignal = false) {
+int produceParametric(TString rootFileDirectory, TString signalFileDirectory, TString treePath, TString processName, TString label, TString plotFolder, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1, bool overlaySignal = false) {
 
     // Use same axis limits as TDR
     double plot_iso_ymax = 5.0;
@@ -116,15 +116,19 @@ int produceParametric(TString rootFileDirectory, TString treePath, TString proce
     TGraph *tGraph_iso;
     TGraph *tGraph_ss;
 
+
     if (!overlaySignal) {
         tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
         bool countUpwards = false; // just for ss
         tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
+
+        fitParametricLine(tGraph_iso);
+
     }
     else {
         // Get the signal parametric curves
-        tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree")));
-        tGraph_ss =  getCutoffOfTH2DAsTGraph(fillTH2DShapeVarVsPt(getTChainFromSingleFile("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree")));
+        tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")));
+        tGraph_ss =  getCutoffOfTH2DAsTGraph(fillTH2DShapeVarVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")));
     }
 
     drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt.pdf",        plot_iso_ymin, plot_iso_ymax, tGraph_iso);
@@ -144,12 +148,12 @@ int produceParametric(TString rootFileDirectory, TString treePath, TString proce
 
 int drawParametricTH2D(void) {
 
-
+    TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
     // Set this to be large so we do not miss any values
     double iso_y_max_signal = 20.0;
     double iso_y_max_background = 20.0;
-    produceParametric("/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root", "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
-    produceParametric("", "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt", -1, -1, true);
+    produceParametric(signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
+    // produceParametric("", signalFileDirectory, "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt", -1, -1, true);
 
     return 1;
 }
