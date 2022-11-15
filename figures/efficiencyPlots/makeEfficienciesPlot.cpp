@@ -21,8 +21,8 @@ void makeEfficienciesPlot(void)
   gROOT->ProcessLine(".L calculateEfficiency.cpp");
 
   TString treePath = "l1NtupleProducer/efficiencyTree";
-  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
-  TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root"; // for the parametric curve
+  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root";
+  TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root"; // for the parametric curve
   TString outputDirectory = "/eos/user/s/skkwan/phase2RCTDevel/figures/efficiencies/";
  
 
@@ -52,7 +52,7 @@ void makeEfficienciesPlot(void)
   xMin = 0;
   xMax = 100;
   genCut  = "(abs(genEta) < 1.4841)";
-  l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 5)";
+  l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 25)";
   useVariableBinning = false;
 
   TGraphAsymmErrors *all = calculateEfficiency("genPt", treePath, rootFileDirectory,
@@ -73,8 +73,8 @@ void makeEfficienciesPlot(void)
   plotNEfficiencies(vGraphs, vLabels, vColors,
                     "Gen Electron p_{T}",
                     "Phase 2 GCT",                                                                
-                    "efficiency_genPt_barrel_GCT_newInLineIsoOnly_test_l1Pt_5",        
-                    outputDirectory, "L1 p_{T} > 5, |#eta^{Gen}| < 1.4841", 0.8, 1.02);    
+                    "efficiency_genPt_barrel_GCT_newInLineIsoOnly",        
+                    outputDirectory, "L1 p_{T} > 25, |#eta^{Gen}| < 1.4841", 0.8, 1.02);    
   
 
   /*******************************************************/
@@ -86,7 +86,7 @@ void makeEfficienciesPlot(void)
   // xMin = 0;
   // xMax = 100;
   // genCut  = "(abs(genEta) < 1.4841)";
-  // l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 5)";
+  // l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 25)";
   // useVariableBinning = false;
 
   // TGraphAsymmErrors *all = calculateEfficiency("gct_cPt", treePath, rootFileDirectory,
@@ -97,7 +97,7 @@ void makeEfficienciesPlot(void)
   // vColors.push_back(kBlack);
 
   // TGraphAsymmErrors *tight = calculateEfficiency("gct_cPt", treePath, rootFileDirectory,  
-  //                                                 l1Cut + "&&" + "( ((gct_cPt >= 70) && (gct_iso <= 0.080332)) || ( (gct_cPt < 70) && (gct_iso <= (-0.009406*gct_cPt + 0.738724)) ) )",
+  //                                                 l1Cut + "&&" + "( ((gct_cPt >= 70) && (gct_iso <= 0.439722)) || ( (gct_cPt < 70) && ( gct_iso < ((-0.013667 * gct_cPt) + (1.396389))  ) ))",
   //                                                 genCut, xMin, xMax, useVariableBinning);
   // vGraphs.push_back(tight);
   // vLabels.push_back("with in-line new iso only");
@@ -107,10 +107,9 @@ void makeEfficienciesPlot(void)
   // plotNEfficiencies(vGraphs, vLabels, vColors,
   //                   "Cluster p_{T}",
   //                   "Phase 2 GCT",                                                                
-  //                   "efficiency_recoPt_barrel_GCT_newInLineIsoOnly_test_l1Pt_5",        
-  //                   outputDirectory, "L1 p_{T} > 5, |#eta^{Gen}| < 1.4841", 0.8, 1.02);    
+  //                   "efficiency_recoPt_barrel_GCT_newInLineIsoOnly_test_l1Pt_25",        
+  //                   outputDirectory, "L1 p_{T} > 25, |#eta^{Gen}| < 1.4841", 0.8, 1.02);    
   
-
 
 
   // /*******************************************************/
