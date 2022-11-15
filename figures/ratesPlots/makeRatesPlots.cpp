@@ -63,10 +63,10 @@ void makeRatesPlots(void)
   TH1F* eg_is_iso = calculateRates(folder + "l1eg_pt_is_iso", evHist, rootFileDirectory);
   TH1F* eg_is_ss_iso = calculateRates(folder + "l1eg_pt_is_iso_is_ss", evHist, rootFileDirectory);
 
-  vHists.push_back(egVLoose); vLabels.push_back("No additional cuts"); vColors.push_back(kPink);
+  vHists.push_back(egVLoose); vLabels.push_back("No additional cuts"); vColors.push_back(kBlack);
   vHists.push_back(eg_is_ss);  vLabels.push_back("Shower shape only"); vColors.push_back(kTeal-8);
   vHists.push_back(eg_is_iso); vLabels.push_back("Isolation only"); vColors.push_back(kAzure-9);
-  vHists.push_back(eg_is_ss_iso);  vLabels.push_back("Shower shape and isolation"); vColors.push_back(kAzure+2);
+  vHists.push_back(eg_is_ss_iso);  vLabels.push_back("Shower shape and isolation"); vColors.push_back(kRed);
 
   // one more color if necessary: kAzure-9
   
