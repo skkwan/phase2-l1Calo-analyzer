@@ -4,6 +4,7 @@
 
 #include "cutoffValues.h"
 #include "fillTH2D.h"
+#include "parametricFit.h"
 
 /*
  * Set plot style, title and axis labels of a TH2D. 
@@ -104,9 +105,11 @@ int produceParametric(TString rootFileDirectory, TString signalFileDirectory, TS
 
     TChain *ch;
     if (inputListOfFiles == "") {
+        std::cout << "Attempting to get TChain from single file..." << std::endl;
         ch = getTChainFromSingleFile(rootFileDirectory, treePath);
     }
     else {
+        std::cout << "Attempting to get TChin from list of files..." << std::endl;
         ch = getTChainFromListOfFiles(inputListOfFiles, treePath, startLine, nLinesToRead);
     }
 
@@ -121,9 +124,6 @@ int produceParametric(TString rootFileDirectory, TString signalFileDirectory, TS
         tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso);
         bool countUpwards = false; // just for ss
         tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, countUpwards);
-
-        fitParametricLine(tGraph_iso);
-
     }
     else {
         // Get the signal parametric curves
@@ -131,8 +131,15 @@ int produceParametric(TString rootFileDirectory, TString signalFileDirectory, TS
         tGraph_ss =  getCutoffOfTH2DAsTGraph(fillTH2DShapeVarVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")));
     }
 
-    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt.pdf",        plot_iso_ymin, plot_iso_ymax, tGraph_iso);
-    drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", plot_ss_ymin, plot_ss_ymax, tGraph_ss);
+    parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0) ;
+    paramFitIso.linearFitStringRepr();
+    TGraph tgraphParamFitIso = paramFitIso.tGraphRepr();
+
+    // If you want to plot the un-fitted isolation curve, change the last argument to tGraph_iso (the output of "getCutoffOfTH2DAsTGraph")
+    // If you want to plot the fitted/parametrized curve, change the last argument to &tgraphParamFitIso (the output of the parametricFit::tGraphRepr() method)
+
+    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt.pdf",        plot_iso_ymin, plot_iso_ymax, &tgraphParamFitIso);
+    // drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", plot_ss_ymin, plot_ss_ymax, tGraph_ss);
 
     delete h2_iso, h2_ss;
     delete tGraph_iso, tGraph_ss;
@@ -148,7 +155,7 @@ int produceParametric(TString rootFileDirectory, TString signalFileDirectory, TS
 
 int drawParametricTH2D(void) {
 
-    TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
+    TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root";
     // Set this to be large so we do not miss any values
     double iso_y_max_signal = 20.0;
     double iso_y_max_background = 20.0;
