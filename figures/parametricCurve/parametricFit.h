@@ -29,6 +29,11 @@ class parametricFit {
             // Access the fit results
             TF1 *f1 = tgraphToFit->GetFunction("pol1");
 
+            // Set y-value of plateau point
+            yPlateauPoint = f1->Eval(xPlateauThreshold);
+            std::cout << "fitLinearPortion: Setting member yPlateauPoint to " << yPlateauPoint << std::endl;
+
+
             fLinearPortion = *(f1);
 
         };
@@ -42,7 +47,7 @@ class parametricFit {
         parametricFit(TGraph* tgraphIn, double xThresholdForPlateau, int maxBinToSkip) {
 
             xPlateauThreshold = xThresholdForPlateau;
-            yPlateauPoint = -99;  // initialize
+            xPlateauPoint = -99;  // initialize
 
             for (int i = 0; i < tgraphIn->GetN(); i++) {
 
@@ -60,15 +65,14 @@ class parametricFit {
                 }
                 // Save each point in the linear portion separately
                 else if (xVal < xPlateauThreshold) {
+                    std::cout << "Adding to fitting set: (" << xVal << ", " << yVal << ")" << std::endl;
                     xFitVals.push_back(xVal);
                     yFitVals.push_back(yVal);
                 }
                 else {
                     // Save the plateau point
-                    if (yPlateauPoint == -99) {
+                    if (xPlateauPoint == -99) {
                         xPlateauPoint = xVal;
-                        yPlateauPoint = yVal;
-                        std::cout << "Set plateau point " << xPlateauPoint << ", " << yPlateauPoint << std::endl;
                     }
                 }
             }
@@ -77,13 +81,13 @@ class parametricFit {
         }
 
         /*
-         * Get the linear fit function as a string expression
+         * Get the fitting function as a string expression
          */
         TString linearFitStringRepr() {
             double p0 = fLinearPortion.GetParameter(0);
             double p1 = fLinearPortion.GetParameter(1);
             TString strRepr;
-            strRepr.Form("( (gct_cPt >= %.2f) || ( gct_iso < ((%f * gct_cPt) + (%f)) ) )", xPlateauThreshold, p1, p0);
+            strRepr.Form("( ((gct_cPt >= %.2f) && (gct_iso <= %f)) || ( (gct_cPt < %.2f) && ( gct_iso < ((%f * gct_cPt) + (%f)) ) ) )", xPlateauThreshold, yPlateauPoint, xPlateauThreshold, p1, p0);
             std::cout << strRepr << std::endl;
             return strRepr;
         }
@@ -97,8 +101,6 @@ class parametricFit {
             xGraphVals.push_back(0.0);
             yGraphVals.push_back(fLinearPortion.Eval(0.0));
 
-            // Test: at 70 GeV, the function is 0.322611
-            // Where is at 0.325?
             double thres = 70.0;
             std::cout << "Test: at " << thres << " GeV, the function is " << fLinearPortion.Eval(thres) << std::endl;
 
@@ -114,7 +116,6 @@ class parametricFit {
 
                 }
                 else {
-
                     yGraphVals.push_back(yPlateauPoint);
                     std::cout << "... pushed back point y (plateau) = " << yPlateauPoint << std::endl;
 
