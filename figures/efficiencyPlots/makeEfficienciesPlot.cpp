@@ -14,9 +14,11 @@
 #include <string>
 /*********************************************************************/
 
-/* Plots L1 RCT and GCT EGamma efficiency as a function of gen-level variables. */
+/*
+ * Make efficiency plot for one isolation parametrization scheme.
+ */
 
-void makeEfficienciesPlot(void)
+void makeEfficienciesPlotForOneScheme(float acceptancePerBin, int nBinToStartFit)
 {
   gROOT->ProcessLine(".L calculateEfficiency.cpp");
 
@@ -34,19 +36,28 @@ void makeEfficienciesPlot(void)
   std::vector<TString> vLabels;
   std::vector<int> vColors;
 
+  
+  TString isoCut;
+  TString outputPlotName;
 
-  TGraph *tGraph_iso;
-  tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")));
-  // Start fit at bin = 5 which corresponds to cluster pT = 27.5 GeV
-  parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0, 4);
-  TString inLineNewIso = paramFitIso.linearFitStringRepr();
-  paramFitIso.tGraphRepr();
+  if ((acceptancePerBin > 0) && (nBinToStartFit > 0)) {
+    TGraph *tGraph_iso;
+    tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")), acceptancePerBin);
+    parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0, nBinToStartFit);
+    isoCut = paramFitIso.linearFitStringRepr();
+    paramFitIso.tGraphRepr();
+
+    outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_" + std::to_string(acceptancePerBin) + "_fitStartBin_" + std::to_string(nBinToStartFit);
+  }
+  else {
+    // Use TDR version
+    isoCut = "gct_is_iso";
+    outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_TDRflag";
+  }
 
   /*******************************************************/
   /* efficiency as a function of genPt: GCT              */
   /*******************************************************/
-
-
 
   vGraphs.clear();  vLabels.clear();  vColors.clear();
   xMin = 0;
@@ -63,17 +74,16 @@ void makeEfficienciesPlot(void)
   vColors.push_back(kBlack);
 
   TGraphAsymmErrors *tight = calculateEfficiency("genPt", treePath, rootFileDirectory,  
-                                                  l1Cut + "&&" + inLineNewIso,
+                                                  l1Cut + "&&" + isoCut,
                                                   genCut, xMin, xMax, useVariableBinning);
   vGraphs.push_back(tight);
-  vLabels.push_back("with in-line new iso only");
+  vLabels.push_back("with isolation only");
   vColors.push_back(kRed);
-
 
   plotNEfficiencies(vGraphs, vLabels, vColors,
                     "Gen Electron p_{T}",
-                    "Phase 2 GCT",                                                                
-                    "efficiency_genPt_barrel_GCT_newInLineIsoOnly",        
+                    "Phase 2 GCT",   
+                    outputPlotName,                                                             
                     outputDirectory, "L1 p_{T} > 25, |#eta^{Gen}| < 1.4841", 0.8, 1.02);    
   
 
@@ -181,5 +191,23 @@ void makeEfficienciesPlot(void)
   
 
    
+}
+
+void makeEfficienciesPlot(void) {
+  
+  // // Scheme 1
+  // makeEfficienciesPlotForOneScheme(0.98, 1);
+
+  // // Scheme 2
+  // makeEfficienciesPlotForOneScheme(0.98, 2);
+
+  // // Scheme 3
+  // makeEfficienciesPlotForOneScheme(0.99, 4);
+
+  // Scheme 4
+  // makeEfficienciesPlotForOneScheme(0.98, 4);
+
+  // Use TDR
+  makeEfficienciesPlotForOneScheme(-1, -1);
 }
 /*********************************************************************/
