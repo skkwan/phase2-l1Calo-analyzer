@@ -6,9 +6,10 @@
 /* 
  * For a given x-axis bin of a TH2D, return the y-axis value, below which 95% of the events fall. If countUpwards
  * is false, counts downwards from large values of the y-axis.
+ * acceptancePerBin is e.g. 0.98 or 0.99.
  */
 
-double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
+double getCutoffValue(TH2D* h2, int iBinX, float acceptancePerBin, bool countUpwards = true) {
 
     int nBinsYToScan = h2->GetNbinsY();
 
@@ -21,7 +22,7 @@ double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
     }
 
     // 99% cutoff
-    double nEventsBelowCutoff = nEvents * 0.99;
+    double nEventsBelowCutoff = nEvents * acceptancePerBin;
 
     std::cout << "nEvents and nEvents below cut-off: " << nEvents << ", " << nEventsBelowCutoff << std::endl;
 
@@ -71,7 +72,7 @@ double getCutoffValue(TH2D* h2, int iBinX, bool countUpwards = true) {
  * Return a TGraph representing the cut-off points of a TH2D per the above definition. If countUpwards is false,
  * integrate in each bin towards smaller values of the y-axis.
  */
-TGraph* getCutoffOfTH2DAsTGraph(TH2D* h2, bool countUpwards = true) {
+TGraph* getCutoffOfTH2DAsTGraph(TH2D* h2, float acceptancePerBin, bool countUpwards = true) {
     
     std::vector<double> xVals, yVals;
 
@@ -81,7 +82,7 @@ TGraph* getCutoffOfTH2DAsTGraph(TH2D* h2, bool countUpwards = true) {
     for (int iBinX = 1; iBinX < nBinsXToScan; iBinX++) {
 
         double thisXValue = h2->GetXaxis()->GetBinCenter(iBinX);
-        double thisCutoff = getCutoffValue(h2, iBinX, countUpwards);
+        double thisCutoff = getCutoffValue(h2, iBinX, acceptancePerBin, countUpwards);
 
         std::cout << ">>>> Pushing back " << thisXValue << "," << thisCutoff << std::endl;
         

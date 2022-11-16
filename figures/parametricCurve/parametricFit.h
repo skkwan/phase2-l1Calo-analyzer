@@ -42,9 +42,12 @@ class parametricFit {
 
         /*
          * Constructor
-         * E.g. if maxBinToSkip is 0, skip the 0th bin in the linear fit. If 1, skip the 0th and 1st bin in the fit.
+         * xThresholdForPlateau is the x-axis value at which to start the plateau. The y-axis value of the plateau will be the linear function
+         * evaluated at xThresholdForPlateau.
+         * 
+         * iBinFitStart is the bin at which to start adding points to the linear fit, since we often want to skip the 0th, 1st, etc. bins.
          */
-        parametricFit(TGraph* tgraphIn, double xThresholdForPlateau, int maxBinToSkip) {
+        parametricFit(TGraph* tgraphIn, double xThresholdForPlateau, int iBinFitStart) {
 
             xPlateauThreshold = xThresholdForPlateau;
             xPlateauPoint = -99;  // initialize
@@ -60,7 +63,7 @@ class parametricFit {
                 yInVals.push_back(yVal);
 
                 // Skip the first, or first and second point
-                if (i <= maxBinToSkip) {
+                if (i < iBinFitStart) {
                     continue;
                 }
                 // Save each point in the linear portion separately
@@ -134,6 +137,7 @@ class parametricFit {
         // Getters
         double getXPlateauPoint(void) { return xPlateauPoint; }
         double getYPlateauPoint(void) { return yPlateauPoint; }
+        std::vector<double> getXGraphVals(void) { return xGraphVals; }
 };
 
 
