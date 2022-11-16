@@ -37,7 +37,7 @@ void makeRatesPlots(void)
   gROOT->ProcessLine(".L calculateRates.cpp");
 
   // Input file and output directory
-  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer-rates_MinBias.root";
+  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_rates_MinBias_newIsoFunction_partial.root";
   TString outputDirectory = "/eos/user/s/skkwan/phase2RCTDevel/figures/rates/";
 
   float xMin, xMax;
@@ -64,16 +64,16 @@ void makeRatesPlots(void)
   TH1F* eg_is_ss_iso = calculateRates(folder + "l1eg_pt_is_iso_is_ss", evHist, rootFileDirectory);
 
   vHists.push_back(egVLoose); vLabels.push_back("No additional cuts"); vColors.push_back(kBlack);
-  vHists.push_back(eg_is_ss);  vLabels.push_back("Shower shape only"); vColors.push_back(kTeal-8);
-  vHists.push_back(eg_is_iso); vLabels.push_back("Isolation only"); vColors.push_back(kAzure-9);
-  vHists.push_back(eg_is_ss_iso);  vLabels.push_back("Shower shape and isolation"); vColors.push_back(kRed);
+  vHists.push_back(eg_is_ss);  vLabels.push_back("Shower shape (old) only"); vColors.push_back(kTeal-8);
+  vHists.push_back(eg_is_iso); vLabels.push_back("Isolation (new) only"); vColors.push_back(kAzure-9);
+  vHists.push_back(eg_is_ss_iso);  vLabels.push_back("Shower shape (old) and isolation (new)"); vColors.push_back(kRed);
 
   // one more color if necessary: kAzure-9
   
   plotNRates(vHists, vLabels, vColors,
              xMin, xMax, yMin, yMax,
              "ET threshold [GeV]",
-             "rates_barrel_GCT",
+             "rates_barrel_GCT_newIsolation",
              outputDirectory,
              useLogy);
 
