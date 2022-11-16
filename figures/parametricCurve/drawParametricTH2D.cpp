@@ -5,6 +5,7 @@
 #include "cutoffValues.h"
 #include "fillTH2D.h"
 #include "parametricFit.h"
+#include "tdrHelpers.h"
 
 /*
  * Set plot style, title and axis labels of a TH2D. 
@@ -135,8 +136,12 @@ int produceParametric(TString rootFileDirectory, TString signalFileDirectory, TS
     paramFitIso.linearFitStringRepr();
     TGraph tgraphParamFitIso = paramFitIso.tGraphRepr();
 
+    // Needs to be called after paramFitIso is created
+    TGraph tgraphTdrIso = getTdrIsoAsTGraph(paramFitIso.getXGraphVals());
+
     // If you want to plot the un-fitted isolation curve, change the last argument to tGraph_iso (the output of "getCutoffOfTH2DAsTGraph")
     // If you want to plot the fitted/parametrized curve, change the last argument to &tgraphParamFitIso (the output of the parametricFit::tGraphRepr() method)
+    // If you want to plot the TDR curve, change the last argument to &tgraphTdrIso
 
     drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt.pdf",        plot_iso_ymin, plot_iso_ymax, &tgraphParamFitIso);
     // drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", plot_ss_ymin, plot_ss_ymax, tGraph_ss);
