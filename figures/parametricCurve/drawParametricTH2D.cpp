@@ -93,16 +93,65 @@ void drawAndSaveTH2D(TH2D* h2, TString title, TString xLabel, TString yLabel, TS
 }
 
 /*
- * Produce parametric plots for an input file and processName (description to put in the output file). 
+ * Produce isolation parametric plots for an input file and processName (description to put in the output file). 
+ * plateauPt is the pT above which to treat as the plateau.
  * Acceptance is the per-bin acceptance to use when getting the points to fit to the parametric curve.
  * nBinsToSkip is the number of bins to skip at the start of the x-axis for the linear fit.
  */
-int produceParametric(float acceptancePerBin, int nBinToStartFit, TString rootFileDirectory, TString signalFileDirectory, TString treePath, TString processName, TString label, TString plotFolder, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1, bool overlaySignal = false) {
+int produceIsolationParametric(float plateauPt, float acceptancePerBin, int nBinToStartFit, TString rootFileDirectory, TString signalFileDirectory, TString treePath, TString processName, TString label, TString plotFolder, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1, bool overlaySignal = false) {
 
     // Use same axis limits as TDR
     double plot_iso_ymax = 5.0;
     double plot_iso_ymin = 0.0;
 
+    TChain *ch;
+    if (inputListOfFiles == "") {
+        std::cout << "Attempting to get TChain from single file..." << std::endl;
+        ch = getTChainFromSingleFile(rootFileDirectory, treePath);
+    }
+    else {
+        std::cout << "Attempting to get TChin from list of files..." << std::endl;
+        ch = getTChainFromListOfFiles(inputListOfFiles, treePath, startLine, nLinesToRead);
+    }
+
+    TH2D *h2_iso = fillTH2DIsolationVsPt(ch);
+    
+    TGraph *tGraph_iso;
+ 
+    if (!overlaySignal) {
+        tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso, acceptancePerBin);
+    }
+    else {
+        // Get the signal parametric curves (taking care to use the acceptancePerBin argument)
+        tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")), acceptancePerBin);
+    }
+
+
+    parametricFit paramFitIso = parametricFit(tGraph_iso, plateauPt, nBinToStartFit); // start fit at 4th point of the TGraph
+    paramFitIso.linearFitStringRepr();
+    TGraph tgraphParamFitIso = paramFitIso.tGraphRepr();
+
+    // Needs to be called after paramFitIso is created
+    TGraph tgraphTdrIso = getTdrIsoAsTGraph(paramFitIso.getXGraphVals());
+
+    // If you want to plot the un-fitted isolation curve, change the last argument to tGraph_iso (the output of "getCutoffOfTH2DAsTGraph")
+    // If you want to plot the fitted/parametrized curve, change the last argument to &tgraphParamFitIso (the output of the parametricFit::tGraphRepr() method)
+    // If you want to plot the TDR curve, change the last argument to &tgraphTdrIso
+    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt_acceptance_" + std::to_string(acceptancePerBin) + "_fitStartBin_" + std::to_string(nBinToStartFit) + "_plateauAt_" + std::to_string(plateauPt) + ".pdf",   plot_iso_ymin, plot_iso_ymax, &tgraphParamFitIso);    
+
+    delete h2_iso, tGraph_iso;
+
+    return 1;
+}
+
+/*
+ * Produce shower shape plots for an input file and processName (description to put in the output file). 
+ * Acceptance is the per-bin acceptance to use when getting the points to fit to the parametric curve.
+ * nBinsToSkip is the number of bins to skip at the start of the x-axis for the linear fit.
+ */
+int produceShowerShapeParametric(float acceptancePerBin, TString rootFileDirectory, TString signalFileDirectory, TString treePath, TString processName, TString label, TString plotFolder, TString inputListOfFiles = "", int startLine = -1, int nLinesToRead = -1, bool overlaySignal = false) {
+
+    // Use same axis limits as TDR
     double plot_ss_ymax = 1.05;
     double plot_ss_ymin = 0.7;
 
@@ -116,46 +165,27 @@ int produceParametric(float acceptancePerBin, int nBinToStartFit, TString rootFi
         ch = getTChainFromListOfFiles(inputListOfFiles, treePath, startLine, nLinesToRead);
     }
 
-    TH2D *h2_iso = fillTH2DIsolationVsPt(ch);
     TH2D *h2_ss = fillTH2DShapeVarVsPt(ch);
-    
-    TGraph *tGraph_iso;
     TGraph *tGraph_ss;
 
-
     if (!overlaySignal) {
-        tGraph_iso = getCutoffOfTH2DAsTGraph(h2_iso, acceptancePerBin);
         bool countUpwards = false; // just for ss
         tGraph_ss = getCutoffOfTH2DAsTGraph(h2_ss, acceptancePerBin, countUpwards);
     }
     else {
         // Get the signal parametric curves (taking care to use the acceptancePerBin argument)
-        tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")), acceptancePerBin);
         tGraph_ss =  getCutoffOfTH2DAsTGraph(fillTH2DShapeVarVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")), acceptancePerBin);
     }
 
 
-    parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0, nBinToStartFit); // start fit at 4th point of the TGraph
-    paramFitIso.linearFitStringRepr();
-    TGraph tgraphParamFitIso = paramFitIso.tGraphRepr();
-
-    // Needs to be called after paramFitIso is created
-    TGraph tgraphTdrIso = getTdrIsoAsTGraph(paramFitIso.getXGraphVals());
-
-    // If you want to plot the un-fitted isolation curve, change the last argument to tGraph_iso (the output of "getCutoffOfTH2DAsTGraph")
-    // If you want to plot the fitted/parametrized curve, change the last argument to &tgraphParamFitIso (the output of the parametricFit::tGraphRepr() method)
-    // If you want to plot the TDR curve, change the last argument to &tgraphTdrIso
-
-    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt_acceptance_" + std::to_string(acceptancePerBin) + "_fitStartBin_" + std::to_string(nBinToStartFit) + ".pdf",   plot_iso_ymin, plot_iso_ymax, &tgraphParamFitIso);
-    // drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt.pdf", plot_ss_ymin, plot_ss_ymax, tGraph_ss);
+    // If you want to plot the un-fitted shower shape curve, change the last argument to tGraph_ss (the output of "getCutoffOfTH2DAsTGraph")
+    drawAndSaveTH2D(h2_ss,  label, "Cluster p_{T} [GeV]", "Et2x5/Et5x5",     plotFolder + processName + "_parametric_et2x5_over_et5x5_vs_clusterPt_" + "acceptance_" + std::to_string(acceptancePerBin) + ".pdf", plot_ss_ymin, plot_ss_ymax, tGraph_ss);
     
 
-    delete h2_iso, h2_ss;
-    delete tGraph_iso, tGraph_ss;
+    delete h2_ss, tGraph_ss;
 
     return 1;
 }
-
 /*
  * Main function: Create TH2D of the isolation and et2x5/et5x5 vs. the cluster pT for a given TTree.
  * Also finds and overlays the cut-off points (one per x-axis bin) where 95% of the events fall above (or below) the cut-off point.
@@ -166,20 +196,14 @@ int drawParametricTH2D(void) {
 
     TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root";
 
-    // Scheme 1 
-    produceParametric(0.98, 1, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
-    
-    // Scheme 2
-    produceParametric(0.98, 2, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
+    // Scheme 5
+    produceIsolationParametric(60, 0.98, 4, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
 
-    // Scheme 3
-    produceParametric(0.99, 4, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
-
-    // Scheme 4
-    produceParametric(0.98, 4, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
-
+    // Background
     //produceParametric("", signalFileDirectory, "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt", 0, 100, true);
 
+    // Shower shape (no fitting implemented yet)
+    //produceShowerShapeParametric(0.98, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
 
     return 1;
 }
