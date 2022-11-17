@@ -49,10 +49,10 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
   assert((graphs.size() == labels.size()) && (graphs.size() == colors.size()));
 
   setTDRStyle();
-  TCanvas* Tcan = new TCanvas("Tcan","", 100, 20, 1000, 800);
+  TCanvas* Tcan = new TCanvas("Tcan","", 100, 20, 1000, 1000);
   TLegend *leg;
   if (legendPos == "bottomright") {
-    leg = new TLegend(0.55,0.15,0.90,0.45);
+    leg = new TLegend(0.40,0.15,0.90,0.45);
   } 
   else if (legendPos == "topright") {
     leg = new TLegend(0.55,0.65,0.90,0.87);
@@ -121,12 +121,12 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
 
 
   // Default to RCT label, use GCT if not
-  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.8]{#it{Phase 2 GCT emulator}}";  
+  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 GCT emulator}}";  
   if (outputName.Contains("RCT")) {
-    emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.8]{#it{Phase 2 RCT emulator}}";  
+    emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 RCT emulator}}";  
   }
   latex->DrawLatex(0.16, 0.960, emuLabel); 
-  latex->DrawLatex(0.58, 0.960, "#scale[0.8]{200 PU, DoubleEle Pt 1 to 100}"); 
+  latex->DrawLatex(0.61, 0.960, "#scale[0.6]{200 PU, DoubleEle Pt 1 to 100}"); 
 
   // Commentary x and y-position
   float commentaryXpos = 0.50;
