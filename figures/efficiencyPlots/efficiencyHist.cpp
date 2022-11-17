@@ -149,7 +149,6 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
 
   Tcan->cd();
   Tcan->SaveAs(outputDir+outputName+".pdf");
-  Tcan->SaveAs(outputDir+outputName+".png");
 
   Tcan->Close();
   delete histDummy, leg, Tcan;
