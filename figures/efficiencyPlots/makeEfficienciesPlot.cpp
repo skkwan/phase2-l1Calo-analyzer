@@ -16,9 +16,10 @@
 
 /*
  * Make efficiency plot for one isolation parametrization scheme.
+ * "mode" must be "isoOnly" or "ssOnly" to specify isolation or shower shape only for the secondary curve, otherwise it defaults to applying both an iso and shower shape.
  */
 
-void makeEfficienciesPlotForOneScheme(float acceptancePerBin, int nBinToStartFit)
+void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bool useOwnShowerShapeFlag, float acceptancePerBin, int nBinToStartFit, float isoPlateauPt)
 {
   gROOT->ProcessLine(".L calculateEfficiency.cpp");
 
@@ -38,22 +39,80 @@ void makeEfficienciesPlotForOneScheme(float acceptancePerBin, int nBinToStartFit
 
   
   TString isoCut;
+  TString ssCut;
   TString outputPlotName;
 
-  if ((acceptancePerBin > 0) && (nBinToStartFit > 0)) {
-    TGraph *tGraph_iso;
-    tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")), acceptancePerBin);
-    parametricFit paramFitIso = parametricFit(tGraph_iso, 70.0, nBinToStartFit);
-    isoCut = paramFitIso.linearFitStringRepr();
-    paramFitIso.tGraphRepr();
+  if (useOwnIsolationFlag) {
+    if ((acceptancePerBin > 0) && (nBinToStartFit > 0)) {
+      TGraph *tGraph_iso;
+      tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")), acceptancePerBin);
+      parametricFit paramFitIso = parametricFit(tGraph_iso, isoPlateauPt, nBinToStartFit);
+      isoCut = paramFitIso.linearFitStringRepr();
+      paramFitIso.tGraphRepr();
 
-    outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_" + std::to_string(acceptancePerBin) + "_fitStartBin_" + std::to_string(nBinToStartFit);
+    }
   }
   else {
     // Use TDR version
     isoCut = "gct_is_iso";
-    outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_TDRflag";
+    outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_iso_and_ss_TDRflags";
   }
+
+  if (useOwnShowerShapeFlag) {
+    // In-line modified
+    // TDR
+    float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;  
+    // Lower the y-intercept by 0.1 (v1) or 0.05 (v2)
+    c0_ss = c0_ss - 0.1;
+    ssCut.Form("((gct_cPt > 130) || ((gct_et2x5/gct_et5x5) >= (%f + %f* exp(-%f * gct_cPt))) )", c0_ss, c1_ss, c2_ss);
+  } 
+  else {
+    ssCut = "gct_is_ss";
+  }
+
+
+  // Default behavior: both iso and ss cuts
+  TString redCutString = " && " + isoCut + " && " + ssCut;
+  TString redLabel = "with iso and shower shape";
+
+  if (useOwnIsolationFlag && useOwnShowerShapeFlag) {
+    outputPlotName = "efficiency_genPt_barrel_GCT_isoAccept_" + TString::Format("%.2f", acceptancePerBin) + "_isoFitStartBin_" +  TString::Format("%i", nBinToStartFit) + "_useOwnFlags";
+    redLabel = "with custom iso and shape flags";
+  }
+  else if (useOwnIsolationFlag && !useOwnShowerShapeFlag) {
+    outputPlotName = "efficiency_genPt_barrel_GCT_isoAccept_" + TString::Format("%.2f", acceptancePerBin) + "_isoFitStartBin_" + TString::Format("%i", nBinToStartFit) + "_useOwnIsoFlagOnly";
+    redLabel = "with custom iso and TDR shape flags";
+  }
+  else if (!useOwnIsolationFlag && useOwnShowerShapeFlag) {
+    outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_useOwnShowerShapeFlagOnly";
+    redLabel = "with TDR iso and custom shape flags";
+  }
+  else {
+    outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_useTDRFlags";
+    redLabel = "with TDR iso and shape flags";
+  }
+
+  if (mode == "isoOnly") {
+    redCutString = " && " + isoCut;
+    if (useOwnIsolationFlag) { 
+      redLabel = "with custom iso flag only";
+    }
+    else {
+      redLabel = "with TDR iso flag only";
+    }
+  }
+  else if (mode == "ssOnly") {
+    redCutString = "&& " + ssCut;
+    if (useOwnShowerShapeFlag) {
+      redLabel = "with custom shape flag only";
+    }
+    else {
+      redLabel = "with TDR shape flag only";
+    }
+  }
+
+  // Also state the plateau pT
+  outputPlotName = outputPlotName + "_isoPlateauPt_" + TString::Format("%.0f", isoPlateauPt);
 
   /*******************************************************/
   /* efficiency as a function of genPt: GCT              */
@@ -74,10 +133,10 @@ void makeEfficienciesPlotForOneScheme(float acceptancePerBin, int nBinToStartFit
   vColors.push_back(kBlack);
 
   TGraphAsymmErrors *tight = calculateEfficiency("genPt", treePath, rootFileDirectory,  
-                                                  l1Cut + "&&" + isoCut,
+                                                  l1Cut + redCutString,
                                                   genCut, xMin, xMax, useVariableBinning);
   vGraphs.push_back(tight);
-  vLabels.push_back("with isolation only");
+  vLabels.push_back(redLabel);
   vColors.push_back(kRed);
 
   plotNEfficiencies(vGraphs, vLabels, vColors,
@@ -194,20 +253,7 @@ void makeEfficienciesPlotForOneScheme(float acceptancePerBin, int nBinToStartFit
 }
 
 void makeEfficienciesPlot(void) {
-  
-  // // Scheme 1
-  // makeEfficienciesPlotForOneScheme(0.98, 1);
 
-  // // Scheme 2
-  // makeEfficienciesPlotForOneScheme(0.98, 2);
-
-  // // Scheme 3
-  // makeEfficienciesPlotForOneScheme(0.99, 4);
-
-  // Scheme 4
-  // makeEfficienciesPlotForOneScheme(0.98, 4);
-
-  // Use TDR
-  makeEfficienciesPlotForOneScheme(-1, -1);
+  makeEfficienciesPlotForOneScheme("both", true, true, 0.98, 4, 60);
 }
 /*********************************************************************/
