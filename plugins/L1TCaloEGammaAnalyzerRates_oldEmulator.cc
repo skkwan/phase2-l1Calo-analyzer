@@ -1,5 +1,5 @@
 /*
- *  \file L1TCaloEGammaAnalyzerRates.cc
+ *  \file L1TCaloEGammaAnalyzerRates_oldEmulator.cc
  *  Authors S. Kwan, P. Das, I. Ojalvo
  */
 
@@ -44,7 +44,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "L1Trigger/L1CaloPhase2Analyzer/interface/L1TCaloEGammaAnalyzerRates.h"
+#include "L1Trigger/L1CaloPhase2Analyzer/interface/L1TCaloEGammaAnalyzerRates_oldEmulator.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 
@@ -58,13 +58,10 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-L1TCaloEGammaAnalyzerRates::L1TCaloEGammaAnalyzerRates( const ParameterSet & cfg ) :
+L1TCaloEGammaAnalyzerRates_oldEmulator::L1TCaloEGammaAnalyzerRates_oldEmulator( const ParameterSet & cfg ) :
   ecalSrc_(consumes<EcalEBTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("ecalDigis"))),
   hcalSrc_(consumes<HcalTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("hcalDigis"))),
-  rctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("rctClusters"))),
-  gctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
-  rctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("rctClusters"))),
-  gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
+  gctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("clusters"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
   genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -118,10 +115,10 @@ L1TCaloEGammaAnalyzerRates::L1TCaloEGammaAnalyzerRates( const ParameterSet & cfg
 
   }
 
-void L1TCaloEGammaAnalyzerRates::beginJob( const EventSetup & es) {
+void L1TCaloEGammaAnalyzerRates_oldEmulator::beginJob( const EventSetup & es) {
 }
 
-void L1TCaloEGammaAnalyzerRates::analyze( const Event& evt, const EventSetup& es )
+void L1TCaloEGammaAnalyzerRates_oldEmulator::analyze( const Event& evt, const EventSetup& es )
  {
 
   run = evt.id().run();
@@ -130,9 +127,6 @@ void L1TCaloEGammaAnalyzerRates::analyze( const Event& evt, const EventSetup& es
   
   nEvents->Fill(1);
 
-  edm::Handle<l1tp2::CaloCrystalClusterCollection> rctCaloCrystalClusters;
-  edm::Handle<l1tp2::CaloTowerCollection> rctCaloL1Towers;
-  
   edm::Handle<l1tp2::CaloCrystalClusterCollection> gctCaloCrystalClusters;
   edm::Handle<l1tp2::CaloTowerCollection> gctCaloL1Towers;
   
@@ -193,8 +187,8 @@ void L1TCaloEGammaAnalyzerRates::analyze( const Event& evt, const EventSetup& es
       gctClusterInfo->push_back(temp);
     }
   }
-  std::sort(gctClusters->begin(), gctClusters->end(), L1TCaloEGammaAnalyzerRates::comparePt);
-  std::sort(gctClusterInfo->begin(), gctClusterInfo->end(), L1TCaloEGammaAnalyzerRates::compareClusterPt);
+  std::sort(gctClusters->begin(), gctClusters->end(), L1TCaloEGammaAnalyzerRates_oldEmulator::comparePt);
+  std::sort(gctClusterInfo->begin(), gctClusterInfo->end(), L1TCaloEGammaAnalyzerRates_oldEmulator::compareClusterPt);
 
  
   // Build the collections that we need for rates: only use the highest pT GCT cluster in each event
@@ -209,18 +203,8 @@ void L1TCaloEGammaAnalyzerRates::analyze( const Event& evt, const EventSetup& es
     gct_et5x5 = gctClusterInfo->at(0).et5x5; 
     gct_is_looseTkss = gctClusterInfo->at(0).is_looseTkss;
     gct_is_looseTkiso = gctClusterInfo->at(0).is_looseTkiso;
-
-
-    //gct_is_ss = gctClusterInfo->at(0).is_ss;
-    // Try in-line modified TDR shower shape isolation function
-    // To loosen, subtract y-intercept by 0.1 (v1, even looser) or 0.05 (v2, less loose)
-    float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;  
-    c0_ss = c0_ss - 0.1;
-    gct_is_ss = ((gct_cPt > 130) || ((gct_et2x5/gct_et5x5) >= ((c0_ss + c1_ss * std::exp(-c2_ss * gct_cPt))) ) );  
-
-    // gct_is_iso = gctClusterInfo->at(0).is_iso;
-    // Use in-line newly derived isolation function
-    gct_is_iso = ( ((gct_cPt >= 60.00) && (gct_iso <= 0.450000)) || ( (gct_cPt < 60.00) && ( gct_iso < ((-0.010000 * gct_cPt) + (1.050000)) ) ) );
+    gct_is_ss = gctClusterInfo->at(0).is_ss;
+    gct_is_iso = gctClusterInfo->at(0).is_iso;
 
     std::cout << "GCT cluster (highest pT in this event): " << gct_cPt<< std::endl;
     
@@ -266,11 +250,11 @@ void L1TCaloEGammaAnalyzerRates::analyze( const Event& evt, const EventSetup& es
 
 
 
-void L1TCaloEGammaAnalyzerRates::endJob() {
+void L1TCaloEGammaAnalyzerRates_oldEmulator::endJob() {
 }
 
-L1TCaloEGammaAnalyzerRates::~L1TCaloEGammaAnalyzerRates(){
+L1TCaloEGammaAnalyzerRates_oldEmulator::~L1TCaloEGammaAnalyzerRates_oldEmulator(){
 }
 
-DEFINE_FWK_MODULE(L1TCaloEGammaAnalyzerRates);
+DEFINE_FWK_MODULE(L1TCaloEGammaAnalyzerRates_oldEmulator);
 

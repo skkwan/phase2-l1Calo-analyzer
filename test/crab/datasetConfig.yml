@@ -1,6 +1,17 @@
 # Dataset configuration
 
+# outputName must match what is in the cmsRun config file in process.TFileService, otherwise the CRAB config file will be wrong and CRAB won't be able to find the output files 
+
 requestname: "Analyzer"
+
+signal_oldEmulator:
+  year: 2022
+  script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_signal_oldEmulator.py
+  prodtag: Phase2HLTTDRWinter20DIGI
+  inputDBS: global
+  outputName: analyzer-oldEmulator.root
+  datasets:
+    DoubleElectron_FlatPt-1To100_oldEmulator: /DoubleElectron_FlatPt-1To100/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v2/GEN-SIM-DIGI-RAW
 
 signal:
   year: 2022
@@ -33,3 +44,14 @@ rates:
   datasets:
     # We only have one block (#2f4f0ee3-5dd4-4a4b-82cc-3da8406e3119) but no way to tell CRAB this 
     Rates_MinBias_TuneCP5_14TeV-pythia8: /MinBias_TuneCP5_14TeV-pythia8/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v3/GEN-SIM-DIGI-RAW
+
+rates_oldEmulator:
+  year: 2022
+  # Path within CMSSW_BASE
+  script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_rates_oldEmulator.py
+  prodtag: Phase2HLTTDRWinter20DIGI
+  inputDBS: global
+  outputName: analyzer-rates_oldEmulator.root
+  datasets:
+    # We only have one block (#2f4f0ee3-5dd4-4a4b-82cc-3da8406e3119) but no way to tell CRAB this 
+    Rates_MinBias_TuneCP5_14TeV-pythia8_oldEmulator: /MinBias_TuneCP5_14TeV-pythia8/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v3/GEN-SIM-DIGI-RAW
