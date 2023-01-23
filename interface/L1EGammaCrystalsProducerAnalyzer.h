@@ -131,9 +131,7 @@ class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
 
   
   // Outputs of the emulator
-  std::vector<TLorentzVector> *rctClusters  = new std::vector<TLorentzVector>; 
-  std::vector<TLorentzVector> *rctTowers    = new std::vector<TLorentzVector>;
-
+  
   std::vector<TLorentzVector> *gctClusters  = new std::vector<TLorentzVector>;
   std::vector<TLorentzVector> *gctTowers    = new std::vector<TLorentzVector>;
 
@@ -149,6 +147,9 @@ class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
   TH1F* recoTau_eta;
   TH1F* recoTau_phi;
   TTree* efficiencyTree;
+
+  bool requireGenMatching_;
+  bool saveOnlyHighestPtCluster_;
 
   int run, lumi, event;
   double genPt, genEta, genPhi;
@@ -249,7 +250,6 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<vector <l1extra::L1JetParticle> > l1ExtraJetSource_;
   std::vector< edm::EDGetTokenT<l1t::TauBxCollection> > stage2TauSource_;
   edm::EDGetTokenT<vector <L1CaloRegion> > regionSource_;
-  edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> rctClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> gctClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> rctTowersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> gctTowersSrc_;

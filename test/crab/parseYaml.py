@@ -10,7 +10,7 @@ CMSSW_BASE = os.getenv('CMSSW_BASE') + "/"
 
 print("Found CMSSW_BASE as", CMSSW_BASE)
 
-for eraType in ["signal_oldEmulator", "signal", "background", "rates", "rates_oldEmulator"]:
+for eraType in ["signal_oldEmulator", "signal", "background", "background_oldEmulator", "rates", "rates_oldEmulator"]:
    for d in config[eraType]["datasets"]:
 
       dir = "crabJobConfigs/" + str(config[eraType]["year"]) + "/" 

@@ -71,6 +71,7 @@ L1TCaloEGammaAnalyzer::L1TCaloEGammaAnalyzer( const ParameterSet & cfg ) :
 
     folderName_          = cfg.getUntrackedParameter<std::string>("folderName");
     requireGenMatching_ = cfg.getUntrackedParameter<bool>("requireGenMatching");
+    saveOnlyHighestPtCluster_ = cfg.getUntrackedParameter<bool>("saveOnlyHighestPtCluster");
     efficiencyTree = tfs_->make<TTree>("efficiencyTree", "Efficiency Tree");
     
     ////putting bufsize at 32000 and changing split level to 0 so that the branch isn't split into multiple branches
@@ -583,7 +584,14 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       gct_is_ss = 0; gct_is_looseTkss = 0;
       gct_is_iso = 0; gct_is_looseTkiso = 0;
 
-      for (size_t i = 0; i < gctClusterInfo->size(); ++i) {
+      size_t maxToSave;
+      if (saveOnlyHighestPtCluster_) {
+        maxToSave = 1;
+      }
+      else {
+        maxToSave = gctClusterInfo->size();
+      }
+      for (size_t i = 0; i < maxToSave; i++) {
         std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
                   << " eta "               << gctClusterInfo->at(i).p4.Eta()
                   << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
