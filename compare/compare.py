@@ -145,12 +145,13 @@ def interSect(tree1, tree2, var='event', common=False, save=False,  titles=[], o
     return tlist1, tlist2
 
 
-def scanForDiff(tree1, tree2, branch_names, roundPrecision, scan_var='pt_1', index_var='event'):
+def scanForDiff(tree1, tree2, branch_names, roundPrecision, scan_var='pt_1', overwrite=True, index_var='event'):
     # tree1.BuildIndex(index_var)
     # index1 = tree1.GetTreeIndex()
     tree2.BuildIndex(index_var)
 
     diff_events = []
+    all_events = []
 
     for entry_1 in tree1:
         ind = int(getattr(tree1, index_var))
@@ -162,6 +163,8 @@ def scanForDiff(tree1, tree2, branch_names, roundPrecision, scan_var='pt_1', ind
         if tree1.event != tree2.event:
             continue
         
+        all_events.append("{}:{}:{}".format(tree1.run, tree1.lumi, ind))
+
         # For this specific case scan_var is gct_cPt
         if (round(var1, roundPrecision) != round(var2, roundPrecision)):
             diff_events.append("{}:{}:{}".format(tree1.run, tree1.lumi, ind))
@@ -172,19 +175,26 @@ def scanForDiff(tree1, tree2, branch_names, roundPrecision, scan_var='pt_1', ind
                 print '{b:>43}: {v1:>8.4f}, {v2:>8.4f}'.format(b=branch, v1=v1, v2=v2)
             # print
 
-    print 'Found', len(diff_events), 'events with differences in', scan_var
+    print 'Found', len(diff_events), 'events with differences in', scan_var, 'out of', len(all_events)
     print diff_events
     print 'Generating .txt file for edmPickEvents.py...'
     print(type(diff_events))
-    makeTxtFileForEdmPickEvents("eventsWithDiff.txt", diff_events)
+    makeTxtFileForEdmPickEvents("eventsWithDiff_{}.txt".format(scan_var), diff_events, overwrite)
+    makeTxtFileForEdmPickEvents("allEvents_{}.txt".format(scan_var), all_events, overwrite)
 
-def makeTxtFileForEdmPickEvents(outputFileName, listOfEvents):
+def makeTxtFileForEdmPickEvents(outputFileName, listOfEvents, overwrite = True):
     """
-    From a list of events in the format "run:lumi:event", write them to a output file separated by newlines.    
+    From a list of events in the format "run:lumi:event", write them to a output file separated by newlines. 
+    If overwrite is true, overwrite any existing file, else append to the existing file.   
     """
-    with open(outputFileName, 'w') as f:
-        for event in listOfEvents:
-            f.write("{}\n".format(event))
+    if (overwrite):
+        with open(outputFileName, 'w') as f:
+            for event in listOfEvents:
+                f.write("{}\n".format(event))
+    else:
+        with open(outputFileName, 'a') as f:
+            for event in listOfEvents:
+                f.write("{}\n".format(event))
 
 if __name__ == '__main__':
         
@@ -266,5 +276,5 @@ if __name__ == '__main__':
     #     comparisonPlots(u_names, trees, args.titles, args.output_dir +'common.pdf')#, args.do_ratio)
 
     if len(trees) == 2 and args.do_diff:
-        scanForDiff(trees[0], trees[1], u_names, args.round_precision, scan_var=args.var_diff)
+        scanForDiff(trees[0], trees[1], u_names, args.round_precision, scan_var=args.var_diff, overwrite=False)
 
