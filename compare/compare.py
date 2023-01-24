@@ -234,7 +234,7 @@ if __name__ == '__main__':
                     args[i] = line
                     break
 
-    tfiles = [ROOT.TFile(arg) for arg in args.files]
+    tfiles = [ROOT.TFile.Open(arg) for arg in args.files]
 
     trees = [findTree(f) for f in tfiles]
 
