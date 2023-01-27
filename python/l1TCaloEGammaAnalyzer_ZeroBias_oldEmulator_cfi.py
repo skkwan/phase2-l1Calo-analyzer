@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-l1NtupleProducer = cms.EDAnalyzer("L1EGammaCrystalsProducerAnalyzer",
+l1NtupleProducerOldAnalyzer = cms.EDAnalyzer("L1EGammaCrystalsProducerAnalyzer",
                                   folderName              = cms.untracked.string("firstFolder"),
                                   requireGenMatching      = cms.untracked.bool(False),
                                   saveOnlyHighestPtCluster = cms.untracked.bool(True),

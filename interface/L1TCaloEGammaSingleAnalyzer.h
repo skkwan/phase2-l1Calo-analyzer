@@ -150,12 +150,21 @@ class L1TCaloEGammaSingleAnalyzer : public edm::EDAnalyzer {
   TH1F* recoTau_eta;
   TH1F* recoTau_phi;
   TTree* efficiencyTree;
+  TTree* dispTree;
 
   bool requireGenMatching_;
   bool saveOnlyHighestPtCluster_;
 
   int run, lumi, event;
   double genPt, genEta, genPhi;
+
+  double old_cPt, old_cEta, old_cPhi;
+  double old_deltaR;
+  double old_et2x5, old_et5x5;
+  double old_iso;  
+  int old_is_ss, old_is_looseTkss;
+  int old_is_iso, old_is_looseTkiso;
+
   double rct_cPt, rct_cEta, rct_cPhi;
   double rct_deltaR;
   double rct_et2x5, rct_et5x5;
