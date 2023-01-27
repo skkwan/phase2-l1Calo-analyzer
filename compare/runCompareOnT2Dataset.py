@@ -27,7 +27,7 @@ os.system("rm eventsWithDiff_gct_is_iso.txt")
 os.system("rm allEvents_gct_is_iso.txt")
 
 for var in varslist:
-    for i in range(1, 999):
+    for i in range(1, 100):
         file1 = dir1 + "analyzer-MinBias-oldEmulator_{}.root".format(i)
         file2 = dir2 + "analyzer_{}.root".format(i)    
         options = "--no-intersection --diff --var-diff={} --output-dir={} --round-precision=0 --veto-common-branches ecalTPGs hcalTPGs nvtx --titles {} {}".format(var, exportDir, firstName, secondName)
