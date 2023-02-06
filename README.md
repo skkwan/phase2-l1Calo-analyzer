@@ -15,7 +15,31 @@
 
    On laptop, clone this repository as well. For instance my working area is at: `/Users/stephaniekwan/Documents/Phase2L1Calo/phase2-l1Calo-analyzer`.
 
-## To run the emulator and create an n-tuple for the event display
+
+## To run the single emulator
+
+To run the single emulator which now also produces `TLorentzVectors` suitable for the event display,
+
+1. `cmsRun test-singleAnalyzer.py`
+
+
+## To identify pathological MinBias events
+
+0. Run CRAB jobs to make MinBias n-tuples for the old and new analyzers, stored on T2.
+1. In the `test/compare` directory, change `compare.py` to have the event pre-selection you want (e.g. disagreement in isolation flag).
+2. Interactively (maybe in the background) run `runCompareOnT2Dataset.py` to scan these n-tuples for said differences.
+3. This should build a file like `eventsWithDiff_gct_is_iso.txt` with a list of run:lumi:events.
+4. Generate the CRAB config file:
+   ```
+   cd ../
+   cd pickEvent
+   # Edit runPickEventCRAB.sh to point to the right .txt file!
+   source runPickEventCRAB.sh
+   ```
+5. Submit the resulting CRAB config file and wait for skimmed n-tuples to show up in T2.
+6. Then run the single analyzer and the event display (housed in a different directory, `/afs/cern.ch/work/s/skkwan/private/phase2RCTDev/eventDisplay`.
+
+## (Older steps) To run the emulator and create an n-tuple for the event display
 
 1. Make sure the `L1Trigger/L1CaloTrigger` area is compiled, since this analyzer loads and calls the modules from that area.
 
