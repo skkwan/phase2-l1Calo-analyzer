@@ -118,6 +118,7 @@ class L1TCaloEGammaSingleAnalyzer : public edm::EDAnalyzer {
     double et2x5;
     double et5x5;
     double iso;
+    double rawIso;
     bool is_ss;
     bool is_looseTkss;
     bool is_iso;
@@ -129,14 +130,24 @@ class L1TCaloEGammaSingleAnalyzer : public edm::EDAnalyzer {
   std::vector<Cluster> *rctClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>;
   std::vector<Cluster> *gctClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>; 
 
-  // Outputs of the emulator
+  // Outputs of the emulator, for event display
   std::vector<TLorentzVector> *oldClusters =  new std::vector<TLorentzVector>; 
+  std::vector<TLorentzVector> *oldTowers =  new std::vector<TLorentzVector>; 
+
+  std::vector<float> *oldRawIso = new std::vector<float>;
+  std::vector<float> *oldRelIso = new std::vector<float>;
+  std::vector<bool> *oldIsoFlag = new std::vector<bool>;
+
   std::vector<TLorentzVector> *rctClusters  = new std::vector<TLorentzVector>; 
   std::vector<TLorentzVector> *rctTowers    = new std::vector<TLorentzVector>;
 
   std::vector<TLorentzVector> *gctClusters  = new std::vector<TLorentzVector>;
   std::vector<TLorentzVector> *gctTowers    = new std::vector<TLorentzVector>;
-  
+
+  std::vector<float> *newRawIso = new std::vector<float>;
+  std::vector<float> *newRelIso = new std::vector<float>;
+  std::vector<bool> *newIsoFlag = new std::vector<bool>;
+
 
   TH1F* isoTau_pt;
   TH1F* isoTau_eta;
@@ -161,7 +172,7 @@ class L1TCaloEGammaSingleAnalyzer : public edm::EDAnalyzer {
   double old_cPt, old_cEta, old_cPhi;
   double old_deltaR;
   double old_et2x5, old_et5x5;
-  double old_iso;  
+  double old_rawIso, old_iso;  
   int old_is_ss, old_is_looseTkss;
   int old_is_iso, old_is_looseTkiso;
 
@@ -172,7 +183,7 @@ class L1TCaloEGammaSingleAnalyzer : public edm::EDAnalyzer {
   double gct_cPt, gct_cEta, gct_cPhi;
   double gct_deltaR;
   double gct_et2x5, gct_et5x5;
-  double gct_iso;   // only meaningful for GCT
+  double gct_rawIso, gct_iso;   // only meaningful for GCT
   int gct_is_ss, gct_is_looseTkss;
   int gct_is_iso, gct_is_looseTkiso;
 
