@@ -165,6 +165,9 @@ def scanForDiff(tree1, tree2, branch_names, roundPrecision, scan_var='pt_1', ove
         pt1 = getattr(tree1, "gct_cPt")
         pt2 = getattr(tree1, "gct_cPt")
 
+        rawIso1 = getattr(tree1, "gct_iso")
+        rawIso2 = getattr(tree2, "gct_iso")
+
         if tree1.event != tree2.event:
             continue
         
@@ -173,10 +176,10 @@ def scanForDiff(tree1, tree2, branch_names, roundPrecision, scan_var='pt_1', ove
         if (round(var1, roundPrecision) != round(var2, roundPrecision)):
             # Already also pre-filter on high pT disagreements
             diff_events_loose.append("{}:{}:{}".format(tree1.run, tree1.lumi, ind))
-            print 'Found event with pt1 {} and pt2 {}'.format(pt1, pt2)
+            print 'Found event with pt1 {}, raw iso {}, and pt2 {}, raw iso {}'.format(pt1, rawIso1, pt2, rawIso2)
 
-            if (pt1 > 35) or (pt2 > 35):
-                print 'Found event with one high pT: pt1 {} and pt2 {}'.format(pt1, pt2)
+            if (rawIso2 < rawIso1):
+                print 'Found event where new raw iso is LESS than old raw iso'
 
                 diff_events.append("{}:{}:{}".format(tree1.run, tree1.lumi, ind))
                 print round(var1, roundPrecision), " ", round(var2, roundPrecision)
@@ -187,7 +190,7 @@ def scanForDiff(tree1, tree2, branch_names, roundPrecision, scan_var='pt_1', ove
             # print
 
     print 'Found', len(diff_events_loose), 'events with differences in', scan_var, 'out of', len(all_events)
-    print 'Found', len(diff_events), 'events with differences in', scan_var, 'AND pT > 35, out of', len(all_events)
+    print 'Found', len(diff_events), 'events with differences in', scan_var, 'AND new raw iso *less* than old raw iso, out of', len(all_events)
     print diff_events
     print 'Generating .txt file for edmPickEvents.py...'
     print(type(diff_events))
