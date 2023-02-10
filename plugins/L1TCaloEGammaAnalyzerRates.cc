@@ -211,16 +211,8 @@ void L1TCaloEGammaAnalyzerRates::analyze( const Event& evt, const EventSetup& es
     gct_is_looseTkiso = gctClusterInfo->at(0).is_looseTkiso;
 
 
-    //gct_is_ss = gctClusterInfo->at(0).is_ss;
-    // Try in-line modified TDR shower shape isolation function
-    // To loosen, subtract y-intercept by 0.1 (v1, even looser) or 0.05 (v2, less loose)
-    float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;  
-    c0_ss = c0_ss - 0.1;
-    gct_is_ss = ((gct_cPt > 130) || ((gct_et2x5/gct_et5x5) >= ((c0_ss + c1_ss * std::exp(-c2_ss * gct_cPt))) ) );  
-
-    // gct_is_iso = gctClusterInfo->at(0).is_iso;
-    // Use in-line newly derived isolation function
-    gct_is_iso = ( ((gct_cPt >= 60.00) && (gct_iso <= 0.450000)) || ( (gct_cPt < 60.00) && ( gct_iso < ((-0.010000 * gct_cPt) + (1.050000)) ) ) );
+    gct_is_ss = gctClusterInfo->at(0).is_ss;
+    gct_is_iso = gctClusterInfo->at(0).is_iso;
 
     std::cout << "GCT cluster (highest pT in this event): " << gct_cPt<< std::endl;
     
