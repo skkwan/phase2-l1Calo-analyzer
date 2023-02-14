@@ -137,7 +137,7 @@ int produceIsolationParametric(float plateauPt, float acceptancePerBin, int nBin
     // If you want to plot the un-fitted isolation curve, change the last argument to tGraph_iso (the output of "getCutoffOfTH2DAsTGraph")
     // If you want to plot the fitted/parametrized curve, change the last argument to &tgraphParamFitIso (the output of the parametricFit::tGraphRepr() method)
     // If you want to plot the TDR curve, change the last argument to &tgraphTdrIso
-    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt_acceptance_" + std::to_string(acceptancePerBin) + "_fitStartBin_" + std::to_string(nBinToStartFit) + "_plateauAt_" + std::to_string(plateauPt) + ".pdf",   plot_iso_ymin, plot_iso_ymax, &tgraphParamFitIso);    
+    drawAndSaveTH2D(h2_iso, label, "Cluster p_{T} [GeV]", "Relative isolation", plotFolder + processName + "_parametric_isolation_vs_clusterPt_acceptance_" + std::to_string(acceptancePerBin) + "_fitStartBin_" + std::to_string(nBinToStartFit) + "_plateauAt_" + std::to_string(plateauPt) + ".pdf",   plot_iso_ymin, plot_iso_ymax, &tgraphTdrIso);    
 
     delete h2_iso, tGraph_iso;
 
@@ -161,7 +161,7 @@ int produceShowerShapeParametric(float acceptancePerBin, TString rootFileDirecto
         ch = getTChainFromSingleFile(rootFileDirectory, treePath);
     }
     else {
-        std::cout << "Attempting to get TChin from list of files..." << std::endl;
+        std::cout << "Attempting to get TChain from list of files..." << std::endl;
         ch = getTChainFromListOfFiles(inputListOfFiles, treePath, startLine, nLinesToRead);
     }
 
@@ -194,10 +194,16 @@ int produceShowerShapeParametric(float acceptancePerBin, TString rootFileDirecto
 
 int drawParametricTH2D(void) {
 
-    TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root";
+    //TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root";
+
+    // Old emulator
+    TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_oldEmulator_partial_reverted.root";
+
+    // Old emulator
+    produceIsolationParametric(60, 0.98, 4, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, old emulator with TDR flag", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/oldEmulator/");
 
     // Scheme 5
-    produceIsolationParametric(60, 0.98, 4, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
+    // produceIsolationParametric(60, 0.98, 4, signalFileDirectory, signalFileDirectory, "l1NtupleProducer/efficiencyTree", "DoubleElectron", "Double Electron, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/");
 
     // Background
     //produceParametric("", signalFileDirectory, "l1NtupleProducer/efficiencyTree", "MinBias", "MinBias, ECAL tower iso", "/eos/user/s/skkwan/phase2RCTDevel/figures/parametricCurves/", "../data/listMinBiasAnalyzerFiles.txt", 0, 100, true);

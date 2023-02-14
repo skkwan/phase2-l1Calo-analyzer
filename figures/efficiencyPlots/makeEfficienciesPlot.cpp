@@ -23,9 +23,10 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
 {
   gROOT->ProcessLine(".L calculateEfficiency.cpp");
 
+
   TString treePath = "l1NtupleProducer/efficiencyTree";
-  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root";
-  TString signalFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root"; // for the parametric curve
+  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron.root";
+  TString signalFileDirectory = ""; //eos/user/s/skkwan/phase2RCTDevel/analyzer_DoubleElectron_partial.root"; // for the parametric curve
   TString outputDirectory = "/eos/user/s/skkwan/phase2RCTDevel/figures/efficiencies/";
  
 
@@ -43,6 +44,8 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
   TString outputPlotName;
 
   if (useOwnIsolationFlag) {
+    printf("[WARNING:] Using self-derived isolation flag\n");
+
     if ((acceptancePerBin > 0) && (nBinToStartFit > 0)) {
       TGraph *tGraph_iso;
       tGraph_iso = getCutoffOfTH2DAsTGraph(fillTH2DIsolationVsPt(getTChainFromSingleFile(signalFileDirectory, "l1NtupleProducer/efficiencyTree")), acceptancePerBin);
@@ -54,11 +57,14 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
   }
   else {
     // Use TDR version
+    printf("[INFO:] Using TDR isolation flag\n");
     isoCut = "gct_is_iso";
     outputPlotName = "efficiency_genPt_barrel_GCT_acceptance_iso_and_ss_TDRflags";
   }
 
   if (useOwnShowerShapeFlag) {
+    printf("[WARNING:] Using self-derived shower shape flag\n");
+
     // In-line modified
     // TDR
     float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;  
@@ -67,6 +73,8 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
     ssCut.Form("((gct_cPt > 130) || ((gct_et2x5/gct_et5x5) >= (%f + %f* exp(-%f * gct_cPt))) )", c0_ss, c1_ss, c2_ss);
   } 
   else {
+    printf("[INFO:] Using TDR shower shape flag\n");
+
     ssCut = "gct_is_ss";
   }
 
@@ -111,9 +119,10 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
     }
   }
 
-  // Also state the plateau pT
-  outputPlotName = outputPlotName + "_isoPlateauPt_" + TString::Format("%.0f", isoPlateauPt);
-
+  // Also state the plateau pT if applicable
+  if (useOwnIsolationFlag) {
+    outputPlotName = outputPlotName + "_isoPlateauPt_" + TString::Format("%.0f", isoPlateauPt);
+  }
   /*******************************************************/
   /* efficiency as a function of genPt: GCT              */
   /*******************************************************/
@@ -254,6 +263,6 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
 
 void makeEfficienciesPlot(void) {
 
-  makeEfficienciesPlotForOneScheme("both", true, true, 0.98, 4, 60);
+  makeEfficienciesPlotForOneScheme("both", false, false, 0.98, 4, 60);
 }
 /*********************************************************************/
