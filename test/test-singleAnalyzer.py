@@ -8,7 +8,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 # Dataset: 
 # 200 PU: 
@@ -17,10 +17,24 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
+                                # Signal events (just want to get one with good agreement)
+                                'root://cmsxrootd.fnal.gov///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/40A5AD90-B259-4646-B473-2443964A1C15.root',
 
-                                #'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v3/10000/004299CF-ED4D-9140-BECA-772B15D9FDF4.root',
 
-                                'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230125_100411/0000/pickevents_10.root',
+                                # Disagreements in iso flag, and new rel isolation is less than old rel isolation
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230209_083734_newIsoLessThanOldIso/0000/pickevents_1.root',
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230209_083734_newIsoLessThanOldIso/0000/pickevents_2.root',
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230209_083734_newIsoLessThanOldIso/0000/pickevents_3.root',
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230209_083734_newIsoLessThanOldIso/0000/pickevents_4.root',
+
+                                # Disagrements in iso flag *and* high pT
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230206_094406/0000/pickevents_1.root',
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230206_094406/0000/pickevents_2.root',
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230206_094406/0000/pickevents_3.root',
+
+
+                                # Only disagreements in iso flag
+                                # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230125_100411/0000/pickevents_10.root',
                                 # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230125_100411/0000/pickevents_11.root',
                                 # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230125_100411/0000/pickevents_12.root',
                                 # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230125_100411/0000/pickevents_13.root',
@@ -49,8 +63,6 @@ process.source = cms.Source("PoolSource",
                         )
 
 
-# process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:3774")
-# process.source.eventsToProcess = cms.untracked.VEventRange("1:667914")
 # --------------------------------------------------------------------------------------------                                                    
 #                                                                                                                                                            
 # ----   Run the relevant algorithms
@@ -81,7 +93,7 @@ process.pL1EG = cms.Path( process.Phase2L1CaloEGammaEmulatorProducer* process.L1
 
 # output file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('singleAnalyzer.root')
+    fileName = cms.string('singleAnalyzer-signal10events.root')
 )
 
 # process.Out = cms.OutputModule( "PoolOutputModule",
