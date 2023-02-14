@@ -90,10 +90,6 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer( const ParameterSet & c
 
     dispTree->Branch("newClusters", "vector<TLorentzVector>", &gctClusters, 32000, 0); 
     dispTree->Branch("newTowers",   "vector<TLorentzVector>", &gctTowers, 32000, 0);
-    dispTree->Branch("newRelIso", "vector<float>", &newRelIso, 32000, 0);
-    dispTree->Branch("newIsoFlag", "vector<bool>", &newIsoFlag, 32000, 0);
-    dispTree->Branch("newRawIso", "vector<float>", &newRawIso, 32000, 0);
-
     dispTree->Branch("hcalTPGs", "vector<TLorentzVector>", &allHcalTPGs, 32000, 0); 
     dispTree->Branch("ecalTPGs", "vector<TLorentzVector>", &allEcalTPGs, 32000, 0); 
 
@@ -179,6 +175,14 @@ void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& e
   newRelIso->clear();
   newIsoFlag->clear();
 
+  oldRawIso->clear();
+  oldRelIso->clear();
+  oldIsoFlag->clear();
+
+  newRawIso->clear();
+  newRelIso->clear();
+  newIsoFlag->clear();
+
   // Detector geometry
   es.get<CaloGeometryRecord>().get(caloGeometry_);
   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
@@ -201,6 +205,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& e
                 << "phi "               << oldCluster.phi() << ", " 
 		            << "iso "               << oldCluster.isolation() << ", " 
                 << "raw isolation "     << oldCluster.hovere() 
+                << "raw isolation "     << oldCluster.hovere() 
 		            << std::endl;
       temp_p4.SetPtEtaPhiE(oldCluster.pt(),oldCluster.eta(),oldCluster.phi(),oldCluster.pt());
 
@@ -208,6 +213,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& e
       temp.et2x5 = oldCluster.e2x5();  // see https://cmssdt.cern.ch/lxr/source/DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h
       temp.et5x5 = oldCluster.e5x5();
       temp.iso   = oldCluster.isolation();
+      temp.rawIso = oldCluster.hovere(); // This is really wrong because for debugging we are saving the raw isolation sum (no division by cluster pT) in the H over e field
       temp.rawIso = oldCluster.hovere(); // This is really wrong because for debugging we are saving the raw isolation sum (no division by cluster pT) in the H over e field
 
       temp.is_ss         = oldCluster.experimentalParam("standaloneWP_showerShape");
