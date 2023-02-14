@@ -1,5 +1,5 @@
 /*
- *  \file L1TCaloEGammaAnalyzer.cc
+ *  \file L1TCaloEGammaSingleAnalyzer.cc
  *  Authors S. Kwan, P. Das, I. Ojalvo
  */
 
@@ -43,8 +43,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "L1Trigger/L1CaloPhase2Analyzer/interface/L1TCaloEGammaAnalyzer.h"
+ 
+#include "L1Trigger/L1CaloPhase2Analyzer/interface/L1TCaloEGammaSingleAnalyzer.h" 
 #include "DataFormats/Math/interface/deltaR.h"
 
 
@@ -58,13 +58,15 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-L1TCaloEGammaAnalyzer::L1TCaloEGammaAnalyzer( const ParameterSet & cfg ) :
+L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer( const ParameterSet & cfg ) :
   ecalSrc_(consumes<EcalEBTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("ecalDigis"))),
   hcalSrc_(consumes<HcalTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("hcalDigis"))),
   rctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("rctClusters"))),
   gctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
   rctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("rctClusters"))),
- gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
+  gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
+  oldClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("oldClusters"))),
+ // oldTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("oldTowers"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
   genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -72,16 +74,25 @@ L1TCaloEGammaAnalyzer::L1TCaloEGammaAnalyzer( const ParameterSet & cfg ) :
     folderName_          = cfg.getUntrackedParameter<std::string>("folderName");
     requireGenMatching_ = cfg.getUntrackedParameter<bool>("requireGenMatching");
     saveOnlyHighestPtCluster_ = cfg.getUntrackedParameter<bool>("saveOnlyHighestPtCluster");
+    dispTree = tfs_->make<TTree>("dispTree", "Event Display Tree");
     efficiencyTree = tfs_->make<TTree>("efficiencyTree", "Efficiency Tree");
     
     ////putting bufsize at 32000 and changing split level to 0 so that the branch isn't split into multiple branches
-    efficiencyTree->Branch("rctClusters", "vector<TLorentzVector>", &rctClusters, 32000, 0); 
-    efficiencyTree->Branch("rctTowers",   "vector<TLorentzVector>", &rctTowers, 32000, 0);
-    efficiencyTree->Branch("hcalTPGs", "vector<TLorentzVector>", &allHcalTPGs, 32000, 0); 
-    efficiencyTree->Branch("ecalTPGs", "vector<TLorentzVector>", &allEcalTPGs, 32000, 0); 
+    dispTree->Branch("run",    &run,     "run/I");
+    dispTree->Branch("lumi",   &lumi,    "lumi/I");
+    dispTree->Branch("event",  &event,   "event/I");
 
+    dispTree->Branch("oldClusters", "vector<TLorentzVector>", &oldClusters, 32000, 0); 
+    dispTree->Branch("oldTowers", "vector<TLorentzVector>", &oldTowers, 32000, 0); 
+    dispTree->Branch("oldRelIso", "vector<float>", &oldRelIso, 32000, 0);
+    dispTree->Branch("oldIsoFlag", "vector<bool>", &oldIsoFlag, 32000, 0);
+    dispTree->Branch("oldRawIso", "vector<float>", &oldRawIso, 32000, 0);
 
-    efficiencyTree->Branch("gctTowers",   "vector<TLorentzVector>", &gctTowers, 32000, 0);
+    dispTree->Branch("newClusters", "vector<TLorentzVector>", &gctClusters, 32000, 0); 
+    dispTree->Branch("newTowers",   "vector<TLorentzVector>", &gctTowers, 32000, 0);
+    dispTree->Branch("hcalTPGs", "vector<TLorentzVector>", &allHcalTPGs, 32000, 0); 
+    dispTree->Branch("ecalTPGs", "vector<TLorentzVector>", &allEcalTPGs, 32000, 0); 
+
     
     efficiencyTree->Branch("run",    &run,     "run/I");
     efficiencyTree->Branch("lumi",   &lumi,    "lumi/I");
@@ -115,15 +126,18 @@ L1TCaloEGammaAnalyzer::L1TCaloEGammaAnalyzer( const ParameterSet & cfg ) :
     efficiencyTree->Branch("gct_is_looseTkiso", &gct_is_looseTkiso, "gct_is_looseTkiso/I");
   }
 
-void L1TCaloEGammaAnalyzer::beginJob( const EventSetup & es) {
+void L1TCaloEGammaSingleAnalyzer::beginJob( const EventSetup & es) {
 }
 
-void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
+void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& es )
  {
 
   run = evt.id().run();
   lumi = evt.id().luminosityBlock();
   event = evt.id().event();
+
+  edm::Handle<l1tp2::CaloCrystalClusterCollection> oldCaloCrystalClusters;
+  edm::Handle<l1tp2::CaloTowerCollection> oldCaloL1Towers;
 
   edm::Handle<l1tp2::CaloCrystalClusterCollection> rctCaloCrystalClusters;
   edm::Handle<l1tp2::CaloTowerCollection> rctCaloL1Towers;
@@ -138,6 +152,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
   std::vector<Cluster> rctClustersMatched;
   std::vector<Cluster> gctClustersMatched;
 
+
   std::map<std::string, float> experimentalParams;
 
   rctClusters->clear(); 
@@ -149,6 +164,25 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
   allEcalTPGs->clear(); 
   allHcalTPGs->clear(); 
 
+  oldClusters->clear();
+  oldClusterInfo->clear();
+
+  oldRawIso->clear();
+  oldRelIso->clear();
+  oldIsoFlag->clear();
+
+  newRawIso->clear();
+  newRelIso->clear();
+  newIsoFlag->clear();
+
+  oldRawIso->clear();
+  oldRelIso->clear();
+  oldIsoFlag->clear();
+
+  newRawIso->clear();
+  newRelIso->clear();
+  newIsoFlag->clear();
+
   // Detector geometry
   es.get<CaloGeometryRecord>().get(caloGeometry_);
   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
@@ -159,6 +193,55 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
   es.get<CaloTPGRecord>().get(decoder_);
 
   std::cout << "Doing event " << event << "....: require gen matching? " <<  requireGenMatching_ << std::endl;
+
+  // Get the old emulator clusters from the emulator and sort them by pT
+  if(evt.getByToken(oldClustersSrc_, oldCaloCrystalClusters)){
+    for(const auto & oldCluster : *oldCaloCrystalClusters){ 
+      //fill vector                                                                             
+      Cluster temp ;
+      TLorentzVector temp_p4;
+      std::cout << "Old emulator cluster found: pT " << oldCluster.pt()  << ", "
+                << "eta "               << oldCluster.eta() << ", "
+                << "phi "               << oldCluster.phi() << ", " 
+		            << "iso "               << oldCluster.isolation() << ", " 
+                << "raw isolation "     << oldCluster.hovere() 
+                << "raw isolation "     << oldCluster.hovere() 
+		            << std::endl;
+      temp_p4.SetPtEtaPhiE(oldCluster.pt(),oldCluster.eta(),oldCluster.phi(),oldCluster.pt());
+
+      temp.p4 = temp_p4;
+      temp.et2x5 = oldCluster.e2x5();  // see https://cmssdt.cern.ch/lxr/source/DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h
+      temp.et5x5 = oldCluster.e5x5();
+      temp.iso   = oldCluster.isolation();
+      temp.rawIso = oldCluster.hovere(); // This is really wrong because for debugging we are saving the raw isolation sum (no division by cluster pT) in the H over e field
+      temp.rawIso = oldCluster.hovere(); // This is really wrong because for debugging we are saving the raw isolation sum (no division by cluster pT) in the H over e field
+
+      temp.is_ss         = oldCluster.experimentalParam("standaloneWP_showerShape");
+      temp.is_iso        = oldCluster.experimentalParam("standaloneWP_isolation");
+      temp.is_looseTkss  = oldCluster.experimentalParam("trkMatchWP_showerShape");
+      temp.is_looseTkiso = oldCluster.experimentalParam("trkMatchWP_isolation");
+      std::cout << " with flags: " 
+                << "is_ss " << temp.is_ss << ","
+                << "is_iso " << temp.is_iso << ", "
+                << "is_looseTkss " << temp.is_looseTkss << ", "
+                << "is_looseTkiso " << temp.is_looseTkiso << std::endl;
+      
+      // Save the 4-vector
+      oldClusters->push_back(temp_p4);
+      // Save the full cluster info
+      oldClusterInfo->push_back(temp);
+    }
+  }
+
+  std::sort(oldClusters->begin(), oldClusters->end(), L1TCaloEGammaSingleAnalyzer::comparePt);
+  std::sort(oldClusterInfo->begin(), oldClusterInfo->end(), L1TCaloEGammaSingleAnalyzer::compareClusterPt);
+
+  // Old emulator clusters are now sorted; pull the isolation information from them for the event display
+  for (const auto & oldCluster : *oldClusterInfo) {
+    oldRawIso->push_back(oldCluster.rawIso);
+    oldRelIso->push_back(oldCluster.iso);
+    oldIsoFlag->push_back(oldCluster.is_iso);
+  }
 
   // Get the RCT clusters from the emulator and sort them by pT
   if(evt.getByToken(rctClustersSrc_, rctCaloCrystalClusters)){
@@ -191,8 +274,8 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
     }
   }
 
-  std::sort(rctClusters->begin(), rctClusters->end(), L1TCaloEGammaAnalyzer::comparePt);
-  std::sort(rctClusterInfo->begin(), rctClusterInfo->end(), L1TCaloEGammaAnalyzer::compareClusterPt);
+  std::sort(rctClusters->begin(), rctClusters->end(), L1TCaloEGammaSingleAnalyzer::comparePt);
+  std::sort(rctClusterInfo->begin(), rctClusterInfo->end(), L1TCaloEGammaSingleAnalyzer::compareClusterPt);
 
   // Get the RCT towers from the emulator 
   if(evt.getByToken(rctTowersSrc_, rctCaloL1Towers)) {
@@ -223,6 +306,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
                 << "eta "               << gctCluster.eta() << ", "
                 << "phi "               << gctCluster.phi() << ", " 
 		            << "iso "               << gctCluster.isolation() << ", " 
+                << "raw iso (unscaled) " << gctCluster.hovere() 
 		            << std::endl;
       temp_p4.SetPtEtaPhiE(gctCluster.pt(),gctCluster.eta(),gctCluster.phi(),gctCluster.pt());
 
@@ -230,6 +314,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       temp.et2x5 = gctCluster.e2x5();  // see https://cmssdt.cern.ch/lxr/source/DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h
       temp.et5x5 = gctCluster.e5x5();
       temp.iso   = gctCluster.isolation();
+      temp.rawIso = gctCluster.hovere(); // this is really wrong but we need the raw isolaion sum for debugging
 
       temp.is_ss         = gctCluster.experimentalParam("standaloneWP_showerShape");
       temp.is_iso        = gctCluster.experimentalParam("standaloneWP_isolation");
@@ -247,8 +332,15 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       gctClusterInfo->push_back(temp);
     }
   }
-  std::sort(gctClusters->begin(), gctClusters->end(), L1TCaloEGammaAnalyzer::comparePt);
-  std::sort(gctClusterInfo->begin(), gctClusterInfo->end(), L1TCaloEGammaAnalyzer::compareClusterPt);
+  std::sort(gctClusters->begin(), gctClusters->end(), L1TCaloEGammaSingleAnalyzer::comparePt);
+  std::sort(gctClusterInfo->begin(), gctClusterInfo->end(), L1TCaloEGammaSingleAnalyzer::compareClusterPt);
+
+  // GCT clusters are now sorted; pull the isolation information from them for the event display
+  for (const auto & newCluster : *gctClusterInfo) {
+    newRawIso->push_back(newCluster.rawIso);
+    newRelIso->push_back(newCluster.iso);
+    newIsoFlag->push_back(newCluster.is_iso);
+  }
 
   // get the ECAL inputs (i.e. ECAL crystals)
   if(!evt.getByToken(ecalSrc_, ecalTPGs))
@@ -476,7 +568,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       }
       
       // For this gen electron, sort the matched clusters by pT, and only save the highest pT one
-      std::sort(rctClustersMatched.begin(), rctClustersMatched.end(), L1TCaloEGammaAnalyzer::compareClusterPt);
+      std::sort(rctClustersMatched.begin(), rctClustersMatched.end(), L1TCaloEGammaSingleAnalyzer::compareClusterPt);
       if (rctClustersMatched.size() > 0) {
         rct_cPt  = rctClustersMatched.at(0).p4.Pt();
         rct_cEta = rctClustersMatched.at(0).p4.Eta();
@@ -537,7 +629,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
     
     
       // For this gen electron, sort the matched clusters by pT, and only save the highest pT one     
-      std::sort(gctClustersMatched.begin(), gctClustersMatched.end(), L1TCaloEGammaAnalyzer::compareClusterPt);
+      std::sort(gctClustersMatched.begin(), gctClustersMatched.end(), L1TCaloEGammaSingleAnalyzer::compareClusterPt);
 
       if (gctClustersMatched.size() > 0) {
         gct_cPt  = gctClustersMatched.at(0).p4.Pt();
@@ -584,14 +676,27 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       gct_is_ss = 0; gct_is_looseTkss = 0;
       gct_is_iso = 0; gct_is_looseTkiso = 0;
 
-      size_t maxToSave;
+      old_cPt   = 0;    old_cEta   = -999;   old_cPhi  = -999;
+      old_deltaR = 999;
+      old_iso = 0;
+      old_et2x5 = 0; old_et5x5 = 0;
+      old_is_ss = 0; old_is_looseTkss = 0;
+      old_is_iso = 0; old_is_looseTkiso = 0;
+
+
+      size_t maxToSave_newEmulator, maxToSave_oldEmulator;
       if (saveOnlyHighestPtCluster_) {
-        maxToSave = 1;
+        maxToSave_newEmulator = 1;
+        maxToSave_oldEmulator = 1;
       }
       else {
-        maxToSave = gctClusterInfo->size();
+        maxToSave_newEmulator = gctClusterInfo->size();
+        maxToSave_oldEmulator = oldClusterInfo->size();
       }
-      for (size_t i = 0; i < maxToSave; i++) {
+
+      (void) maxToSave_oldEmulator; // do not use for now
+
+      for (size_t i = 0; i < maxToSave_newEmulator; i++) {
         std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
                   << " eta "               << gctClusterInfo->at(i).p4.Eta()
                   << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
@@ -607,19 +712,27 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
         gct_is_iso = gctClusterInfo->at(i).is_iso;
         gct_is_looseTkiso = gctClusterInfo->at(i).is_looseTkiso;
 
+        
+
         efficiencyTree->Fill();
+
       }
+
+    // Only fill once per event
+    dispTree->Fill();
+
+
       
   }
  }
 
 
 
-void L1TCaloEGammaAnalyzer::endJob() { 
+void L1TCaloEGammaSingleAnalyzer::endJob() { 
     
 }
 
-L1TCaloEGammaAnalyzer::~L1TCaloEGammaAnalyzer(){
+L1TCaloEGammaSingleAnalyzer::~L1TCaloEGammaSingleAnalyzer(){
 }
 
-DEFINE_FWK_MODULE(L1TCaloEGammaAnalyzer);
+DEFINE_FWK_MODULE(L1TCaloEGammaSingleAnalyzer);

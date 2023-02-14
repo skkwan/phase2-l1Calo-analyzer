@@ -37,7 +37,7 @@ void makeRatesPlots(void)
   gROOT->ProcessLine(".L calculateRates.cpp");
 
   // Input file and output directory
-  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer-rates_MinBias.root";
+  TString rootFileDirectory = "/eos/user/s/skkwan/phase2RCTDevel/analyzer_rates_MinBias.root";
   TString outputDirectory = "/eos/user/s/skkwan/phase2RCTDevel/figures/rates/";
 
   float xMin, xMax;
@@ -52,7 +52,7 @@ void makeRatesPlots(void)
   // Rates as a function of l1Pt    
   xMin = 0;
   xMax = 60.0;
-  yMin = 10.0;
+  yMin = 1.0;
   yMax = 50000;
   useLogy = true;
 
@@ -63,10 +63,11 @@ void makeRatesPlots(void)
   TH1F* eg_is_iso = calculateRates(folder + "l1eg_pt_is_iso", evHist, rootFileDirectory);
   TH1F* eg_is_ss_iso = calculateRates(folder + "l1eg_pt_is_iso_is_ss", evHist, rootFileDirectory);
 
-  vHists.push_back(egVLoose); vLabels.push_back("No additional cuts"); vColors.push_back(kPink);
+  vHists.push_back(egVLoose); vLabels.push_back("No additional cuts"); vColors.push_back(kBlack);
   vHists.push_back(eg_is_ss);  vLabels.push_back("Shower shape only"); vColors.push_back(kTeal-8);
   vHists.push_back(eg_is_iso); vLabels.push_back("Isolation only"); vColors.push_back(kAzure-9);
-  vHists.push_back(eg_is_ss_iso);  vLabels.push_back("Shower shape and isolation"); vColors.push_back(kAzure+2);
+  vHists.push_back(eg_is_ss_iso);  vLabels.push_back("Shower shape and isolation"); vColors.push_back(kRed);
+
 
   // one more color if necessary: kAzure-9
   

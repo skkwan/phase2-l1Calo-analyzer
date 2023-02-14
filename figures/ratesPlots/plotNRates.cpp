@@ -47,9 +47,9 @@ void plotNRates(std::vector<TH1F*> hists,
   assert((hists.size() == labels.size()) && (hists.size() == colors.size()));
 
   setTDRStyle();
-  TCanvas* Tcan = new TCanvas("Tcan","", 100, 20, 1000, 800);
+  TCanvas* Tcan = new TCanvas("Tcan","", 100, 20, 1000, 1000);
 //  TLegend* leg = new TLegend(0.55,0.15,0.90,0.45); // bottom right corner
-  TLegend* leg = new TLegend(0.55,0.65,0.90,0.95);
+  TLegend* leg = new TLegend(0.40,0.65,0.90,0.95);
   applySmallerLegStyle(leg);
 
   Tcan->SetGrid();
@@ -110,21 +110,21 @@ void plotNRates(std::vector<TH1F*> hists,
        itHist != hists.end();
        itHist++, itLabel++) {
     
-    leg->AddEntry(*itHist, "#scale[0.8]{" + *itLabel + "}",  "l");
+    leg->AddEntry(*itHist, "#scale[0.7]{" + *itLabel + "}",  "l");
   }
   leg->Draw();
 
 
   // Default to RCT label, use GCT if not
-  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.8]{#it{Phase 2 GCT emulator}}";  
+  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 GCT emulator}}";  
   if (outputName.Contains("RCT")) {
-    emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.8]{#it{Phase 2 RCT emulator}}";  
+    emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 RCT emulator}}";  
   }
   latex->DrawLatex(0.17, 0.960, emuLabel); 
-  latex->DrawLatex(0.75, 0.960, "#scale[0.8]{200 PU, MinBias}"); 
+  latex->DrawLatex(0.75, 0.960, "#scale[0.6]{200 PU, MinBias}"); 
 
-  float commentaryXpos = 0.54;
-  latex->DrawLatex(commentaryXpos, 0.9, "#scale[0.8]{Phase-2 L1EG (Crystal, Barrel)}");
+  float commentaryXpos = 0.41;
+  latex->DrawLatex(commentaryXpos, 0.9, "#scale[0.7]{Phase-2 L1EG (Crystal, Barrel)}");
   //  latex->DrawLatex(commentaryXpos, 0.790, "#scale[0.8]{Phase 2 HLT TDR Winter20}");
 
   Tcan->Update();
@@ -132,7 +132,6 @@ void plotNRates(std::vector<TH1F*> hists,
 
   Tcan->cd();
   Tcan->SaveAs(outputDir+outputName+".pdf");
-  Tcan->SaveAs(outputDir+outputName+".png");
 }
              
 

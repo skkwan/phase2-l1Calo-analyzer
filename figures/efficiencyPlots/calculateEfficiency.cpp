@@ -67,7 +67,7 @@ TGraphAsymmErrors* calculateEfficiency(TString variable,
                    bool variableBin = false)
 {
   /* Load file */
-  TFile *file = new TFile(rootFileDirectory);
+  TFile *file = TFile::Open(rootFileDirectory, "READ");
   if (!file->IsOpen() || file==0 )
     {
       std::cout<<"ERROR: FILE "<< rootFileDirectory <<" NOT FOUND; EXITING"<<std::endl;

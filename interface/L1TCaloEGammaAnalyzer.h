@@ -149,6 +149,7 @@ class L1TCaloEGammaAnalyzer : public edm::EDAnalyzer {
   TTree* efficiencyTree;
 
   bool requireGenMatching_;
+  bool saveOnlyHighestPtCluster_;
 
   int run, lumi, event;
   double genPt, genEta, genPhi;

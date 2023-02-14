@@ -19,7 +19,7 @@
 double getEvents(TString rootFileDirectory, TString histPath)
 {
   /* Load file */
-  TFile *file = new TFile(rootFileDirectory);
+  TFile *file = TFile::Open(rootFileDirectory);
   if (!file->IsOpen() || file==0 )
     {
       std::cout<<"ERROR FILE "<< rootFileDirectory <<" NOT FOUND; EXITING"<<std::endl;

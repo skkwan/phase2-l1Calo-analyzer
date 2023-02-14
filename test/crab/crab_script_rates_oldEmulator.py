@@ -8,25 +8,26 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # Dataset: 
-# 200 PU: 
-#  /DoubleElectron_FlatPt-1To100/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v2/GEN-SIM-DIGI-RAW
-
-
+# file block=/MinBias_TuneCP5_14TeV-pythia8/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v3/GEN-SIM-DIGI-RAW#2f4f0ee3-5dd4-4a4b-82cc-3da8406e3119
 process.source = cms.Source("PoolSource",
+#                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/s/skkwan/public/phase2RCT/RelValElectronGunPt2To100_190EDE9F-770B-174A-8BA6-F7814FC67FD4.root'),
                             fileNames = cms.untracked.vstring(
-                                'root://cmsxrootd.fnal.gov///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/40A5AD90-B259-4646-B473-2443964A1C15.root',
+                                cms.untracked.vstring(
+                                    'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v3/10000/004299CF-ED4D-9140-BECA-772B15D9FDF4.root',
+                        
 
-                                                      ),
+                                )
+
+                            ),
                             inputCommands = cms.untracked.vstring(
                                 "keep *"
                             )
                         )
 
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:3774")
-process.source.eventsToProcess = cms.untracked.VEventRange("1:667914")
+
 # --------------------------------------------------------------------------------------------                                                    
 #                                                                                                                                                            
 # ----   Run the relevant algorithms
@@ -45,24 +46,28 @@ process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
 
+process.load('SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitiveDigis_cff')
+process.EcalEBtp_step = cms.Path(process.simEcalEBTriggerPrimitiveDigis)
+
+
 # --------------------------------------------------------------------------------------------
 #
 # ----    Produce the L1EGCrystal clusters using Emulator
 
-process.load('L1Trigger.L1CaloTrigger.Phase2L1CaloEGammaEmulator_cfi')
-process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloEGammaAnalyzer_cfi')
+process.load('L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi')
+process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloEGammaAnalyzerRates_oldEmulator_cfi')
 
-process.pL1EG = cms.Path( process.Phase2L1CaloEGammaEmulatorProducer*process.l1NtupleProducer )
+process.pL1EG = cms.Path( process.L1EGammaClusterEmuProducer*process.l1NtupleProducerRates )
 
 # output file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzer_debug.root')
+    fileName = cms.string('analyzer-rates_oldEmulator.root')
 )
 
 # process.Out = cms.OutputModule( "PoolOutputModule",
-#     fileName = cms.untracked.string( "phase2L1EGammaAnalyzer.root" ),
-#     outputCommands = cms.untracked.vstring(
-#         "drop *"
+#     fileName = cms.untracked.string( "phase2L1EGammaAnalyzerRates.root" ),
+#                                 outputCommands = cms.untracked.vstring(
+#          "drop *"                           
 # #        "keep *_Phase2L1CaloEGammaEmulatorProducer_*_*",
 # #        "keep *_TriggerResults_*_*",
 # #        "keep *_simHcalTriggerPrimitiveDigis_*_*",
@@ -73,7 +78,8 @@ process.TFileService = cms.Service("TFileService",
 
 # process.end = cms.EndPath( process.Out )
 
-process.schedule = cms.Schedule(process.pL1EG) #, process.end)
+process.schedule = cms.Schedule(process.pL1EG) # process.end)
 
-dump_file = open("dump_file.py", "w")
-dump_file.write(process.dumpPython())
+
+# dump_file = open("dump_file.py", "w")
+# dump_file.write(process.dumpPython())

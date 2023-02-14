@@ -1,5 +1,5 @@
-#ifndef L1EGammaCrystalsProducerAnalyzer_H
-#define L1EGammaCrystalsProducerAnalyzer_H
+#ifndef L1TCaloEGammaSingleAnalyzer_H
+#define L1TCaloEGammaSingleAnalyzer_H
 
 
 // system include files
@@ -76,15 +76,15 @@
 //
 using std::vector;
 
-class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
+class L1TCaloEGammaSingleAnalyzer : public edm::EDAnalyzer {
 
  public:
   
   // Constructor
-  L1EGammaCrystalsProducerAnalyzer(const edm::ParameterSet& ps);
+  L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet& ps);
   
   // Destructor
-  virtual ~L1EGammaCrystalsProducerAnalyzer();
+  virtual ~L1TCaloEGammaSingleAnalyzer();
 
   edm::Service<TFileService> tfs_;
 
@@ -118,22 +118,36 @@ class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
     double et2x5;
     double et5x5;
     double iso;
+    double rawIso;
     bool is_ss;
     bool is_looseTkss;
     bool is_iso;
     bool is_looseTkiso;
   };
 
-
-
   // Re-packaged outputs of the emulator
-  std::vector<Cluster> *gctClusterInfo = new std::vector<L1EGammaCrystalsProducerAnalyzer::Cluster>; 
+  std::vector<Cluster> *oldClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>;
+  std::vector<Cluster> *rctClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>;
+  std::vector<Cluster> *gctClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>; 
 
-  
-  // Outputs of the emulator
-  
+  // Outputs of the emulator, for event display
+  std::vector<TLorentzVector> *oldClusters =  new std::vector<TLorentzVector>; 
+  std::vector<TLorentzVector> *oldTowers =  new std::vector<TLorentzVector>; 
+
+  std::vector<float> *oldRawIso = new std::vector<float>;
+  std::vector<float> *oldRelIso = new std::vector<float>;
+  std::vector<bool> *oldIsoFlag = new std::vector<bool>;
+
+  std::vector<TLorentzVector> *rctClusters  = new std::vector<TLorentzVector>; 
+  std::vector<TLorentzVector> *rctTowers    = new std::vector<TLorentzVector>;
+
   std::vector<TLorentzVector> *gctClusters  = new std::vector<TLorentzVector>;
   std::vector<TLorentzVector> *gctTowers    = new std::vector<TLorentzVector>;
+
+  std::vector<float> *newRawIso = new std::vector<float>;
+  std::vector<float> *newRelIso = new std::vector<float>;
+  std::vector<bool> *newIsoFlag = new std::vector<bool>;
+
 
   TH1F* isoTau_pt;
   TH1F* isoTau_eta;
@@ -147,12 +161,21 @@ class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
   TH1F* recoTau_eta;
   TH1F* recoTau_phi;
   TTree* efficiencyTree;
+  TTree* dispTree;
 
   bool requireGenMatching_;
   bool saveOnlyHighestPtCluster_;
 
   int run, lumi, event;
   double genPt, genEta, genPhi;
+
+  double old_cPt, old_cEta, old_cPhi;
+  double old_deltaR;
+  double old_et2x5, old_et5x5;
+  double old_rawIso, old_iso;  
+  int old_is_ss, old_is_looseTkss;
+  int old_is_iso, old_is_looseTkiso;
+
   double rct_cPt, rct_cEta, rct_cPhi;
   double rct_deltaR;
   double rct_et2x5, rct_et5x5;
@@ -160,7 +183,7 @@ class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
   double gct_cPt, gct_cEta, gct_cPhi;
   double gct_deltaR;
   double gct_et2x5, gct_et5x5;
-  double gct_iso;   // only meaningful for GCT
+  double gct_rawIso, gct_iso;   // only meaningful for GCT
   int gct_is_ss, gct_is_looseTkss;
   int gct_is_iso, gct_is_looseTkiso;
 
@@ -250,9 +273,14 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<vector <l1extra::L1JetParticle> > l1ExtraJetSource_;
   std::vector< edm::EDGetTokenT<l1t::TauBxCollection> > stage2TauSource_;
   edm::EDGetTokenT<vector <L1CaloRegion> > regionSource_;
+  edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> rctClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> gctClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> rctTowersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> gctTowersSrc_;
+  edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> oldClustersSrc_;
+  edm::EDGetTokenT<l1tp2::CaloTowerCollection> oldTowersSrc_;
+
+
   edm::InputTag genSrc_;
   std::string folderName_;
   double recoPt_;
@@ -456,15 +484,14 @@ int get5x5TPGs(const int maxTPGPt_eta,
   }
 
   static bool comparePt(const TLorentzVector& lhs,
-			const TLorentzVector& rhs) {
+  			const TLorentzVector& rhs) {
     return ( lhs.Pt() > rhs.Pt() );
   }
-
+  
   static bool compareClusterPt(const Cluster& lhs,
-			       const Cluster& rhs) {
+				const Cluster& rhs) {
     return (lhs.p4.Pt() > rhs.p4.Pt());
   }
-
 };
 
 #endif

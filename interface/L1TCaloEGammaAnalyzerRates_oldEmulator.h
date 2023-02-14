@@ -1,5 +1,5 @@
-#ifndef L1EGammaCrystalsProducerAnalyzer_H
-#define L1EGammaCrystalsProducerAnalyzer_H
+#ifndef L1TCaloEGammaAnalyzerRates_oldEmulator_H
+#define L1TCaloEGammaAnalyzerRates_oldEmulator_H
 
 
 // system include files
@@ -76,15 +76,15 @@
 //
 using std::vector;
 
-class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
+class L1TCaloEGammaAnalyzerRates_oldEmulator : public edm::EDAnalyzer {
 
  public:
   
   // Constructor
-  L1EGammaCrystalsProducerAnalyzer(const edm::ParameterSet& ps);
+  L1TCaloEGammaAnalyzerRates_oldEmulator(const edm::ParameterSet& ps);
   
   // Destructor
-  virtual ~L1EGammaCrystalsProducerAnalyzer();
+  virtual ~L1TCaloEGammaAnalyzerRates_oldEmulator();
 
   edm::Service<TFileService> tfs_;
 
@@ -124,62 +124,38 @@ class L1EGammaCrystalsProducerAnalyzer : public edm::EDAnalyzer {
     bool is_looseTkiso;
   };
 
-
-
-  // Re-packaged outputs of the emulator
-  std::vector<Cluster> *gctClusterInfo = new std::vector<L1EGammaCrystalsProducerAnalyzer::Cluster>; 
-
-  
   // Outputs of the emulator
-  
+
   std::vector<TLorentzVector> *gctClusters  = new std::vector<TLorentzVector>;
+  std::vector<L1TCaloEGammaAnalyzerRates_oldEmulator::Cluster> *gctClusterInfo = new std::vector<L1TCaloEGammaAnalyzerRates_oldEmulator::Cluster>; 
+
   std::vector<TLorentzVector> *gctTowers    = new std::vector<TLorentzVector>;
 
-  TH1F* isoTau_pt;
-  TH1F* isoTau_eta;
-  TH1F* isoTau_phi;
 
-  TH1F* tau_pt;
-  TH1F* tau_eta;
-  TH1F* tau_phi;
-
-  TH1F* recoTau_pt;
-  TH1F* recoTau_eta;
-  TH1F* recoTau_phi;
+  TH1F* nEvents;
   TTree* efficiencyTree;
-
-  bool requireGenMatching_;
-  bool saveOnlyHighestPtCluster_;
 
   int run, lumi, event;
   double genPt, genEta, genPhi;
-  double rct_cPt, rct_cEta, rct_cPhi;
-  double rct_deltaR;
-  double rct_et2x5, rct_et5x5;
+
 
   double gct_cPt, gct_cEta, gct_cPhi;
   double gct_deltaR;
   double gct_et2x5, gct_et5x5;
-  double gct_iso;   // only meaningful for GCT
+  double gct_iso;   
   int gct_is_ss, gct_is_looseTkss;
   int gct_is_iso, gct_is_looseTkiso;
 
-  double isoTauPt, rlxTauPt, isoTauEta, rlxTauEta, isoTauPhi, rlxTauPhi;
-  double recoPt, recoEta, recoPhi;
-  int l1RlxMatched, l1IsoMatched;
-  int decayMode;
-  double tauEtaEcalEnt,tauPhiEcalEnt,rawEcal, rawHcal, ecal, hcal, jetEt, jetEta, jetPhi, nvtx;
-  double max3ProngDeltaR, minProngPt, maxProngPt, midProngPt; int n3ProngCands;
-  double pfCandsEt, signalCandsEt, isoCandsEt;
-  double TPG2x2, TPGH2x2, TPGE2x2;
-  double TPG5x5, TPGH5x5, TPGE5x5;
-  double TPG6x6, TPGH6x6, TPGE6x6;
-  double TPG7x7, TPGH7x7, TPGE7x7;
+  TH1F* l1eg_pt; 
+  TH1F* l1egVLoose_pt;    
+  TH1F* l1egLoose_pt;  
+  TH1F* l1egMedium_pt; 
+  TH1F* l1egTight_pt; 
 
-  void getThreeProngInfo(const pat::Tau & tau, double &maxDeltaR, double &minProngPt, double &midProngPt, double &maxProngPt, int &nCands);
-  void getRawEcalHcalEnergy(const pat::PackedCandidate pfCand, double &rawEcal, double &rawHcal, double &ecal, double &hcal);
-  double getPFCandsEt(const std::vector<pat::PackedCandidate> pfCands);
-  double getPFCandsEtEtaPhi(edm::Handle<std::vector<pat::PackedCandidate> >& pfCands, const pat::Tau &tau, double dR);
+  TH1F* l1eg_pt_is_iso;
+  TH1F* l1eg_pt_is_ss;
+  TH1F* l1eg_pt_is_iso_is_ss; 
+  
   void initializeHCALTPGMap(const edm::Handle<HcalTrigPrimDigiCollection> hcal, const  edm::ESHandle<L1CaloHcalScale> hcalScale, double hTowerETMap[73][57], bool testMode = false);
   void initializeECALTPGMap(edm::Handle<EcalTrigPrimDigiCollection> ecal, double eTowerETMap[73][57], bool testMode = false);
 
@@ -216,7 +192,6 @@ int get5x5TPGs(const int maxTPGPt_eta,
   typedef std::vector<reco::GenParticle> GenParticleCollectionType;
 
   std::ofstream logFile_;
-  edm::InputTag rctSource_; 
 
   edm::ESHandle<CaloTPGTranscoder> decoder_;
 
@@ -251,7 +226,6 @@ int get5x5TPGs(const int maxTPGPt_eta,
   std::vector< edm::EDGetTokenT<l1t::TauBxCollection> > stage2TauSource_;
   edm::EDGetTokenT<vector <L1CaloRegion> > regionSource_;
   edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> gctClustersSrc_;
-  edm::EDGetTokenT<l1tp2::CaloTowerCollection> rctTowersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> gctTowersSrc_;
   edm::InputTag genSrc_;
   std::string folderName_;
@@ -461,7 +435,7 @@ int get5x5TPGs(const int maxTPGPt_eta,
   }
 
   static bool compareClusterPt(const Cluster& lhs,
-			       const Cluster& rhs) {
+				const Cluster& rhs) {
     return (lhs.p4.Pt() > rhs.p4.Pt());
   }
 
