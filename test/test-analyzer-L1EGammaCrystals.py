@@ -2,17 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("L1AlgoTest",eras.Phase2C4)
+process = cms.Process('REPR',eras.Phase2C9)
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-
-# Dataset: 
-#   /RelValElectronGunPt2To100/CMSSW_10_6_0_patch2-106X_upgrade2023_realistic_v3_2023D41noPU-v1/GEN-SIM-DIGI-RAW
-# xrdcp root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0_patch2/RelValElectronGunPt2To100/GEN-SIM-DIGI-RAW/106X_upgrade2023_realistic_v3_2023D41noPU-v1/10000/190EDE9F-770B-174A-8BA6-F7814FC67FD4.root RelValElectronGunPt2To100_190EDE9F-770B-174A-8BA6-F7814FC67FD4.root
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -29,39 +34,35 @@ process.source = cms.Source("PoolSource",
 # --------------------------------------------------------------------------------------------                                                    
 #                                                                                                                                                            
 # ----   Run the relevant algorithms
-
 # ---- Global Tag :
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2023_realistic_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '123X_mcRun4_realistic_v3', '')
 
-# Choose a geometry
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
 
 # Add HCAL Transcoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
 
+
 # --------------------------------------------------------------------------------------------
 #
 # ----    Produce the L1EGCrystal clusters using Emulator
 
-process.load('L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi')
 process.load('L1Trigger.L1CaloPhase2Analyzer.l1EGammaCrystalsProducerAnalyzer_cfi')
 
-process.pL1EG = cms.Path( process.L1EGammaClusterEmuProducer*process.l1NtupleProducer )
+process.pL1EG = cms.Path( process.l1tEGammaClusterEmuProducer * process.l1NtupleProducer )
 
 # output file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzer-l1egammaCrystals_debug.root')
+    fileName = cms.string('analyzer-l1egammaCrystals-test.root')
 )
 
 process.Out = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "l1egammaCrystals_debug.root" ),
+    fileName = cms.untracked.string( "l1egammaCrystals.root" ),
     outputCommands = cms.untracked.vstring(
-        "keep *_L1EGammaClusterEmuProducer_*_*",
+        "keep *_L1EGCrystalClusterEmulatorProducer_*_*",
 #        "keep *_TriggerResults_*_*",
 #        "keep *_simHcalTriggerPrimitiveDigis_*_*",
 #        "keep *_EcalEBTrigPrimProducer_*_*"

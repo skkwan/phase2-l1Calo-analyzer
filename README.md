@@ -10,10 +10,27 @@
 
 ## Setup (do only once)
 
-   On lxplus, set up `CMSSW_11_1_7` (use in conjunction with https://github.com/skkwan/cmssw/blob/devel-Phase2RCTCluster/L1Trigger/L1CaloTrigger/plugins/) and clone this repo in `CMSSW_11_1_7/src/L1Trigger/`. For instance my working area is at:
-   `/afs/cern.ch/work/s/skkwan/private/phase2RCTDev/CMSSW_11_1_7/src/L1Trigger/L1CaloPhase2Analyzer/`.
+   On lxplus, set up CMSSW release for the emulators
+   ```
+   cmsrel CMSSW_12_5_2_patch1
+   cd CMSSW_12_5_2_patch1/src
+   cmsenv
+   git cms-init
+   git cms-merge-topic -u cms-l1t-offline:l1t-phase2-v55
+   scram b -j 8
+   git branch -b devel-phase2egStandaloneBarrelEmulator
+   git cms-addpkg L1Trigger/L1CaloTrigger
+   git cms-addpkg Configuration/Geometry
+   scram b -j 8
+   # Set up my own development branch
+   git branch -b devel-phase2egStandaloneBarrelEmulator
+   ```
 
-   On laptop, clone this repository as well. For instance my working area is at: `/Users/stephaniekwan/Documents/Phase2L1Calo/phase2-l1Calo-analyzer`.
+   Then get the analyzer repository
+   ```
+   # git clone into L1Trigger/
+   mv phase2-l1Calo-analyzer/ L1CaloPhase2Analyzer/ 
+   ```
 
 
 ## To run the single emulator

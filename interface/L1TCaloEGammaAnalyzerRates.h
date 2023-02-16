@@ -17,7 +17,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -66,22 +66,17 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 
-//#ifdef __MAKECINT__
-#pragma extra_include "TLorentzVector.h";
-#pragma link C++ class std::vector<TLorentzVector>;
-	 //#endif
-
 //
 // class declaration
 //
 using std::vector;
 
-class L1TCaloEGammaAnalyzerRates : public edm::EDAnalyzer {
+class L1TCaloEGammaAnalyzerRates :  public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
  public:
   
   // Constructor
-  L1TCaloEGammaAnalyzerRates(const edm::ParameterSet& ps);
+  L1TCaloEGammaAnalyzerRates(const edm::ParameterSet& cfg);
   
   // Destructor
   virtual ~L1TCaloEGammaAnalyzerRates();
@@ -175,10 +170,10 @@ int get5x5TPGs(const int maxTPGPt_eta,
 
  protected:
   // Analyze
-  void analyze(const edm::Event& evt, const edm::EventSetup& es);
+  void analyze(const edm::Event& evt, const edm::EventSetup& iSetup);
   
   // BeginJob
-  void beginJob(const edm::EventSetup &es);
+  void beginJob(const edm::EventSetup &iSetup);
   
   // EndJob
   void endJob(void);
@@ -194,14 +189,16 @@ int get5x5TPGs(const int maxTPGPt_eta,
   std::ofstream logFile_;
   edm::InputTag rctSource_; 
 
-  edm::ESHandle<CaloTPGTranscoder> decoder_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_;
+  const CaloTPGTranscoder* decoder_;
 
-  edm::ESHandle<CaloGeometry> caloGeometry_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const CaloGeometry* caloGeometry_;
+
   const CaloSubdetectorGeometry* ebGeometry;
   const CaloSubdetectorGeometry* hbGeometry;
-  edm::ESHandle<HcalTopology> hbTopology;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hbTopologyToken_;
   const HcalTopology* hcTopology_;
-
 
   edm::EDGetTokenT<std::vector<reco::GenParticle> > genToken_;
   edm::EDGetTokenT<vector<pat::PackedCandidate> > packedPfCandsToken_;  

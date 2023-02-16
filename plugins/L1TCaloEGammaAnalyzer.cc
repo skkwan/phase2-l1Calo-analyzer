@@ -59,15 +59,18 @@ using std::endl;
 using std::vector;
 
 L1TCaloEGammaAnalyzer::L1TCaloEGammaAnalyzer( const ParameterSet & cfg ) :
+  decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>(edm::ESInputTag("", ""))),
+  caloGeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+  hbTopologyToken_(esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag("", ""))),
   ecalSrc_(consumes<EcalEBTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("ecalDigis"))),
   hcalSrc_(consumes<HcalTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("hcalDigis"))),
   rctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("rctClusters"))),
   gctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
   rctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("rctClusters"))),
- gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
+  gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
-  genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
+    genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
 
     folderName_          = cfg.getUntrackedParameter<std::string>("folderName");
     requireGenMatching_ = cfg.getUntrackedParameter<bool>("requireGenMatching");
@@ -115,11 +118,13 @@ L1TCaloEGammaAnalyzer::L1TCaloEGammaAnalyzer( const ParameterSet & cfg ) :
     efficiencyTree->Branch("gct_is_looseTkiso", &gct_is_looseTkiso, "gct_is_looseTkiso/I");
   }
 
-void L1TCaloEGammaAnalyzer::beginJob( const EventSetup & es) {
+void L1TCaloEGammaAnalyzer::beginJob( const EventSetup & iSetup) {
 }
 
-void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
+void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& iSetup )
  {
+  std::cout << "At top of the analyzer... " << std::endl;
+
 
   run = evt.id().run();
   lumi = evt.id().luminosityBlock();
@@ -150,13 +155,13 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
   allHcalTPGs->clear(); 
 
   // Detector geometry
-  es.get<CaloGeometryRecord>().get(caloGeometry_);
+  caloGeometry_ = &iSetup.getData(caloGeometryToken_);
   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  es.get<HcalRecNumberingRecord>().get(hbTopology);
-  hcTopology_ = hbTopology.product();
+  hcTopology_ = &iSetup.getData(hbTopologyToken_);
   HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
-  es.get<CaloTPGRecord>().get(decoder_);
+
+  decoder_ = &iSetup.getData(decoderToken_);
 
   std::cout << "Doing event " << event << "....: require gen matching? " <<  requireGenMatching_ << std::endl;
 
@@ -375,8 +380,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       genElectrons.push_back(*ptr);
       // Check isLastCopy() and isLastCopyBeforeFSR()
       std::cout << "isLastCopy: " << ptr->isLastCopy()  << ", "
-		<< "isLastCopyBeforeFSR: " << ptr->isLastCopyBeforeFSR() << std::endl;
-      
+		            << "isLastCopyBeforeFSR: " << ptr->isLastCopyBeforeFSR() << std::endl;
       std::cout << "Added genElectron " << ptr->pt() << std::endl;
     }
   }
@@ -418,13 +422,13 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
 				   prop.particle().mass());
       
       std::cout << ">>> Corrected gen electron pt/eta/phi: (" 
-		<< genElectron.pt() << ", " << genElectron.eta() << ", " << genElectron.phi() 
-		<< ")"
-		<< " to " 
-		<< corrGenElectron.Pt() << ", " << corrGenElectron.Eta() << ", " << corrGenElectron.Phi()
-		<< " with ecal_pos eta/phi "
-		<< ecal_pos.eta() << ", " << ecal_pos.phi()
-		<< std::endl;
+                << genElectron.pt() << ", " << genElectron.eta() << ", " << genElectron.phi() 
+                << ")"
+                << " to " 
+                << corrGenElectron.Pt() << ", " << corrGenElectron.Eta() << ", " << corrGenElectron.Phi()
+                << " with ecal_pos eta/phi "
+                << ecal_pos.eta() << ", " << ecal_pos.phi()
+                << std::endl;
       propagatedGenElectrons.push_back(corrGenElectron);
     }
   }
@@ -450,10 +454,10 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       // the first cluster within deltaR < 0.5. 
       std::cout << "Event " << event << ": check that RCT clusters are sorted!" << std::endl;
     
-      for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
+      for (size_t i = 0; i < rctClusterInfo->size(); i++) {
 
         float this_rct_deltaR = reco::deltaR(rctClusterInfo->at(i).p4.Eta(), rctClusterInfo->at(i).p4.Phi(),
-              genElectron.Eta(), genElectron.Phi());
+                                             genElectron.Eta(), genElectron.Phi());
         // std::cout << "   Comparing "<< this_rct_deltaR << " to current rct_deltaR " << rct_deltaR << std::endl;
 
         if (this_rct_deltaR < 0.5) {
@@ -509,7 +513,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& es )
       gct_is_ss = 0; gct_is_looseTkss = 0;
       gct_is_iso = 0; gct_is_looseTkiso = 0;
 
-      for (size_t i = 0; i < gctClusterInfo->size(); ++i) {
+      for (size_t i = 0; i < gctClusterInfo->size(); i++) {
         // std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
         //           << " eta "               << gctClusterInfo->at(i).p4.Eta()
         //           << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;

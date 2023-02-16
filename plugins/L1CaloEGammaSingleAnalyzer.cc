@@ -58,7 +58,10 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer( const ParameterSet & cfg ) :
+L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet& cfg ) :
+  decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>(edm::ESInputTag("", ""))),
+  caloGeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+  hbTopologyToken_(esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag("", ""))),
   ecalSrc_(consumes<EcalEBTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("ecalDigis"))),
   hcalSrc_(consumes<HcalTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("hcalDigis"))),
   rctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("rctClusters"))),
@@ -69,7 +72,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer( const ParameterSet & c
  // oldTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("oldTowers"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
-  genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
+    genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
 
     folderName_          = cfg.getUntrackedParameter<std::string>("folderName");
     requireGenMatching_ = cfg.getUntrackedParameter<bool>("requireGenMatching");
@@ -126,10 +129,10 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer( const ParameterSet & c
     efficiencyTree->Branch("gct_is_looseTkiso", &gct_is_looseTkiso, "gct_is_looseTkiso/I");
   }
 
-void L1TCaloEGammaSingleAnalyzer::beginJob( const EventSetup & es) {
+void L1TCaloEGammaSingleAnalyzer::beginJob(const edm::EventSetup &iSetup) {
 }
 
-void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& es )
+void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iSetup ){  
  {
 
   run = evt.id().run();
@@ -184,13 +187,14 @@ void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& e
   newIsoFlag->clear();
 
   // Detector geometry
-  es.get<CaloGeometryRecord>().get(caloGeometry_);
+  caloGeometry_ = &iSetup.getData(caloGeometryToken_);
   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  es.get<HcalRecNumberingRecord>().get(hbTopology);
-  hcTopology_ = hbTopology.product();
+  hcTopology_ = &iSetup.getData(hbTopologyToken_);
   HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
-  es.get<CaloTPGRecord>().get(decoder_);
+
+  decoder_ = &iSetup.getData(decoderToken_);
+
 
   std::cout << "Doing event " << event << "....: require gen matching? " <<  requireGenMatching_ << std::endl;
 
@@ -394,9 +398,6 @@ void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& e
 	}
     }
   
-  //ESHandle<L1CaloHcalScale> hcalScale;
-  //es.get<L1CaloHcalScaleRcd>().get(hcalScale);
-
   if(!evt.getByToken(hcalSrc_, hcalTPGs))
     std::cout<<"ERROR GETTING THE HCAL TPGS"<<std::endl;
   else
@@ -694,8 +695,6 @@ void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& e
         maxToSave_oldEmulator = oldClusterInfo->size();
       }
 
-      (void) maxToSave_oldEmulator; // do not use for now
-
       for (size_t i = 0; i < maxToSave_newEmulator; i++) {
         std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
                   << " eta "               << gctClusterInfo->at(i).p4.Eta()
@@ -725,7 +724,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze( const Event& evt, const EventSetup& e
       
   }
  }
-
+}
 
 
 void L1TCaloEGammaSingleAnalyzer::endJob() { 

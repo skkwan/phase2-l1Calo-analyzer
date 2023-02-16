@@ -7,10 +7,15 @@ l1NtupleProducer = cms.EDAnalyzer("L1TCaloEGammaAnalyzerRates",
                                   #packedPfCands           = cms.InputTag("packedPFCandidates"),
                                   #pfCands                 = cms.InputTag("particleFlow"),
                                   
-                                  ecalDigis = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
-#                                  ecalDigis = cms.InputTag("ecalDigis", "EcalTriggerPrimitives", "L1"),
-                                  hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
+                                  ecalDigis = cms.InputTag("simEcalEBTriggerPrimitiveDigis"),
+                                  hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
                                   rctClusters = cms.InputTag("Phase2L1CaloEGammaEmulatorProducer", "RCT"),
                                   gctClusters = cms.InputTag("Phase2L1CaloEGammaEmulatorProducer", "GCT")
 #                                  clusters  = cms.InputTag('L1EGammaClusterEmuProducer')
+)
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(l1NtupleProducer,
+    ecalDigis = cms.InputTag("DMEcalEBTriggerPrimitiveDigis"),
+    hcalDigis = cms.InputTag("DMHcalTriggerPrimitiveDigis"),
 )

@@ -58,6 +58,9 @@ using std::endl;
 using std::vector;
 
 L1EGammaCrystalsProducerAnalyzer::L1EGammaCrystalsProducerAnalyzer( const ParameterSet & cfg ) :
+  decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>(edm::ESInputTag("", ""))),
+  caloGeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+  hbTopologyToken_(esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag("", ""))),
   ecalSrc_(consumes<EcalEBTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("ecalDigis"))),
   hcalSrc_(consumes<HcalTrigPrimDigiCollection>(cfg.getParameter<edm::InputTag>("hcalDigis"))),
   gctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("clusters"))),
@@ -103,10 +106,10 @@ L1EGammaCrystalsProducerAnalyzer::L1EGammaCrystalsProducerAnalyzer( const Parame
     
   }
 
-void L1EGammaCrystalsProducerAnalyzer::beginJob( const EventSetup & es) {
+void L1EGammaCrystalsProducerAnalyzer::beginJob( const EventSetup & iSetup) {
 }
 
-void L1EGammaCrystalsProducerAnalyzer::analyze( const Event& evt, const EventSetup& es )
+void L1EGammaCrystalsProducerAnalyzer::analyze( const Event& evt, const EventSetup& iSetup )
  {
 
   run = evt.id().run();
@@ -131,13 +134,13 @@ void L1EGammaCrystalsProducerAnalyzer::analyze( const Event& evt, const EventSet
   allHcalTPGs->clear(); 
 
   // Detector geometry
-  es.get<CaloGeometryRecord>().get(caloGeometry_);
+  caloGeometry_ = &iSetup.getData(caloGeometryToken_);
   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  es.get<HcalRecNumberingRecord>().get(hbTopology);
-  hcTopology_ = hbTopology.product();
+  hcTopology_ = &iSetup.getData(hbTopologyToken_);
   HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
-  es.get<CaloTPGRecord>().get(decoder_);
+  decoder_ = &iSetup.getData(decoderToken_);
+
 
   std::cout << "Doing event " << event << "...." << std::endl;
 

@@ -2,17 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("L1AlgoTest",eras.Phase2C4)
+process = cms.Process('REPR',eras.Phase2C9)
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-
-# Dataset: 
-# 200 PU: 
-#  /DoubleElectron_FlatPt-1To100/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v2/GEN-SIM-DIGI-RAW
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 
 process.source = cms.Source("PoolSource",
@@ -66,15 +71,10 @@ process.source = cms.Source("PoolSource",
 # --------------------------------------------------------------------------------------------                                                    
 #                                                                                                                                                            
 # ----   Run the relevant algorithms
-
 # ---- Global Tag :
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2023_realistic_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '123X_mcRun4_realistic_v3', '')
 
-# Choose a geometry
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
 
 # Add HCAL Transcoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
@@ -85,15 +85,15 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 #
 # ----   One analyzer to rule them all
 
-process.load('L1Trigger.L1CaloTrigger.Phase2L1CaloEGammaEmulator_cfi')
-process.load('L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi')
 process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloEGammaSingleAnalyzer_cfi')
 
-process.pL1EG = cms.Path( process.Phase2L1CaloEGammaEmulatorProducer* process.L1EGammaClusterEmuProducer* process.l1NtupleSingleProducer)
+process.pL1EG = cms.Path( process.l1tPhase2L1CaloEGammaEmulator * process.l1tEGammaClusterEmuProducer * process.l1NtupleSingleProducer)
 
 # output file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('singleAnalyzer-signal10events.root')
+    fileName = cms.string('singleAnalyzer-test.root')
 )
 
 # process.Out = cms.OutputModule( "PoolOutputModule",

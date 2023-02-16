@@ -2,13 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("L1AlgoTest",eras.Phase2C4)
+process = cms.Process('REPR',eras.Phase2C9)
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring( 
@@ -24,13 +33,9 @@ process.source = cms.Source("PoolSource",
 # ----   Run the relevant algorithms
 
 # ---- Global Tag :
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2023_realistic_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '123X_mcRun4_realistic_v3', '')
 
-# Choose a geometry
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
 
 # Add HCAL Transcoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
@@ -41,10 +46,10 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 #
 # ----    Produce the L1EGCrystal clusters using Emulator
 
-process.load('L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi')
 process.load('L1Trigger.L1CaloPhase2Analyzer.l1EGammaCrystalsProducerAnalyzer_cfi')
 
-process.pL1EG = cms.Path( process.L1EGammaClusterEmuProducer*process.l1NtupleProducer )
+process.pL1EG = cms.Path( process.l1tEGammaClusterEmuProducer*process.l1NtupleProducer )
 
 # output file
 process.TFileService = cms.Service("TFileService",
@@ -52,7 +57,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.Out = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "l1egammaCrystals_debug.root" ),
+    fileName = cms.untracked.string( "l1egammaCrystals.root" ),
     outputCommands = cms.untracked.vstring(
         "drop *"
  #       "keep *_L1EGammaClusterEmuProducer_*_*",
