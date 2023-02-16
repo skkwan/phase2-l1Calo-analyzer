@@ -10,5 +10,5 @@ l1NtupleProducer = cms.EDAnalyzer("L1EGammaCrystalsProducerAnalyzer",
                                   #pfCands                 = cms.InputTag("particleFlow"),
                                   ecalDigis = cms.InputTag("simEcalEBTriggerPrimitiveDigis", "", "HLT"),
                                   hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis", "", "HLT"),
-                                  clusters = cms.InputTag("L1EGammaClusterEmuProducer", "", "L1AlgoTest")
+                                  clusters = cms.InputTag("l1tEGammaClusterEmuProducer", "", "REPR")
 )

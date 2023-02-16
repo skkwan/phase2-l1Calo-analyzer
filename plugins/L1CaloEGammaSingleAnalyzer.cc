@@ -462,6 +462,9 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   for (unsigned int i = 0; i< genParticleHandle->size(); i++){
     edm::Ptr<reco::GenParticle> ptr(genParticleHandle, i);
     genParticles.push_back(*ptr);
+
+    printf("my pdg id is %i and my eta is %f\n", ptr->pdgId(), ptr->eta());
+
     
     // Get gen electrons in barrel + overlap
     if ( (abs(ptr->pdgId()) == 11) && ( abs(ptr->eta()) < 1.4841 )) {

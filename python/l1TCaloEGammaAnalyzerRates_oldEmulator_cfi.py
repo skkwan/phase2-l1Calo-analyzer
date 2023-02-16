@@ -8,7 +8,7 @@ l1NtupleProducerRates = cms.EDAnalyzer("L1TCaloEGammaAnalyzerRates_oldEmulator",
                                   #pfCands                 = cms.InputTag("particleFlow"),
                                   ecalDigis = cms.InputTag("simEcalEBTriggerPrimitiveDigis"),
                                   hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
-                                  clusters = cms.InputTag("L1EGammaClusterEmuProducer", "", "L1AlgoTest")
+                                  clusters = cms.InputTag("l1tEGammaClusterEmuProducer", "", "REPR")
 
 )
 
