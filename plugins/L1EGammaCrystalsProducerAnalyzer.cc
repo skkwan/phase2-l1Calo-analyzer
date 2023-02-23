@@ -300,7 +300,7 @@ void L1EGammaCrystalsProducerAnalyzer::analyze( const Event& evt, const EventSet
   std::vector<reco::GenParticle> genElectrons;
   std::vector<reco::GenParticle> genParticles;
   
-  for (unsigned int i = 0; i< genParticleHandle->size(); i++){
+  for (unsigned int i = 0; i< genParticleHandle->size(); ++i){
     edm::Ptr<reco::GenParticle> ptr(genParticleHandle, i);
     genParticles.push_back(*ptr);
 
@@ -369,7 +369,10 @@ void L1EGammaCrystalsProducerAnalyzer::analyze( const Event& evt, const EventSet
   //************************************************************************************/ 
   // Loop through the gen-level clusters and match to the RCT clusters, then the GCT clusters.
   //************************************************************************************/ 
+
+
   if (requireGenMatching_) {
+
     for (auto genElectron : propagatedGenElectrons) {
 
       genPt = genElectron.Pt();
@@ -446,19 +449,15 @@ void L1EGammaCrystalsProducerAnalyzer::analyze( const Event& evt, const EventSet
                   << " is_looseTkiso: " << gct_is_looseTkiso 
                   << std::endl;
       }
+
+      efficiencyTree->Fill();
     }
-    efficiencyTree->Fill();
+    
   } 
   else {
     // Do not require gen matching: not an event-level consideration, save all clusters we can get
     std::cout << ">>> [!!!] Saving all GCT Clusters without gen-matching..." << std::endl;
-    
-    gct_cPt   = 0;    gct_cEta   = -999;   gct_cPhi  = -999;
-    gct_deltaR = 999;
-    gct_iso = 0;
-    gct_et2x5 = 0; gct_et5x5 = 0;
-    gct_is_ss = 0; gct_is_looseTkss = 0;
-    gct_is_iso = 0; gct_is_looseTkiso = 0;
+
 
     size_t maxToSave;
     if (saveOnlyHighestPtCluster_) {
