@@ -459,7 +459,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   std::vector<reco::GenParticle> genElectrons;
   std::vector<reco::GenParticle> genParticles;
   
-  for (unsigned int i = 0; i< genParticleHandle->size(); i++){
+  for (unsigned int i = 0; i< genParticleHandle->size(); ++i){
     edm::Ptr<reco::GenParticle> ptr(genParticleHandle, i);
     genParticles.push_back(*ptr);
 
@@ -698,7 +698,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
         maxToSave_oldEmulator = oldClusterInfo->size();
       }
 
-      for (size_t i = 0; i < maxToSave_newEmulator; i++) {
+      for (size_t i = 0; i < maxToSave_newEmulator; ++i) {
         std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
                   << " eta "               << gctClusterInfo->at(i).p4.Eta()
                   << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;

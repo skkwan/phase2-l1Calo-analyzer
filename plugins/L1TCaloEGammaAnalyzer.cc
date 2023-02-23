@@ -371,7 +371,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& iSetup 
   std::vector<reco::GenParticle> genElectrons;
   std::vector<reco::GenParticle> genParticles;
   
-  for (unsigned int i = 0; i< genParticleHandle->size(); i++){
+  for (unsigned int i = 0; i< genParticleHandle->size(); ++i){
     edm::Ptr<reco::GenParticle> ptr(genParticleHandle, i);
     genParticles.push_back(*ptr);
 
@@ -456,7 +456,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& iSetup 
       // the first cluster within deltaR < 0.5. 
       std::cout << "Event " << event << ": check that RCT clusters are sorted!" << std::endl;
     
-      for (size_t i = 0; i < rctClusterInfo->size(); i++) {
+      for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
 
         float this_rct_deltaR = reco::deltaR(rctClusterInfo->at(i).p4.Eta(), rctClusterInfo->at(i).p4.Phi(),
                                              genElectron.Eta(), genElectron.Phi());
@@ -515,7 +515,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& iSetup 
       gct_is_ss = 0; gct_is_looseTkss = 0;
       gct_is_iso = 0; gct_is_looseTkiso = 0;
 
-      for (size_t i = 0; i < gctClusterInfo->size(); i++) {
+      for (size_t i = 0; i < gctClusterInfo->size(); ++i) {
         // std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
         //           << " eta "               << gctClusterInfo->at(i).p4.Eta()
         //           << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
@@ -597,7 +597,7 @@ void L1TCaloEGammaAnalyzer::analyze( const Event& evt, const EventSetup& iSetup 
       else {
         maxToSave = gctClusterInfo->size();
       }
-      for (size_t i = 0; i < maxToSave; i++) {
+      for (size_t i = 0; i < maxToSave; ++i) {
         std::cout << " gctClusterInfo pT " << gctClusterInfo->at(i).p4.Pt() 
                   << " eta "               << gctClusterInfo->at(i).p4.Eta()
                   << " phi "               << gctClusterInfo->at(i).p4.Phi() << std::endl;
