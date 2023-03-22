@@ -150,6 +150,10 @@ class L1TCaloEGammaAnalyzerRates_oldEmulator : public edm::one::EDAnalyzer<edm::
   TH1F* l1eg_pt_is_iso;
   TH1F* l1eg_pt_is_ss;
   TH1F* l1eg_pt_is_iso_is_ss; 
+
+  TH1F* l1eg_pt_is_looseTkiso;
+  TH1F* l1eg_pt_is_looseTkss;
+  TH1F* l1eg_pt_is_looseTkiso_is_looseTkss; 
   
   void initializeHCALTPGMap(const edm::Handle<HcalTrigPrimDigiCollection> hcal, const  edm::ESHandle<L1CaloHcalScale> hcalScale, double hTowerETMap[73][57], bool testMode = false);
   void initializeECALTPGMap(edm::Handle<EcalTrigPrimDigiCollection> ecal, double eTowerETMap[73][57], bool testMode = false);

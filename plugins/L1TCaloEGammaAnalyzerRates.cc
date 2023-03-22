@@ -119,6 +119,10 @@ L1TCaloEGammaAnalyzerRates::L1TCaloEGammaAnalyzerRates(const edm::ParameterSet& 
     l1eg_pt_is_ss  = tfs_->make<TH1F>( "l1eg_pt_is_ss", "p_{t}", 150,  0., 150. );
     l1eg_pt_is_iso_is_ss = tfs_->make<TH1F>( "l1eg_pt_is_iso_is_ss", "p_{t}", 150,  0., 150. );
 
+    l1eg_pt_is_looseTkiso = tfs_->make<TH1F>( "l1eg_pt_is_looseTkiso", "p_{t}", 150,  0., 150. );
+    l1eg_pt_is_looseTkss  = tfs_->make<TH1F>( "l1eg_pt_is_looseTkss", "p_{t}", 150,  0., 150. );
+    l1eg_pt_is_looseTkiso_is_looseTkss = tfs_->make<TH1F>( "l1eg_pt_is_looseTkiso_is_looseTkss", "p_{t}", 150,  0., 150. );
+
   }
 
 void L1TCaloEGammaAnalyzerRates::beginJob( const edm::EventSetup & iSetup) {
@@ -255,6 +259,21 @@ void L1TCaloEGammaAnalyzerRates::analyze( const edm::Event& evt, const edm::Even
     if (gct_is_ss && gct_is_iso) {
       l1eg_pt_is_iso_is_ss->Fill(gct_cPt);
       std::cout << " filled l1eg_pt_is_iso_is_ss ";
+    }
+
+    if (gct_is_looseTkiso) {
+      l1eg_pt_is_looseTkiso->Fill(gct_cPt);
+      std::cout << " filled l1eg_pt_is_looseTkiso ";
+    }
+
+    if (gct_is_looseTkss) {
+      l1eg_pt_is_looseTkss->Fill(gct_cPt);
+      std::cout << " filled l1eg_pt_is_looseTkss ";
+    }
+
+    if (gct_is_looseTkss && gct_is_looseTkiso) {
+      l1eg_pt_is_looseTkiso_is_looseTkss->Fill(gct_cPt);
+      std::cout << " filled l1eg_pt_is_looseTkiso_is_looseTkss";
     }
   }
   
