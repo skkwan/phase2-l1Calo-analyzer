@@ -17,15 +17,18 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
+                                #'file:/eos/user/s/skkwan/phase2RCTDevel/pickedEvents/pickEvents_10events.root'
+
                                 # Signal events (just want to get one with good agreement)
-                                'root://cmsxrootd.fnal.gov///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/40A5AD90-B259-4646-B473-2443964A1C15.root',
+                                'root://cmsxrootd.fnal.gov///store/mc/Phase2Fall22DRMiniAOD/DoubleElectron_FlatPt-1To100-gun/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2-v1/30000/0024ebea-73de-496a-9d75-6f0a7c3b2ba4.root',
 
 
+                               #'root://cmsxrootd.fnal.gov///store/user/skkwan/DoubleElectron_FlatPt-1To100-gun/crab_pickEvents/230316_113131/0000/pickevents_1.root',
                                 # Disagreements in iso flag, and new rel isolation is less than old rel isolation
                                 # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230209_083734_newIsoLessThanOldIso/0000/pickevents_1.root',
                                 # 'root://cmsxrootd.fnal.gov///store/user/skkwan/MinBias_TuneCP5_14TeV-pythia8/crab_pickEvents/230209_083734_newIsoLessThanOldIso/0000/pickevents_2.root',
@@ -66,6 +69,8 @@ process.source = cms.Source("PoolSource",
                                 "keep *"
                             )
                         )
+# process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:594")
+#process.source.eventsToProcess = cms.untracked.VEventRange("1:66890")
 
 
 # --------------------------------------------------------------------------------------------                                                    
@@ -96,21 +101,21 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('singleAnalyzer-test.root')
 )
 
-# process.Out = cms.OutputModule( "PoolOutputModule",
-#     fileName = cms.untracked.string( "phase2L1EGammaAnalyzer_MinBias_noGenMatching.root" ),
-#     outputCommands = cms.untracked.vstring(
-#         "drop *"
-# #        "keep *_Phase2L1CaloEGammaEmulatorProducer_*_*",
-# #        "keep *_TriggerResults_*_*",
-# #        "keep *_simHcalTriggerPrimitiveDigis_*_*",
-# #        "keep *_EcalEBTrigPrimProducer_*_*"
-#     )
-# )
+process.Out = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "phase2L1EGammaAnalyzer.root" ),
+    outputCommands = cms.untracked.vstring(
+
+        "keep *_Phase2L1CaloEGammaEmulator_*_*",
+#        "keep *_TriggerResults_*_*",
+#        "keep *_simHcalTriggerPrimitiveDigis_*_*",
+#        "keep *_EcalEBTrigPrimProducer_*_*"
+    )
+)
 
 
-# process.end = cms.EndPath( process.Out )
+process.end = cms.EndPath( process.Out )
 
 process.schedule = cms.Schedule(process.pL1EG)
 
-dump_file = open("dump_file.py", "w")
-dump_file.write(process.dumpPython())
+# dump_file = open("dump_file.py", "w")
+# dump_file.write(process.dumpPython())
