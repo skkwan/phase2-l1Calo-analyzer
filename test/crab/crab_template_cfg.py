@@ -21,7 +21,7 @@ config.JobType.outputFiles = ['OUTPUT_FILE_NAME']
 config.section_("Data")
 config.Data.inputDataset = 'DAS_NAME'
 config.Data.inputDBS     = 'INPUT_DBS'
-config.Data.unitsPerJob  = 1
+config.Data.unitsPerJob  = 2
 config.Data.splitting    = 'FileBased'
 
 config.Data.outLFNDirBase    = '/store/user/skkwan/Phase2EGammaAnalyzer'

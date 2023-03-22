@@ -4,6 +4,15 @@
 
 requestname: "Analyzer"
 
+signal_singleEmulator:
+  year: 2023
+  script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_single.py
+  prodtag: Phase2Fall22DRMiniAOD
+  inputDBS: global
+  outputName: singleAnalyzer.root
+  datasets:
+    DoubleElectron_FlatPt-1To100-gun_singleEmulator: /DoubleElectron_FlatPt-1To100-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD
+
 signal_oldEmulator:
   year: 2023
   script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_signal_oldEmulator.py
