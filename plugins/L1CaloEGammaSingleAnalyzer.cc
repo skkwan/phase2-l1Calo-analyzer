@@ -688,14 +688,15 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       old_is_iso = 0; old_is_looseTkiso = 0;
 
 
-      size_t maxToSave_newEmulator, maxToSave_oldEmulator;
+      size_t maxToSave_newEmulator;
       if (saveOnlyHighestPtCluster_) {
+        std::cout << "[WARNING:] Only saving highest pT cluster..." << std::endl;
         maxToSave_newEmulator = 1;
-        maxToSave_oldEmulator = 1;
       }
       else {
         maxToSave_newEmulator = gctClusterInfo->size();
-        maxToSave_oldEmulator = oldClusterInfo->size();
+        std::cout << "[NOTE:] Saving all clusters..." << std::endl;
+
       }
 
       for (size_t i = 0; i < maxToSave_newEmulator; ++i) {
