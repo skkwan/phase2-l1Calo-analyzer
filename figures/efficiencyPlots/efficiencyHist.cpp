@@ -38,7 +38,7 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
                       std::vector<TString> labels,
                       std::vector<int> colors,
                       TString xAxisLabel,
-                      TString legendName,
+                      TString header,
                       TString outputName,
                       TString outputDir,
                       TString comment = "",
@@ -115,13 +115,13 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
        itGraph != graphs.end();
        itGraph++, itLabel++)
     {
-      leg->AddEntry(*itGraph, "#scale[0.8]{" + *itLabel + "}",  "P");
+      leg->AddEntry(*itGraph, "#scale[0.6]{" + *itLabel + "}",  "P");
     }
   leg->Draw();
 
 
   // Default to RCT label, use GCT if not
-  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 GCT emulator}}";  
+  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{" + header + "}}";  
   if (outputName.Contains("RCT")) {
     emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 RCT emulator}}";  
   }
@@ -148,7 +148,12 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
 
 
   Tcan->cd();
-  Tcan->SaveAs(outputDir+outputName+".pdf");
+
+  TString title;
+  title = outputDir+outputName;
+  Tcan->SaveAs(title+".pdf");
+  Tcan->SaveAs(title+".png");
+
 
   Tcan->Close();
   delete histDummy, leg, Tcan;
