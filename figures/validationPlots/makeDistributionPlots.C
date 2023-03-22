@@ -22,7 +22,7 @@ void makeDistributionPlots(TString sampleName, TString legend, TString inputDire
   //  gROOT->ProcessLine(".L ../baseCodeForPlots/comparisonPlots.C");
  
   std::cout << sampleName << " " << legend << " " << inputDirectory << std::endl;
-  TString treePath = "l1NtupleProducer/efficiencyTree";
+  TString treePath = "l1NtupleSingleProducer/efficiencyTree";
   gSystem->Exec("mkdir -p " + outputDirectory);
 
   // TString cut = "(gct_cPt > 20) && (gct_cPt < 75) && (genPt > 30) && (genPt < 70)";    // changed from genPt > 0
@@ -36,7 +36,7 @@ void makeDistributionPlots(TString sampleName, TString legend, TString inputDire
   float ymaxPt = 0.06;
   float ymaxPhi = 0.05;
 
-  descriptor = ("|#eta^{Gen}| < 1.4841, " + descriptor);  
+  descriptor = ("|#eta^{Gen}| < 1.4841" + descriptor);  
 
   // GCT
   // Note that the next two plots have an additional pT cut (reflected in the caption)
