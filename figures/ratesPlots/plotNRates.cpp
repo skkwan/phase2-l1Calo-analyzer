@@ -110,13 +110,15 @@ void plotNRates(std::vector<TH1F*> hists,
        itHist != hists.end();
        itHist++, itLabel++) {
     
-    leg->AddEntry(*itHist, "#scale[0.7]{" + *itLabel + "}",  "l");
+    leg->AddEntry(*itHist, "#scale[0.6]{" + *itLabel + "}",  "l");
   }
   leg->Draw();
 
 
   // Default to RCT label, use GCT if not
-  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 GCT emulator}}";  
+  TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Emulators}}";  
+  //TString emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{TDR Emulator}}";  
+
   if (outputName.Contains("RCT")) {
     emuLabel = "#scale[1.0]{#bf{CMS}} #scale[0.6]{#it{Phase 2 RCT emulator}}";  
   }
@@ -132,6 +134,8 @@ void plotNRates(std::vector<TH1F*> hists,
 
   Tcan->cd();
   Tcan->SaveAs(outputDir+outputName+".pdf");
+  Tcan->SaveAs(outputDir+outputName+".png");
+
 }
              
 
