@@ -82,6 +82,36 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
 
   edm::Service<TFileService> tfs_;
 
+  // Struct representing a cluster
+  struct Cluster {
+
+    TLorentzVector p4;
+    double et2x5;
+    double et5x5;
+    double iso;
+    double rawIso;
+    bool is_ss;
+    bool is_looseTkss;
+    bool is_iso;
+    bool is_looseTkiso;
+  };
+
+  // Tower
+  class Tower {
+
+    public:
+      TLorentzVector p4;
+      int idxEta;
+      int idxPhi;
+
+      int iEta() const { return idxEta; }
+      int iPhi() const { return idxPhi; }
+      float eta() const { return p4.Eta(); };
+      float phi() const { return p4.Phi(); };
+      float et() const { return p4.Pt(); }
+
+  };
+
   std::vector<double> *hcalTpgs_Pt  = new std::vector<double>; 
   std::vector<double> *hcalTpgs_Eta = new std::vector<double>; 
   std::vector<double> *hcalTpgs_Phi = new std::vector<double>; 
@@ -105,24 +135,14 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   std::vector<TLorentzVector> *recoJets  = new std::vector<TLorentzVector>; 
   std::vector<double> *recoJetsDr  = new std::vector<double>;
 
-  // Struct representing a cluster
-  struct Cluster {
-
-    TLorentzVector p4;
-    double et2x5;
-    double et5x5;
-    double iso;
-    double rawIso;
-    bool is_ss;
-    bool is_looseTkss;
-    bool is_iso;
-    bool is_looseTkiso;
-  };
 
   // Re-packaged outputs of the emulator
   std::vector<Cluster> *oldClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>;
   std::vector<Cluster> *rctClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>;
   std::vector<Cluster> *gctClusterInfo = new std::vector<L1TCaloEGammaSingleAnalyzer::Cluster>; 
+
+  std::vector<Tower> *newFullTowers = new std::vector<L1TCaloEGammaSingleAnalyzer::Tower>;
+  std::vector<Tower> *newGCTTowers = new std::vector<L1TCaloEGammaSingleAnalyzer::Tower>;
 
   // Outputs of the emulator, for event display
   std::vector<TLorentzVector> *oldClusters =  new std::vector<TLorentzVector>; 
@@ -199,6 +219,20 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   double getPFCandsEtEtaPhi(edm::Handle<std::vector<pat::PackedCandidate> >& pfCands, const pat::Tau &tau, double dR);
   void initializeHCALTPGMap(const edm::Handle<HcalTrigPrimDigiCollection> hcal, const  edm::ESHandle<L1CaloHcalScale> hcalScale, double hTowerETMap[73][57], bool testMode = false);
   void initializeECALTPGMap(edm::Handle<EcalTrigPrimDigiCollection> ecal, double eTowerETMap[73][57], bool testMode = false);
+
+  static constexpr int N_TOWERS_ETA = 34;
+  static constexpr int N_TOWERS_PHI = 72;
+  static constexpr int N_GCTCARDS = 3;
+  static constexpr int N_TOWERS_IN_OVERLAP = 12 * 4 * 17; // 12 RCT cards will be written twice if there is overlap: each RCT card has 4*17 towers
+  static constexpr int N_OVERLAP_ROWS = 6;
+  static constexpr int OVERLAP_TOWER_GLOBAL_INDICES_INCLUSIVE[N_OVERLAP_ROWS][2] = {
+    {20, 24},  // gct card 0
+    {48, 52}, // gct card 0
+    {44, 48}, // gct card 1
+    {0, 4},  // gct card 1
+    {24, 28}, // gct card 2
+    {68, 72} // gct card 2
+  };
 
 int get5x5TPGs(const int maxTPGPt_eta, 
 	       const int maxTPGPt_phi, 
@@ -277,6 +311,7 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> oldClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> oldTowersSrc_;
   edm::EDGetTokenT<BXVector<l1t::EGamma>> l1EGammasSrc_;
+  edm::EDGetTokenT<l1tp2::CaloTowerCollection> fullTowersSrc_;
 
   edm::InputTag genSrc_;
   std::string folderName_;
@@ -355,22 +390,22 @@ int get5x5TPGs(const int maxTPGPt_eta,
     if( 3.1416 > inputPhi && inputPhi >= 0){
 
       for(int n = 1; n < 36; n++){
-	//std::cout<<"inputPhi "<<inputPhi<< " posPhi[n-1] "<< posPhi[n-1] << " n "<<n<<std::endl;
-	if(inputPhi <= posPhi[n-1]){
-	  int tpgPhi = n;
-	  return tpgPhi;
-	}
+      //std::cout<<"inputPhi "<<inputPhi<< " posPhi[n-1] "<< posPhi[n-1] << " n "<<n<<std::endl;
+        if(inputPhi <= posPhi[n-1]){
+          int tpgPhi = n;
+          return tpgPhi;
+        }
       }
     }
 
     //37 to 72 is -pi to 0
     else if(-3.1416 < inputPhi && inputPhi < 0){
       for(int n = 1; n < 36; n++)
-	if(inputPhi < negPhi[n-1]){
-	  int tpgPhi = n + 36;
-	  return tpgPhi;
-	}
-    }
+        if(inputPhi < negPhi[n-1]){
+          int tpgPhi = n + 36;
+          return tpgPhi;
+        }
+      }
     std::cout<<"OUT OF BOUNDS!!!!  inputphi: "<<inputPhi<<std::endl;
     return -9;
   }
@@ -488,6 +523,68 @@ int get5x5TPGs(const int maxTPGPt_eta,
   static bool compareClusterPt(const Cluster& lhs,
 				const Cluster& rhs) {
     return (lhs.p4.Pt() > rhs.p4.Pt());
+  }
+
+  // Unit tests
+  /*
+   * Check that a tower collection has 34 * 72 towers, or that, plus # of towers in overlap region.
+   */
+  bool passesTowerSizeTestWithOverlap(const std::vector<Tower> myTowerCollection, bool allowOverlap) { 
+
+    if (allowOverlap) {
+      return (myTowerCollection.size() == (unsigned int) ((N_TOWERS_ETA * N_TOWERS_PHI) + N_TOWERS_IN_OVERLAP));
+    }
+    else {
+      return (myTowerCollection.size() == (unsigned int) (N_TOWERS_ETA * N_TOWERS_PHI));
+    }
+  }
+  
+  /*
+   * Check that a tower collection spans all the tower indices, depending on whether we allow for overlap duplicates 
+   * (if the GCT cards were written out with overlap, the towers in the overlap region will appear twice in the output collection).
+   */
+  bool passesTowerIndexCoverage(const std::vector<Tower> myTowerCollection, bool allowOverlap) {
+    int nInstances[N_TOWERS_ETA][N_TOWERS_PHI] = {};
+    
+    for (const auto t : myTowerCollection) {
+      // printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.et(), t.iEta(), t.iPhi(), t.eta(), t.phi());
+      assert(t.iEta() >= 0);
+      assert(t.iPhi() >= 0);
+      assert(t.iEta() < N_TOWERS_ETA);
+      assert(t.iPhi() < N_TOWERS_PHI);
+
+      nInstances[t.iEta()][t.iPhi()] += 1;
+    }
+
+    for (int iEta = 0; iEta < N_TOWERS_ETA; iEta++) {
+      for (int iPhi = 0; iPhi < N_TOWERS_PHI; iPhi++) {
+
+        // Is the tower in the overlap region?
+        bool inOverlap = false;
+        for (int nRow = 0; nRow < N_OVERLAP_ROWS; nRow++) {
+          if ((iPhi >= OVERLAP_TOWER_GLOBAL_INDICES_INCLUSIVE[nRow][0]) && (iPhi < OVERLAP_TOWER_GLOBAL_INDICES_INCLUSIVE[nRow][1])) {
+            inOverlap = true;
+            continue;
+          }
+        }
+
+        // If we allow overlap, there must be 2 instances in the overlap region, otherwise 1
+        if (allowOverlap) {
+          if (inOverlap) {
+            assert(nInstances[iEta][iPhi] == 2); // some towers will be written twice
+          }
+          else {
+            assert(nInstances[iEta][iPhi] == 1);
+          }
+        }
+        // Else, only one instance must appear
+        else {
+          assert(nInstances[iEta][iPhi] == 1);
+        }
+      }
+    }
+
+    return true;
   }
 };
 

@@ -70,7 +70,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
   oldClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("oldClusters"))),
   l1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("l1EGammas"))),
- // oldTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("oldTowers"))),
+  fullTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("gctFullTowers"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -147,9 +147,11 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   edm::Handle<l1tp2::CaloTowerCollection> rctCaloL1Towers;
   
   edm::Handle<l1tp2::CaloCrystalClusterCollection> gctCaloCrystalClusters;
-  edm::Handle<l1tp2::CaloTowerCollection> gctCaloL1Towers;
+  edm::Handle<l1tp2::CaloTowerCollection> gctCaloTowers;
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
+  edm::Handle<l1tp2::CaloTowerCollection> fullTowers;
+
   
   edm::Handle<EcalEBTrigPrimDigiCollection> ecalTPGs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPGs;  
@@ -157,7 +159,6 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
  
   std::vector<Cluster> rctClustersMatched;
   std::vector<Cluster> gctClustersMatched;
-
 
   std::map<std::string, float> experimentalParams;
 
@@ -189,6 +190,9 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   newRelIso->clear();
   newIsoFlag->clear();
 
+  newFullTowers->clear();
+  newGCTTowers->clear();
+
   // Detector geometry
   caloGeometry_ = &iSetup.getData(caloGeometryToken_);
   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
@@ -201,11 +205,52 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
   std::cout << "Doing event " << event << "....: require gen matching? " <<  requireGenMatching_ << std::endl;
 
+  // Check that L1EG objects exist
   if (evt.getByToken(l1EGammasSrc_, l1EGammas)){
+    int size = 0;
     for (const auto & l1eg : *l1EGammas ) {
       printf("L1EG object found with pT %f, eta %f, phi %f\n", l1eg.p4().pt(), l1eg.p4().eta(), l1eg.p4().phi());
+      size++;
+    }
+    if (size == 0) {
+      printf("[WARNING:] NO ENTRIES FOUND IN L1EGAMMAS\n");
     }
   }
+
+  // Unit tests for full towers
+  if (evt.getByToken(fullTowersSrc_, fullTowers)) {
+    for (const auto & t : *fullTowers ) {
+      printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
+      Tower tower;
+      TLorentzVector temp_p4;
+      temp_p4.SetPtEtaPhiE(t.ecalTowerEt(), t.towerEta(), t.towerPhi(), t.ecalTowerEt());
+      tower.p4 = temp_p4;
+      tower.idxEta = t.towerIEta();
+      tower.idxPhi = t.towerIPhi();
+      newFullTowers->push_back(tower);
+    }
+  }
+  bool allowOverlapInFullTowers = true;
+  assert(passesTowerSizeTestWithOverlap(*newFullTowers, allowOverlapInFullTowers));
+  assert(passesTowerIndexCoverage(*newFullTowers, allowOverlapInFullTowers));
+
+  // Unit tests for GCT towers
+  if (evt.getByToken(gctTowersSrc_, gctCaloTowers)) {
+    for (const auto & t : *gctCaloTowers ) {
+      printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
+      Tower tower;
+      TLorentzVector temp_p4;
+      temp_p4.SetPtEtaPhiE(t.ecalTowerEt(), t.towerEta(), t.towerPhi(), t.ecalTowerEt());
+      tower.p4 = temp_p4;
+      tower.idxEta = t.towerIEta();
+      tower.idxPhi = t.towerIPhi();
+      newGCTTowers->push_back(tower);
+    }
+  }
+  std::cout << "GCT towers size: " << newGCTTowers->size() << std::endl;
+  bool allowOverlapInGCT = false;
+  assert(passesTowerSizeTestWithOverlap(*newGCTTowers, allowOverlapInGCT));
+  assert(passesTowerIndexCoverage(*newGCTTowers, allowOverlapInGCT));
 
   // Get the old emulator clusters from the emulator and sort them by pT
   if(evt.getByToken(oldClustersSrc_, oldCaloCrystalClusters)){
@@ -723,8 +768,6 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
         gct_is_looseTkss = gctClusterInfo->at(i).is_looseTkss;
         gct_is_iso = gctClusterInfo->at(i).is_iso;
         gct_is_looseTkiso = gctClusterInfo->at(i).is_looseTkiso;
-
-        
 
         efficiencyTree->Fill();
 
