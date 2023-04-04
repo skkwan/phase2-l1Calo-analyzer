@@ -220,7 +220,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Unit tests for full towers
   if (evt.getByToken(fullTowersSrc_, fullTowers)) {
     for (const auto & t : *fullTowers ) {
-      printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
+      // printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
       Tower tower;
       TLorentzVector temp_p4;
       temp_p4.SetPtEtaPhiE(t.ecalTowerEt(), t.towerEta(), t.towerPhi(), t.ecalTowerEt());
@@ -237,7 +237,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Unit tests for GCT towers
   if (evt.getByToken(gctTowersSrc_, gctCaloTowers)) {
     for (const auto & t : *gctCaloTowers ) {
-      printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
+      // printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
       Tower tower;
       TLorentzVector temp_p4;
       temp_p4.SetPtEtaPhiE(t.ecalTowerEt(), t.towerEta(), t.towerPhi(), t.ecalTowerEt());
@@ -258,13 +258,13 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       //fill vector                                                                             
       Cluster temp ;
       TLorentzVector temp_p4;
-      std::cout << "Old emulator cluster found: pT " << oldCluster.pt()  << ", "
-                << "eta "               << oldCluster.eta() << ", "
-                << "phi "               << oldCluster.phi() << ", " 
-		            << "iso "               << oldCluster.isolation() << ", " 
-                << "raw isolation "     << oldCluster.hovere() 
-                << "raw isolation "     << oldCluster.hovere() 
-		            << std::endl;
+      // std::cout << "Old emulator cluster found: pT " << oldCluster.pt()  << ", "
+      //           << "eta "               << oldCluster.eta() << ", "
+      //           << "phi "               << oldCluster.phi() << ", " 
+		  //           << "iso "               << oldCluster.isolation() << ", " 
+      //           << "raw isolation "     << oldCluster.hovere() 
+      //           << "raw isolation "     << oldCluster.hovere() 
+		  //           << std::endl;
       temp_p4.SetPtEtaPhiE(oldCluster.pt(),oldCluster.eta(),oldCluster.phi(),oldCluster.pt());
 
       temp.p4 = temp_p4;
@@ -278,11 +278,11 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       temp.is_iso        = oldCluster.experimentalParam("standaloneWP_isolation");
       temp.is_looseTkss  = oldCluster.experimentalParam("trkMatchWP_showerShape");
       temp.is_looseTkiso = oldCluster.experimentalParam("trkMatchWP_isolation");
-      std::cout << " with flags: " 
-                << "is_ss " << temp.is_ss << ","
-                << "is_iso " << temp.is_iso << ", "
-                << "is_looseTkss " << temp.is_looseTkss << ", "
-                << "is_looseTkiso " << temp.is_looseTkiso << std::endl;
+      // std::cout << " with flags: " 
+      //           << "is_ss " << temp.is_ss << ","
+      //           << "is_iso " << temp.is_iso << ", "
+      //           << "is_looseTkss " << temp.is_looseTkss << ", "
+      //           << "is_looseTkiso " << temp.is_looseTkiso << std::endl;
       
       // Save the 4-vector
       oldClusters->push_back(temp_p4);
@@ -302,8 +302,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   }
 
   // Get the RCT clusters from the emulator and sort them by pT
-  if(evt.getByToken(rctClustersSrc_, rctCaloCrystalClusters)){
-    for(const auto & rctCluster : *rctCaloCrystalClusters){
+  if (evt.getByToken(rctClustersSrc_, rctCaloCrystalClusters)){
+    for (const auto & rctCluster : *rctCaloCrystalClusters){
 
     //   std::cout << "RCT Cluster found: pT " << rctCluster.pt()  << ", "
 		// << "eta "                   << rctCluster.eta() << ", "
@@ -341,15 +341,13 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       TLorentzVector temp;
       float totalEt = rctTower.ecalTowerEt() + rctTower.hcalTowerEt();
       if (totalEt > 0) {
-	// std::cout << "Tower found: ECAL ET " << rctTower.ecalTowerEt()  << ", "
-	// 	  << "HCAL ET " << rctTower.hcalTowerEt()  << ", "
-	// 	  << "iEta, iPhi " << rctTower.towerIEta() << " " << rctTower.towerIPhi() << ", "
-	// 	  << "eta "             << rctTower.towerEta() << ", "
-	// 	  << "phi "             << rctTower.towerPhi() << std::endl;
-	temp.SetPtEtaPhiE(totalEt,
-			  rctTower.towerEta(), rctTower.towerPhi(),
-			  totalEt);
-	rctTowers->push_back(temp);
+        // std::cout << "Tower found: ECAL ET " << rctTower.ecalTowerEt()  << ", "
+        // 	  << "HCAL ET " << rctTower.hcalTowerEt()  << ", "
+        // 	  << "iEta, iPhi " << rctTower.towerIEta() << " " << rctTower.towerIPhi() << ", "
+        // 	  << "eta "             << rctTower.towerEta() << ", "
+        // 	  << "phi "             << rctTower.towerPhi() << std::endl;
+	      temp.SetPtEtaPhiE(totalEt, rctTower.towerEta(), rctTower.towerPhi(), totalEt);
+	      rctTowers->push_back(temp);
       }
     }
   }
@@ -360,12 +358,12 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       //fill vector                                                                             
       Cluster temp ;
       TLorentzVector temp_p4;
-      std::cout << "GCT Cluster found: pT " << gctCluster.pt()  << ", "
-                << "eta "               << gctCluster.eta() << ", "
-                << "phi "               << gctCluster.phi() << ", " 
-		            << "iso "               << gctCluster.isolation() << ", " 
-                << "raw iso (unscaled) " << gctCluster.hovere() 
-		            << std::endl;
+      // std::cout << "GCT Cluster found: pT " << gctCluster.pt()  << ", "
+      //           << "eta "               << gctCluster.eta() << ", "
+      //           << "phi "               << gctCluster.phi() << ", " 
+		  //           << "iso "               << gctCluster.isolation() << ", " 
+      //           << "raw iso (unscaled) " << gctCluster.hovere() 
+		  //           << std::endl;
       temp_p4.SetPtEtaPhiE(gctCluster.pt(),gctCluster.eta(),gctCluster.phi(),gctCluster.pt());
 
       temp.p4 = temp_p4;
@@ -428,26 +426,6 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 	  float phi = position.phi();
 	  TLorentzVector temp ;
 	  temp.SetPtEtaPhiE(et,eta,phi,et);
-	  
-	  // int cc = 28;
-	  // if (getCrystal_phiID(position.phi()) <= getPhiMax_card(cc) &&
-	  //     getCrystal_phiID(position.phi()) >= getPhiMin_card(cc) &&
-	  //     getCrystal_etaID(position.eta()) <= getEtaMax_card(cc) &&
-	  //     getCrystal_etaID(position.eta()) >= getEtaMin_card(cc)){
-
-	  //   // TEMP: only use ECAL hits in Card 28                                                                             
-	  //   allEcalTPGs->push_back(temp); 
-
-	  //   if ((getCrystal_etaID(position.eta()) > 29) && (getCrystal_etaID(position.eta()) < 35)) {
-	  //     std::cout << "[CARD " << cc << "]: Found ECAL cell/hit with eta/phi "
-	  // 		<< position.eta() << ", "
-	  // 		<< position.phi() << ", and in-detector phiID and etaID "
-	  // 		<< getCrystal_phiID(position.phi()) << ", "
-	  // 		<< getCrystal_etaID(position.eta()) << ", and ET (GeV) "
-	  // 		<< et << std::endl;
-	  //   }
-	  // }
-	  // TEMP: Debugging purposes only: only add ECAL hits in Card 28
 	  allEcalTPGs->push_back(temp);
 	}
     }
@@ -463,15 +441,13 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       continue;
     
     if (!(hcTopology_->validHT(hit.id()))) {
-      LogError("Phase2L1CaloEGammaEmulator")
-  	<< " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
+      LogError("Phase2L1CaloEGammaEmulator") << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
       throw cms::Exception("Phase2L1CaloEGammaEmulator");
       continue;
     }
     const std::vector<HcalDetId>& hcId = theTrigTowerGeometry.detIds(hit.id());
     if (hcId.empty()) {
-      LogError("Phase2L1CaloEGammaEmulator")
-  	<< "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
+      LogError("Phase2L1CaloEGammaEmulator") << "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
       throw cms::Exception("Phase2L1CaloEGammaEmulator");
       continue;
     }
@@ -484,7 +460,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       // get the first HCAL TP/ cell
       auto cell = hbGeometry->getGeometry(hcId_i);
       if (cell == nullptr)
-  	continue;
+  	    continue;
       GlobalVector tmpVector = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
       hcal_tp_position = tmpVector;
       
@@ -517,17 +493,17 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     edm::Ptr<reco::GenParticle> ptr(genParticleHandle, i);
     genParticles.push_back(*ptr);
 
-    printf("my pdg id is %i and my eta is %f\n", ptr->pdgId(), ptr->eta());
+    // printf("my pdg id is %i and my eta is %f\n", ptr->pdgId(), ptr->eta());
 
     
     // Get gen electrons in barrel + overlap
     if ( (abs(ptr->pdgId()) == 11) && ( abs(ptr->eta()) < 1.4841 )) {
       genElectrons.push_back(*ptr);
       // Check isLastCopy() and isLastCopyBeforeFSR()
-      std::cout << "isLastCopy: " << ptr->isLastCopy()  << ", "
-		<< "isLastCopyBeforeFSR: " << ptr->isLastCopyBeforeFSR() << std::endl;
+      // std::cout << "isLastCopy: " << ptr->isLastCopy()  << ", "
+		  //           << "isLastCopyBeforeFSR: " << ptr->isLastCopyBeforeFSR() << std::endl;
       
-      std::cout << "Added genElectron " << ptr->pt() << std::endl;
+      // std::cout << "Added genElectron " << ptr->pt() << std::endl;
     }
   }
   
@@ -598,7 +574,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
       // Loop through the RCT clusters which are already sorted in decreasing pT, and check for
       // the first cluster within deltaR < 0.5. 
-      std::cout << "Event " << event << ": check that RCT clusters are sorted!" << std::endl;
+      // std::cout << "Event " << event << ": check that RCT clusters are sorted!" << std::endl;
     
       for (size_t i = 0; i < rctClusterInfo->size(); ++i) {
 
@@ -636,21 +612,21 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
         rct_et2x5 = rctClustersMatched.at(0).et2x5;
         rct_et5x5 = rctClustersMatched.at(0).et5x5; 
 
-        std::cout << "--> Matched RCT cluster " << rct_cPt 
-                  << " eta: " << rct_cEta
-                  << " phi: " << rct_cPhi
-                  << " with genElectron " << genPt
-                  << " eta: " << genEta
-                  << " phi: " << genPhi 
-                  << " et2x5: " << rct_et2x5 
-                  << " et5x5: " << rct_et5x5 << std::endl;
+        // std::cout << "--> Matched RCT cluster " << rct_cPt 
+        //           << " eta: " << rct_cEta
+        //           << " phi: " << rct_cPhi
+        //           << " with genElectron " << genPt
+        //           << " eta: " << genEta
+        //           << " phi: " << genPhi 
+        //           << " et2x5: " << rct_et2x5 
+        //           << " et5x5: " << rct_et5x5 << std::endl;
       }
       
       //************************************************************************************/
       // Loop through the GCT cluster 4-vectors, and gen-match. Only take the first 
       // GCT cluster which has deltaR < 0.5.
       //************************************************************************************/ 
-      std::cout << ">>> Doing GCT clusters..." << std::endl;
+      // std::cout << ">>> Doing GCT clusters..." << std::endl;
       
       gct_cPt   = 0;    gct_cEta   = -999;   gct_cPhi  = -999;
       gct_deltaR = 999;
@@ -775,11 +751,12 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
     // Only fill once per event
     dispTree->Fill();
-
-
-      
   }
  }
+  // test
+  std::cout << " about to try to exit.. " << std::endl;
+  LogError("L1CaloEGammaSingleAnalyzer")	<< "This is what an error looks like " << std::endl;
+  throw cms::Exception("L1CaloEGammaSingleAnalyzer");
 }
 
 

@@ -1,0 +1,1 @@
+<test name="TestDigitizedCollections" command="source ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test/test_digitizedCollections.sh"/>
