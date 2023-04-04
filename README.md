@@ -122,3 +122,7 @@ To run the single emulator which now also produces `TLorentzVectors` suitable fo
    cd test/
    cmsRun test-analyzer-rates.py
    ```
+
+## To run the unit tests for the digitized collections
+
+In the `devel-digitizedCollections` branch, at the top-level, run `scram b runtests`
