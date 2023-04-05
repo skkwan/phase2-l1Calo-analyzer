@@ -754,9 +754,9 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   }
  }
   // test
-  std::cout << " about to try to exit.. " << std::endl;
-  LogError("L1CaloEGammaSingleAnalyzer")	<< "This is what an error looks like " << std::endl;
-  throw cms::Exception("L1CaloEGammaSingleAnalyzer");
+  // std::cout << " about to try to exit.. " << std::endl;
+  // LogError("L1CaloEGammaSingleAnalyzer")	<< "This is what an error looks like " << std::endl;
+  // throw cms::Exception("L1CaloEGammaSingleAnalyzer");
 }
 
 
