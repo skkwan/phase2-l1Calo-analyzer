@@ -1,46 +1,61 @@
-# Phase 2 L1 Calo Analyzer
+# Phase 2 L1 Calo Emulator and Analyzer
 
 ## Description
 
-   This repo is for doing one of two things:
-   1. Running the emulator and creating an n-tuple for the event display,
-   2. Running the emulator and creating a TTree for things like distributions, efficiency studies (to-do).
+   This emulator is for the Phase 2 RCT and GCT firmware-based emulators. It corresponds to PR#1069 in cms-l1t-offline (https://github.com/cms-l1t-offline/cmssw/pull/1069) and PR#41224 in cms-sw/cmssw (https://github.com/cms-sw/cmssw/pull/41224).
 
-   This repo loads the emulator from the specified path and doesn't change it, but applies it fresh and then you can get the collections the emulator produces, and analyze those.
 
-## Setup (do only once)
-
-   On lxplus, set up CMSSW release for the emulators
+## Setup emulator (do only once)
+   Set up CMSSW release for the emulators (only do once, and word of warning: because of `cms-merge-topic`, opening PRs to CMSSW may be bad)
    ```
    cmsrel CMSSW_12_5_2_patch1
    cd CMSSW_12_5_2_patch1/src
    cmsenv
    git cms-init
-   git cms-merge-topic -u cms-l1t-offline:l1t-phase2-v55
+   git cms-merge-topic -u cms-l1t-offline:l1t-phase2-v56
    scram b -j 8
-   git branch -b devel-phase2egStandaloneBarrelEmulator
+   git cms-rebase-topic -u skkwan:devel-phase2egStandaloneBarrelEmulator
    git cms-addpkg L1Trigger/L1CaloTrigger
    git cms-addpkg Configuration/Geometry
    scram b -j 8
-   # Set up my own development branch
-   git branch -b devel-phase2egStandaloneBarrelEmulator
    ```
 
-   Then get the analyzer repository
+## To run the Phase 2 emulator only
+   
+   To run the Phase 2 emulator:
    ```
-   # git clone into L1Trigger/
+   cmsenv
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloTrigger/test
+   cmsRun test_Phase2L1CaloEGammaEmulator.py
+   ```
+
+## To set up the analyzer (which calls the old and new emulator)
+
+1. Get the analyzer repository: git clone the analyzer repo and then manually move it:
+   ```
+   cmsenv
+   cd ${CMSSW_BASE}/src/L1Trigger/
+   git clone https://github.com/skkwan/phase2-l1Calo-analyzer.git
    mv phase2-l1Calo-analyzer/ L1CaloPhase2Analyzer/ 
    ```
 
 
-## To run the single emulator
+## To run the analyzer (calls both the old and new emulator)
 
-To run the single emulator which now also produces `TLorentzVectors` suitable for the event display,
+1. To run the analyzer:
+   ```
+   cmsenv
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
+   cmsRun test-singleAnalyzer.py
+   ```
+2. To run the rates analyzer:
+   ```
+   cmsenv
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
 
-1. `cmsRun test-singleAnalyzer.py`
+   ```
 
-
-## To identify pathological MinBias events
+## (Developers only) To identify pathological MinBias events
 
 0. Run CRAB jobs to make MinBias n-tuples for the old and new analyzers, stored on T2.
 1. In the `test/compare` directory, change `compare.py` to have the event pre-selection you want (e.g. disagreement in isolation flag).
@@ -56,69 +71,49 @@ To run the single emulator which now also produces `TLorentzVectors` suitable fo
 5. Submit the resulting CRAB config file and wait for skimmed n-tuples to show up in T2.
 6. Then run the single analyzer and the event display (housed in a different directory, `/afs/cern.ch/work/s/skkwan/private/phase2RCTDev/eventDisplay`.
 
-## (Older steps) To run the emulator and create an n-tuple for the event display
+## (Developers only) To run the emulator and analyzer to make a TTree for distributions, efficiencies, rates, etc.
 
-1. Make sure the `L1Trigger/L1CaloTrigger` area is compiled, since this analyzer loads and calls the modules from that area.
-
-   Fun facts:
-   If analyzing the CMSSW emulator, make sure the `python/` config file uses the `L1EGamma`... cluster collection.
-   If analyzing the firmware-based emulator, make sure the `python/` config file uses the `Phase2L1EGamma`... cluster collection.
-(Otherwise the clusters won't show up)
-
-2. To make a EVENT DISPLAY n-tuple, run these steps, which call the emulator and then the analyzer which creates the vector of
-   TLorentzVectors of the input towers and crystals, and the output clusters and towers. This analyzer is
-   `L1CaloPhase2Analyzer/plugins/L1TEventDisplayGenerator.cc`. It produces `l1NtupleProducer/efficiencyTree`; its branches
-   are vectors of the above-described TLorentzVectors. 
-
-   This is a different analyzer than the one for variable distributions, efficiencies, etc (`L1TCaloEGammaAnalyzer.cc`). 
+1. CRAB to the rescue:
    ```
    cmsenv
-   cd test/
-   cmsRun test-l1t-cmssw-EventDisplayGenerator.py
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test/crab
+   cat datasetConfig.yml
    ```
 
-   To call the firmware-based emulator and make an n-tuple from that,
+2. Edit `datasetConfig.yml` to point to the correct datasets and template CRAB files. (Edit the template CRAB file to point to your own T2/T3 storage.)
+3. Edit `parseYaml.py` so that the line
    ```
-   cmsenv
-   cmsRun test-l1tEventDisplayGenerator.py   
+   for eraType in ["signal_singleEmulator", "signal_oldEmulator", "signal", "rates", "rates_oldEmulator"]:
    ```
+   has all the entries in the `.yml` that we want to process.
+4. Then `python parseYaml.py` which should create one CRAB config file per `eraType`.
+5. Submit the crab config file as normal, e.g. `crab submit crabJobConfigs/2023crabTest_DoubleElectron_FlatPt-1To100-gun_singleEmulator_Phase2Fall22DRMiniAOD_cfg.py`.
+6. On the T2/T3 data storage, once the CRAB jobs have completed, `hadd -f -j -k` the files and continue. 
 
-3. The firmware-based (original CMSSW) emulator creates these outputs: 
-    * `L1EventDisplay.root` (`L1EventDisplay-cmssw.root`) - this should be used in the event display code
-    * `.txt` printouts specified in the `L1Trigger/L1CaloTrigger` plugins scripts) - helpful for info/debugging
-    * `phase2L1CaloEGamma.root` (`cmsswCaloEGamma.root`): the outputs generated by the `L1Trigger/L1CaloTrigger` plugins scripts) - can ignore
+## (Developers only) To make distributions and efficiencies 
 
-4. Copy the `L1EventDisplay` ROOT files into the event display repo: https://github.com/skkwan/phase2-l1t-eventDisplay and proceed there
-
-
-
-## To run the emulator and create a TTree for distributions, efficiencies, etc.
-
-1. Same as step 1 above.
-
-2. To make an EFFICIENCYTREE n-tuple, run these steps which calls the emulator and the analyzer `L1TCaloEGammaAnalyzer.cc` 
-   (not to be confused with `L1TEventDisplayGenerator.cc`, which is different).
+1. To make efficiencies,
    ```
-   cmsenv
-   cd test/
-   cmsRun test-analyzer.py
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/figures
+   cd efficiencyPlots/
+   ``` 
+   Check that `runDistribPlots.sh` points to the right input file, and check that `runDistributionPlots.C` points to a valid output directory to write the .pngs and .pdfs.
+
+2. To make distributions,
    ```
-   This produces `analyzer.root`.
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/figures
+   cd validationPlots/
+   ``` 
+   Check that the files point to the right input/output locations, and run `runDistribPlots.sh`.
 
-3. (Important) `scp` the file to somewhere on the laptop working area, and check that `runDistribPlots.sh` points to the right input file, and check that `runDistributionPlots.C` points to a valid output directory to write the .pngs and .pdfs.
-
-4. Then run the analyzer (only ROOT needed):
-   ```
-   # On laptop working area
-   cd figures/validationPlots
-   source runDistribPlots.sh    # if you get weird ROOT errors make sure there are no mismatched brackets }
-   ```
-   There should be printout statements saying where the .pngs and .pdfs were written.
-
-
-## To run the rates n-tuple (to-verify these steps)
+## (Developers only) To run the rates 
 
    ```
-   cd test/
-   cmsRun test-analyzer-rates.py
-   ```
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/figures
+   cd ratesPlots/
+   ``` 
+   Run `runRatesPlots.sh`.
+
+## (Developers only) To run the unit tests for the digitized collections
+
+In the `devel-digitizedCollections` branch of the CMSSW release, at the top-level, run `scram b runtests`.
