@@ -77,6 +77,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   fullTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("gctFullTowers"))),
   digitizedClusterCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClusterCorrelator"))),
   digitizedTowerCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowerCorrelator"))),
+  digitizedClusterGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClusterGT"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -159,8 +160,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   edm::Handle<l1tp2::CaloTowerCollection> fullTowers;
   edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClusterCorrelator;
   edm::Handle<l1tp2::DigitizedTowerCorrelatorCollection> digitizedTowerCorrelator;
+  edm::Handle<l1tp2::DigitizedClusterGTCollection> digitizedClusterGT;
 
-  
   edm::Handle<EcalEBTrigPrimDigiCollection> ecalTPGs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPGs;  
   edm::Handle<edm::SortedCollection<HcalTriggerPrimitiveDigi> > hbhecoll;
@@ -274,7 +275,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     }
   }
 
-  // 
+  // Unit tests for digitized towers for correlator
   if (evt.getByToken(digitizedTowerCorrelatorSrc_, digitizedTowerCorrelator)) {
     int size = 0;
     for (const auto & dt : *digitizedTowerCorrelator ) {
@@ -285,6 +286,21 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     }
     if (size == 0) {
       LogError("L1CaloEGammaSingleAnalyzer")	<< " NO ENTRIES FOUND IN DIGITIZED TOWER CORRELATOR " << std::endl;
+      throw cms::Exception("L1CaloEGammaSingleAnalyzer");
+    }
+  }
+
+  // Unit tests for digitized towers for GT
+  if (evt.getByToken(digitizedClusterGTSrc_, digitizedClusterGT)){
+    int size = 0;
+    for (const auto & dc : *digitizedClusterGT ) {
+      dc.printPtFloat(); 
+      dc.printRealEta();
+      dc.printRealPhi();
+      size++;
+    }
+    if (size == 0) {
+      LogError("L1CaloEGammaSingleAnalyzer")	<< " NO ENTRIES FOUND IN DIGITIZED CLUSTER GT " << std::endl;
       throw cms::Exception("L1CaloEGammaSingleAnalyzer");
     }
   }
