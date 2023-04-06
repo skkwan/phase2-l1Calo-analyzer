@@ -34,10 +34,14 @@
 // HCAL TPs
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
-// Output tower collection
+// Output collections
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
+
 
 #include "L1Trigger/L1CaloTrigger/interface/ParametricCalibration.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
@@ -71,6 +75,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   oldClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("oldClusters"))),
   l1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("l1EGammas"))),
   fullTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("gctFullTowers"))),
+  digitizedClusterCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClusterCorrelator"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -151,7 +156,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
   edm::Handle<l1tp2::CaloTowerCollection> fullTowers;
-
+  edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClusterCorrelator;
   
   edm::Handle<EcalEBTrigPrimDigiCollection> ecalTPGs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPGs;  
@@ -251,6 +256,20 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   bool allowOverlapInGCT = false;
   assert(passesTowerSizeTestWithOverlap(*newGCTTowers, allowOverlapInGCT));
   assert(passesTowerIndexCoverage(*newGCTTowers, allowOverlapInGCT));
+
+  // Unit tests for digitized clusters for correlator 
+  if (evt.getByToken(digitizedClusterCorrelatorSrc_, digitizedClusterCorrelator)){
+    int size = 0;
+    for (const auto & dc : *digitizedClusterCorrelator ) {
+      dc.printPtFloat(); 
+      dc.printCardNumber();
+      size++;
+    }
+    if (size == 0) {
+      printf("[WARNING:] NO ENTRIES FOUND IN DIGITIZED CLUSTER CORRELATOR\n");
+    }
+  }
+
 
   // Get the old emulator clusters from the emulator and sort them by pT
   if(evt.getByToken(oldClustersSrc_, oldCaloCrystalClusters)){

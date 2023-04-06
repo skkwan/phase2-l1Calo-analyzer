@@ -64,8 +64,13 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "L1Trigger/L1TCaloLayer1/src/UCTRegion.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
-#include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
 //
 // class declaration
 //
@@ -312,6 +317,8 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> oldTowersSrc_;
   edm::EDGetTokenT<BXVector<l1t::EGamma>> l1EGammasSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> fullTowersSrc_;
+  edm::EDGetTokenT<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClusterCorrelatorSrc_;
+
 
   edm::InputTag genSrc_;
   std::string folderName_;
