@@ -269,7 +269,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       size++;
     }
     if (size == 0) {
-      printf("[WARNING:] NO ENTRIES FOUND IN DIGITIZED CLUSTER CORRELATOR\n");
+      LogError("L1CaloEGammaSingleAnalyzer")	<< " NO ENTRIES FOUND IN DIGITIZED CLUSTER CORRELATOR " << std::endl;
+      throw cms::Exception("L1CaloEGammaSingleAnalyzer");
     }
   }
 
