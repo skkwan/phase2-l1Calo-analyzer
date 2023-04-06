@@ -318,7 +318,7 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<BXVector<l1t::EGamma>> l1EGammasSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> fullTowersSrc_;
   edm::EDGetTokenT<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClusterCorrelatorSrc_;
-
+  edm::EDGetTokenT<l1tp2::DigitizedTowerCorrelatorCollection> digitizedTowerCorrelatorSrc_;
 
   edm::InputTag genSrc_;
   std::string folderName_;

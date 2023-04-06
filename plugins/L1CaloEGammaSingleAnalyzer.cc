@@ -76,6 +76,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   l1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("l1EGammas"))),
   fullTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("gctFullTowers"))),
   digitizedClusterCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClusterCorrelator"))),
+  digitizedTowerCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowerCorrelator"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -157,6 +158,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
   edm::Handle<l1tp2::CaloTowerCollection> fullTowers;
   edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClusterCorrelator;
+  edm::Handle<l1tp2::DigitizedTowerCorrelatorCollection> digitizedTowerCorrelator;
+
   
   edm::Handle<EcalEBTrigPrimDigiCollection> ecalTPGs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPGs;  
@@ -270,6 +273,20 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     }
   }
 
+  // 
+  if (evt.getByToken(digitizedTowerCorrelatorSrc_, digitizedTowerCorrelator)) {
+    int size = 0;
+    for (const auto & dt : *digitizedTowerCorrelator ) {
+      dt.printEtFloat(); 
+      dt.printHoE();
+      dt.printInfo();
+      size++;
+    }
+    if (size == 0) {
+      LogError("L1CaloEGammaSingleAnalyzer")	<< " NO ENTRIES FOUND IN DIGITIZED TOWER CORRELATOR " << std::endl;
+      throw cms::Exception("L1CaloEGammaSingleAnalyzer");
+    }
+  }
 
   // Get the old emulator clusters from the emulator and sort them by pT
   if(evt.getByToken(oldClustersSrc_, oldCaloCrystalClusters)){
