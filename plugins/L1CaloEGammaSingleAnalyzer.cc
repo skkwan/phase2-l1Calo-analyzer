@@ -215,11 +215,15 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   std::cout << "Doing event " << event << "....: require gen matching? " <<  requireGenMatching_ << std::endl;
 
   // Check that L1EG objects exist
+  int nL1EGClustersWithNonZeroEnergy = 0;
   if (evt.getByToken(l1EGammasSrc_, l1EGammas)){
     int size = 0;
     for (const auto & l1eg : *l1EGammas ) {
       printf("L1EG object found with pT %f, eta %f, phi %f\n", l1eg.p4().pt(), l1eg.p4().eta(), l1eg.p4().phi());
       size++;
+      if (l1eg.p4().pt() > 0) {
+        nL1EGClustersWithNonZeroEnergy++;
+      }
     }
     if (size == 0) {
       printf("[WARNING:] NO ENTRIES FOUND IN L1EGAMMAS\n");
@@ -244,6 +248,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   assert(passesTowerIndexCoverage(*newFullTowers, allowOverlapInFullTowers));
 
   // Unit tests for GCT towers
+  int nGCTTowersWithNonZeroEnergy = 0;
   if (evt.getByToken(gctTowersSrc_, gctCaloTowers)) {
     for (const auto & t : *gctCaloTowers ) {
       // printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
@@ -254,6 +259,10 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       tower.idxEta = t.towerIEta();
       tower.idxPhi = t.towerIPhi();
       newGCTTowers->push_back(tower);
+      if ((t.ecalTowerEt() + t.hcalTowerEt()) > 0) {
+        // std::cout << "t.ecalTowerEt() + t.hcalTowerEt(): " << t.ecalTowerEt() + t.hcalTowerEt() << std::endl;
+        nGCTTowersWithNonZeroEnergy++;
+      }
     }
   }
   std::cout << "GCT towers size: " << newGCTTowers->size() << std::endl;
@@ -262,12 +271,14 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   assert(passesTowerIndexCoverage(*newGCTTowers, allowOverlapInGCT));
 
   // Unit tests for digitized clusters for correlator 
+  int nCorrelatorDigitizedClustersWithNonZeroEnergy = 0;
   if (evt.getByToken(digitizedClusterCorrelatorSrc_, digitizedClusterCorrelator)){
     int size = 0;
     for (const auto & dc : *digitizedClusterCorrelator ) {
-      dc.printPtFloat(); 
-      dc.printCardNumber();
       size++;
+      if (dc.pt() > 0 ) {
+        nCorrelatorDigitizedClustersWithNonZeroEnergy++;
+      }
     }
     if (size == 0) {
       LogError("L1CaloEGammaSingleAnalyzer")	<< " NO ENTRIES FOUND IN DIGITIZED CLUSTER CORRELATOR " << std::endl;
@@ -276,34 +287,52 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   }
 
   // Unit tests for digitized towers for correlator
+  int nCorrelatorDigitizedTowersWithNonZeroEnergy = 0; 
   if (evt.getByToken(digitizedTowerCorrelatorSrc_, digitizedTowerCorrelator)) {
     int size = 0;
     for (const auto & dt : *digitizedTowerCorrelator ) {
-      dt.printEtFloat(); 
-      dt.printHoE();
-      dt.printInfo();
       size++;
+      if (dt.et() > 0) {
+        nCorrelatorDigitizedTowersWithNonZeroEnergy++;
+        // dt.printInfo();
+      }
     }
     if (size == 0) {
       LogError("L1CaloEGammaSingleAnalyzer")	<< " NO ENTRIES FOUND IN DIGITIZED TOWER CORRELATOR " << std::endl;
       throw cms::Exception("L1CaloEGammaSingleAnalyzer");
     }
   }
+  std::cout << "Number of towers with non-zero energy: GCT " << nGCTTowersWithNonZeroEnergy
+          << " vs. correlator: " << nCorrelatorDigitizedTowersWithNonZeroEnergy
+          << std::endl;
 
-  // Unit tests for digitized towers for GT
+  if (nGCTTowersWithNonZeroEnergy != nCorrelatorDigitizedTowersWithNonZeroEnergy) {
+    LogError("L1CaloEGammaSingleAnalyzer")	<< "Number of digitized correlator towers with > 0 GeV (" << nCorrelatorDigitizedTowersWithNonZeroEnergy
+                                            << ") does not match number of GCT towers with > 0 GeV (" << nGCTTowersWithNonZeroEnergy << ")!"
+                                            << std::endl;
+    throw cms::Exception("L1CaloEGammaSingleAnalyzer");
+  }
+
+
+  // Unit tests for digitized clusters for GT
+  int nGTDigitizedClustersWithNonZeroEnergy = 0;
   if (evt.getByToken(digitizedClusterGTSrc_, digitizedClusterGT)){
     int size = 0;
     for (const auto & dc : *digitizedClusterGT ) {
-      dc.printPtFloat(); 
-      dc.printRealEta();
-      dc.printRealPhi();
+      // dc.printPtFloat(); 
+      // dc.printRealEta();
+      // dc.printRealPhi();
       size++;
+      if (dc.pt() > 0){
+        nGTDigitizedClustersWithNonZeroEnergy++;
+      }
     }
     if (size == 0) {
       LogError("L1CaloEGammaSingleAnalyzer")	<< " NO ENTRIES FOUND IN DIGITIZED CLUSTER GT " << std::endl;
       throw cms::Exception("L1CaloEGammaSingleAnalyzer");
     }
   }
+
 
   // Get the old emulator clusters from the emulator and sort them by pT
   if(evt.getByToken(oldClustersSrc_, oldCaloCrystalClusters)){
@@ -406,6 +435,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   }
   
   // Get the GCT clusters from the emulator, and sort them by pT
+  int nGCTClustersWithNonZeroEnergy = 0;
   if(evt.getByToken(gctClustersSrc_, gctCaloCrystalClusters)){
     for(const auto & gctCluster : *gctCaloCrystalClusters){
       //fill vector                                                                             
@@ -439,8 +469,36 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       gctClusters->push_back(temp_p4);
       // Save the full cluster info
       gctClusterInfo->push_back(temp);
+
+      if (gctCluster.pt() > 0) {
+        nGCTClustersWithNonZeroEnergy++;
+      }
     }
   }
+
+  std::cout << " Number of clusters: GCT : " << nGCTClustersWithNonZeroEnergy 
+            << " vs. digitized correlator: " << nCorrelatorDigitizedClustersWithNonZeroEnergy 
+            << " vs. digitized GT: " << nGTDigitizedClustersWithNonZeroEnergy 
+            << " vs. L1 EG: " << nL1EGClustersWithNonZeroEnergy << std::endl;
+
+  // Check that the number of clusters with non-zero energy is the same
+  if (nGCTClustersWithNonZeroEnergy != nCorrelatorDigitizedClustersWithNonZeroEnergy) {
+    LogError("L1CaloEGammaSingleAnalyzer")	<< "Number of digitized correlator clusters with > 0 pT (" << nCorrelatorDigitizedClustersWithNonZeroEnergy 
+                                            << ") does not match number of GCT clusters with > 0 pT (" << nGCTClustersWithNonZeroEnergy << ")!" << std::endl;
+    throw cms::Exception("L1CaloEGammaSingleAnalyzer");
+  }
+  if (nGCTClustersWithNonZeroEnergy != nGTDigitizedClustersWithNonZeroEnergy) {
+    LogError("L1CaloEGammaSingleAnalyzer")	<< "Number of digitized GT clusters with > 0 pT (" << nGTDigitizedClustersWithNonZeroEnergy 
+                                            << ") does not match number of GCT clusters with > 0 pT (" << nGCTClustersWithNonZeroEnergy << ")!" << std::endl;
+    throw cms::Exception("L1CaloEGammaSingleAnalyzer");
+  }
+  if (nGCTClustersWithNonZeroEnergy != nL1EGClustersWithNonZeroEnergy) {
+    LogError("L1CaloEGammaSingleAnalyzer")	<< "Number of L1 EG objects with > 0 pT (" << nL1EGClustersWithNonZeroEnergy  
+                                            << ") does not match number of GCT clusters with > 0 pT(" << nGCTClustersWithNonZeroEnergy << ")!" << std::endl;
+    throw cms::Exception("L1CaloEGammaSingleAnalyzer");
+  }
+
+
   std::sort(gctClusters->begin(), gctClusters->end(), L1TCaloEGammaSingleAnalyzer::comparePt);
   std::sort(gctClusterInfo->begin(), gctClusterInfo->end(), L1TCaloEGammaSingleAnalyzer::compareClusterPt);
 
