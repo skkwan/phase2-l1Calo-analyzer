@@ -6,6 +6,7 @@
 // system include files
 #include <ap_int.h>
 #include <array>
+#include <bitset>
 #include <cmath>
 // #include <cstdint>
 #include <iostream>
@@ -70,7 +71,9 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
   oldClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("oldClusters"))),
   l1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("l1EGammas"))),
+  oldL1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("oldL1EGammas"))),
   fullTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("gctFullTowers"))),
+  digitizedClustersGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersGT"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -128,6 +131,22 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
     efficiencyTree->Branch("gct_is_looseTkss", &gct_is_looseTkss, "gct_is_looseTkss/I");
     efficiencyTree->Branch("gct_is_iso", &gct_is_iso, "gct_is_iso/I");
     efficiencyTree->Branch("gct_is_looseTkiso", &gct_is_looseTkiso, "gct_is_looseTkiso/I");
+
+
+    // l1egTree->Branch("run",    &run,     "run/I");
+    // l1egTree->Branch("lumi",   &lumi,    "lumi/I");
+    // l1egTree->Branch("event",  &event,   "event/I");
+
+    // l1egTree->Branch("gct_l1egPt",  &gct_l1egPt,  "gct_l1egPt/D");
+    // l1egTree->Branch("gct_l1egEta", &gct_l1egEta, "gct_l1egEta/D");
+    // l1egTree->Branch("gct_l1egPhi", &gct_l1egPhi, "gct_l1egPhi/D");
+    // l1egTree->Branch("gct_l1egQual", &gct_l1egQual, "gct_l1egQual/I");
+
+    // l1egTree->Branch("old_l1egPt",  &old_l1egPt,  "old_l1egPt/D");
+    // l1egTree->Branch("old_l1egEta", &old_l1egEta, "old_l1egEta/D");
+    // l1egTree->Branch("old_l1egPhi", &old_l1egPhi, "old_l1egPhi/D");
+    // l1egTree->Branch("old_l1egQual", &old_l1egQual, "old_l1egQual/I");
+
   }
 
 void L1TCaloEGammaSingleAnalyzer::beginJob(const edm::EventSetup &iSetup) {
@@ -150,8 +169,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   edm::Handle<l1tp2::CaloTowerCollection> gctCaloTowers;
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
+  edm::Handle<BXVector<l1t::EGamma>> oldL1EGammas;
   edm::Handle<l1tp2::CaloTowerCollection> fullTowers;
-
   
   edm::Handle<EcalEBTrigPrimDigiCollection> ecalTPGs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPGs;  
@@ -193,6 +212,9 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   newFullTowers->clear();
   newGCTTowers->clear();
 
+  // gct_l1eg->clear();
+  // old_l1eg->clear();
+
   // Detector geometry
   caloGeometry_ = &iSetup.getData(caloGeometryToken_);
   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
@@ -209,13 +231,38 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   if (evt.getByToken(l1EGammasSrc_, l1EGammas)){
     int size = 0;
     for (const auto & l1eg : *l1EGammas ) {
-      printf("L1EG object found with pT %f, eta %f, phi %f\n", l1eg.p4().pt(), l1eg.p4().eta(), l1eg.p4().phi());
+      printf("L1EG object found with pT %f, eta %f, phi %f, ", l1eg.p4().pt(), l1eg.p4().eta(), l1eg.p4().phi());
+      ap_uint<3> qual = l1eg.hwQual() & 0b111;
+      std::cout << "qual " << std::bitset<3>{qual} << std::endl;
+      // l1egInfo myL1eg = l1egInfo(l1eg);
+      // if (l1eg.p4().pt() > 0) {
+      //   gct_l1eg->push_back(myL1eg);
+      // }
       size++;
     }
     if (size == 0) {
       printf("[WARNING:] NO ENTRIES FOUND IN L1EGAMMAS\n");
     }
   }
+
+
+  // Check that old L1EG objects exist
+  if (evt.getByToken(oldL1EGammasSrc_, oldL1EGammas)){
+    int size = 0;
+    for (const auto & l1eg : *oldL1EGammas ) {
+      printf("Previous emulator L1EG object found with pT %f, eta %f, phi %f, ", l1eg.p4().pt(), l1eg.p4().eta(), l1eg.p4().phi());
+      ap_uint<3> qual = l1eg.hwQual() & 0b111;
+      std::cout << "qual " << std::bitset<3>{qual} << std::endl;      // l1egInfo myL1eg = l1egInfo(l1eg);
+      // if (l1eg.p4().pt() > 0) {
+      //   old_l1eg->push_back(myL1eg);
+      // }
+    }
+    if (size == 0) {
+      printf("[WARNING:] NO ENTRIES FOUND IN OLD EMULATOR L1EGAMMAS\n");
+      size++;
+    }
+  }
+  
 
   // Unit tests for full towers
   if (evt.getByToken(fullTowersSrc_, fullTowers)) {
@@ -779,6 +826,9 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
       
   }
+
+  // Fill the L1EG tree   
+
  }
 }
 

@@ -14,9 +14,11 @@ l1NtupleSingleProducer = cms.EDAnalyzer("L1TCaloEGammaSingleAnalyzer",
                                         gctClusters = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCT", "REPR"),
                                         oldClusters = cms.InputTag("l1tEGammaClusterEmuProducer", "", "REPR"),
                                         l1EGammas = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTEGammas", "REPR"),
-                                        gctFullTowers = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTFullTowers", "REPR") 
+                                        oldL1EGammas = cms.InputTag("l1tEGammaClusterEmuProducer", "", "REPR"),
+                                        gctFullTowers = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTFullTowers", "REPR"),
 
-                                        
+                                        digitizedClustersGT = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTDigitizedClusterToGT", "REPR") 
+
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

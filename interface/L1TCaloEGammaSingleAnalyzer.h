@@ -65,6 +65,9 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTRegion.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
 
 //
 // class declaration
@@ -110,6 +113,22 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
       float phi() const { return p4.Phi(); };
       float et() const { return p4.Pt(); }
 
+  };
+
+  class l1egInfo {
+
+    public:
+      double pt; // from p4
+      double eta; // from p4
+      double phi; // from p4
+      int qual;
+
+      l1egInfo(l1t::EGamma eg) {
+        pt = eg.p4().pt();
+        eta = eg.p4().eta();
+        phi = eg.p4().phi();
+        qual = eg.hwQual(); 
+      }
   };
 
   std::vector<double> *hcalTpgs_Pt  = new std::vector<double>; 
@@ -158,6 +177,9 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   std::vector<TLorentzVector> *gctClusters  = new std::vector<TLorentzVector>;
   std::vector<TLorentzVector> *gctTowers    = new std::vector<TLorentzVector>;
 
+  std::vector<l1egInfo> *gct_l1eg = new std::vector<L1TCaloEGammaSingleAnalyzer::l1egInfo>;
+  std::vector<l1egInfo> *old_l1eg = new std::vector<L1TCaloEGammaSingleAnalyzer::l1egInfo>;
+
   std::vector<float> *newRawIso = new std::vector<float>;
   std::vector<float> *newRelIso = new std::vector<float>;
   std::vector<bool> *newIsoFlag = new std::vector<bool>;
@@ -176,6 +198,7 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   TH1F* recoTau_phi;
   TTree* efficiencyTree;
   TTree* dispTree;
+  TTree* l1egTree;
 
   bool requireGenMatching_;
   bool saveOnlyHighestPtCluster_;
@@ -189,6 +212,7 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   double old_rawIso, old_iso;  
   int old_is_ss, old_is_looseTkss;
   int old_is_iso, old_is_looseTkiso;
+  int old_qual;
 
   double rct_cPt, rct_cEta, rct_cPhi;
   double rct_deltaR;
@@ -200,6 +224,7 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   double gct_rawIso, gct_iso;   // only meaningful for GCT
   int gct_is_ss, gct_is_looseTkss;
   int gct_is_iso, gct_is_looseTkiso;
+  int gct_qual;
 
   double isoTauPt, rlxTauPt, isoTauEta, rlxTauEta, isoTauPhi, rlxTauPhi;
   double recoPt, recoEta, recoPhi;
@@ -212,6 +237,10 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   double TPG5x5, TPGH5x5, TPGE5x5;
   double TPG6x6, TPGH6x6, TPGE6x6;
   double TPG7x7, TPGH7x7, TPGE7x7;
+
+  double gct_l1egPt, gct_l1egEta, gct_l1egPhi, gct_l1egQual;
+  double old_l1egPt, old_l1egEta, old_l1egPhi, old_l1egQual;
+
 
   void getThreeProngInfo(const pat::Tau & tau, double &maxDeltaR, double &minProngPt, double &midProngPt, double &maxProngPt, int &nCands);
   void getRawEcalHcalEnergy(const pat::PackedCandidate pfCand, double &rawEcal, double &rawHcal, double &ecal, double &hcal);
@@ -311,7 +340,10 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> oldClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> oldTowersSrc_;
   edm::EDGetTokenT<BXVector<l1t::EGamma>> l1EGammasSrc_;
+  edm::EDGetTokenT<BXVector<l1t::EGamma>> oldL1EGammasSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> fullTowersSrc_;
+
+  edm::EDGetTokenT<l1tp2::DigitizedClusterGTCollection> digitizedClustersGTSrc_;
 
   edm::InputTag genSrc_;
   std::string folderName_;
