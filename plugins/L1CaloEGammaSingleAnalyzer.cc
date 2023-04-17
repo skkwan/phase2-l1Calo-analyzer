@@ -75,7 +75,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   fullTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("gctFullTowers"))),
   digitizedClustersGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersGT"))),
   digitizedClustersCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersCorrelator"))),
-  digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(<cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
+  digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -214,7 +214,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   newFullTowers->clear();
   newGCTTowers->clear();
 
-  // gct_l1eg->clear();
+  gct_l1eg->clear();
   // old_l1eg->clear();
 
   // Detector geometry
@@ -236,10 +236,10 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       printf("L1EG object found with pT %f, eta %f, phi %f, ", l1eg.p4().pt(), l1eg.p4().eta(), l1eg.p4().phi());
       ap_uint<3> qual = l1eg.hwQual() & 0b111;
       std::cout << "qual " << std::bitset<3>{qual} << std::endl;
-      // l1egInfo myL1eg = l1egInfo(l1eg);
-      // if (l1eg.p4().pt() > 0) {
-      //   gct_l1eg->push_back(myL1eg);
-      // }
+      l1egInfo myL1eg = l1egInfo(l1eg);
+      if (l1eg.p4().pt() > 0) {
+        gct_l1eg->push_back(myL1eg);
+      }
       size++;
     }
     if (size == 0) {
@@ -447,6 +447,12 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     newRawIso->push_back(newCluster.rawIso);
     newRelIso->push_back(newCluster.iso);
     newIsoFlag->push_back(newCluster.is_iso);
+  }
+
+  // Sort the L1EG info
+  std::sort(gct_l1eg->begin(), gct_l1eg->end(), L1TCaloEGammaSingleAnalyzer::compareL1EGPt);
+  for (const auto & newl1eg : *gct_l1eg) {
+    
   }
 
   // get the ECAL inputs (i.e. ECAL crystals)
@@ -827,14 +833,33 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
 
       
+  }  
+ }
+
+  //************************************************************************************/ 
+  // Unit test: Check that each L1EG is matched to a GCT cluster (ordinarily, should be trivial because one L1EG is created for each GCT)
+  //************************************************************************************/ 
+  for (const auto & newl1eg : *gct_l1eg) {
+    bool deltaRmatched = false;
+    for (const auto & gctCluster : *gctClusterInfo) {
+      if (reco::deltaR(newl1eg.eta, newl1eg.phi, gctCluster.p4.Eta(), gctCluster.p4.Phi()) < 0.05) {
+        deltaRmatched = true;
+        std::cout << "Matched L1EG at " << newl1eg.eta << ", " << newl1eg.phi
+                  << " to GCT cluster at " << gctCluster.p4.Eta() << ", " << gctCluster.p4.Phi() << std::endl;
+        continue;
+      } 
+    }
+    if (!deltaRmatched) {
+      std::cout << "[ERROR: No GCT match found for a L1EG]" << std::endl;
+      LogError("Phase2L1CaloEGammaEmulator")
+  	        << " -- No GCT match found for a L1EG object at " << newl1eg.eta << ", " << newl1eg.phi
+      throw cms::Exception("Phase2L1CaloEGammaEmulator");
+      continue;
+    }
+
   }
 
-  // Fill the L1EG tree   
-
- }
 }
-
-
 void L1TCaloEGammaSingleAnalyzer::endJob() { 
     
 }
