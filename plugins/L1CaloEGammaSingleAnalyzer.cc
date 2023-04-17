@@ -74,6 +74,8 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   oldL1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("oldL1EGammas"))),
   fullTowersSrc_(consumes<l1tp2::CaloTowerCollection>(cfg.getParameter<edm::InputTag>("gctFullTowers"))),
   digitizedClustersGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersGT"))),
+  digitizedClustersCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersCorrelator"))),
+  digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(<cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
