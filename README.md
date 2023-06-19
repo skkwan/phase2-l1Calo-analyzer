@@ -33,7 +33,6 @@
    ```
 
    So now in `${CMSSW_BASE}/src/L1Trigger`, there should be two folders `L1CaloTrigger/` (where the actual emulator lives) and `L1CaloPhase2Analyzer/` (where the analyzer to call the emulator and make CMSSW collections and n-tuples lives).
-   3. To start developing on top of this, I
 
 ## Running the analyzers interactively (calls both the old and new emulator)
 
