@@ -17,15 +17,15 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                #'file:/eos/user/s/skkwan/phase2RCTDevel/pickedEvents/pickEvents_10events.root'
+                                'file:/eos/user/s/skkwan/phase2RCTDevel/unitTests/Phase2Fall22DRMiniAOD_DoubleElectron_FlatPt-1To100-gun_PU200_125X_mcRun4_realistic_v2-v1_0024ebea-73de-496a-9d75-6f0a7c3b2ba4.root',
 
                                 # Signal events (just want to get one with good agreement)
-                                'root://cmsxrootd.fnal.gov///store/mc/Phase2Fall22DRMiniAOD/DoubleElectron_FlatPt-1To100-gun/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2-v1/30000/0024ebea-73de-496a-9d75-6f0a7c3b2ba4.root',
+                                #'root://cmsxrootd.fnal.gov///store/mc/Phase2Fall22DRMiniAOD/DoubleElectron_FlatPt-1To100-gun/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2-v1/30000/0024ebea-73de-496a-9d75-6f0a7c3b2ba4.root',
 
 
                                #'root://cmsxrootd.fnal.gov///store/user/skkwan/DoubleElectron_FlatPt-1To100-gun/crab_pickEvents/230316_113131/0000/pickevents_1.root',
