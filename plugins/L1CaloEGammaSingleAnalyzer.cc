@@ -451,9 +451,6 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
   // Sort the L1EG info
   std::sort(gct_l1eg->begin(), gct_l1eg->end(), L1TCaloEGammaSingleAnalyzer::compareL1EGPt);
-  for (const auto & newl1eg : *gct_l1eg) {
-    
-  }
 
   // get the ECAL inputs (i.e. ECAL crystals)
   if(!evt.getByToken(ecalSrc_, ecalTPGs))
@@ -841,18 +838,24 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   //************************************************************************************/ 
   for (const auto & newl1eg : *gct_l1eg) {
     bool deltaRmatched = false;
+    bool hasSimilarPt = false;
     for (const auto & gctCluster : *gctClusterInfo) {
       if (reco::deltaR(newl1eg.eta, newl1eg.phi, gctCluster.p4.Eta(), gctCluster.p4.Phi()) < 0.05) {
         deltaRmatched = true;
-        std::cout << "Matched L1EG at " << newl1eg.eta << ", " << newl1eg.phi
-                  << " to GCT cluster at " << gctCluster.p4.Eta() << ", " << gctCluster.p4.Phi() << std::endl;
+        // If pT difference is greater than 20%, throw an error
+        hasSimilarPt = ( (abs(newl1eg.pt - gctCluster.p4.Pt()) / gctCluster.p4.Pt()) < 0.20);
         continue;
       } 
     }
     if (!deltaRmatched) {
-      std::cout << "[ERROR: No GCT match found for a L1EG]" << std::endl;
       LogError("Phase2L1CaloEGammaEmulator")
-  	        << " -- No GCT match found for a L1EG object at " << newl1eg.eta << ", " << newl1eg.phi
+  	        << " -- No GCT match found for a L1EG object at " << newl1eg.eta << ", " << newl1eg.phi << std::endl;
+      throw cms::Exception("Phase2L1CaloEGammaEmulator");
+      continue;
+    }
+    if (!hasSimilarPt) {
+      LogError("Phase2L1CaloEGammaEmulator")
+  	        << " -- pT mismatch for L1EG object at " << newl1eg.eta << ", " << newl1eg.phi << std::endl;
       throw cms::Exception("Phase2L1CaloEGammaEmulator");
       continue;
     }

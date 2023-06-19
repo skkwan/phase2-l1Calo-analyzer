@@ -624,6 +624,13 @@ int get5x5TPGs(const int maxTPGPt_eta,
 
     return true;
   }
+
 };
+
+/*
+ * Helper for tests
+ */
+double round_to(double value, double precision = 1.0) { return std::round(value / precision) * precision; };
+
 
 #endif
