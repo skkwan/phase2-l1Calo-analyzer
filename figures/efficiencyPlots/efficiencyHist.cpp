@@ -44,6 +44,7 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
                       TString comment = "",
                       float yMin = 0.0,
                       float yMax = 1.1,
+                      TString extracomment = "",
                       TString legendPos = "bottomright"
              ) {
   assert((graphs.size() == labels.size()) && (graphs.size() == colors.size()));
@@ -136,14 +137,18 @@ void plotNEfficiencies(std::vector<TGraphAsymmErrors*> graphs,
     offset = 0;
   }
   else if (legendPos == "topright") {
-    offset = 0.42;
+    offset = 0.38;
   }
   float yRow1 = 0.540 + offset;
   float yRow2 = 0.480 + offset;
   float yRow3 = 0.420 + offset;
+  float yRow4 = 0.360 + offset;
 
-  latex->DrawLatex(commentaryXpos, yRow2, "#scale[0.7]{Phase-2 L1EG (Crystal, Barrel)}");
-  latex->DrawLatex(commentaryXpos, yRow3, "#scale[0.7]{" + comment + "}");
+  latex->DrawLatex(commentaryXpos, yRow1, "#scale[0.7]{Phase-2 L1EG (Crystal, Barrel)}");
+  latex->DrawLatex(commentaryXpos, yRow2, "#scale[0.7]{" + comment + "}");
+  if (extracomment != "") {
+    latex->DrawLatex(commentaryXpos, yRow3, "#scale[0.7]{" + extracomment + "}");
+  }
   Tcan->Update();
 
 

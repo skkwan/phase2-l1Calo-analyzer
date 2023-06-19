@@ -321,51 +321,51 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
   /* loose Tk > 5 GeV          */
   /*******************************************************/
 
-  /// Now with loose Tk
-  redCutString = " && gct_is_looseTkiso && gct_is_looseTkss ";
+  // /// Now with loose Tk
+  // redCutString = " && gct_is_looseTkiso && gct_is_looseTkss ";
 
-  vGraphs.clear();  vLabels.clear();  vColors.clear();
-  vGraphs.clear();  vLabels.clear();  vColors.clear();
-  xMin = 0;
-  xMax = 40;
-  genCut  = "(abs(genEta) < 1.4841)";
-  l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 5)";
-  useVariableBinning = false;
+  // vGraphs.clear();  vLabels.clear();  vColors.clear();
+  // vGraphs.clear();  vLabels.clear();  vColors.clear();
+  // xMin = 0;
+  // xMax = 40;
+  // genCut  = "(abs(genEta) < 1.4841)";
+  // l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 5)";
+  // useVariableBinning = false;
 
-  TGraphAsymmErrors *all_d = calculateEfficiency("genPt", treePath, rootFileDirectory,
-              l1Cut,
-              genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(all_d);
-  vLabels.push_back("TDR emulator w/o WP");
-  vColors.push_back(kGray);
+  // TGraphAsymmErrors *all_d = calculateEfficiency("genPt", treePath, rootFileDirectory,
+  //             l1Cut,
+  //             genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(all_d);
+  // vLabels.push_back("TDR emulator w/o WP");
+  // vColors.push_back(kGray);
 
-  TGraphAsymmErrors *tight_d = calculateEfficiency("genPt", treePath, rootFileDirectory,  
-                                                  l1Cut + redCutString,
-                                                  genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(tight_d);
-  vLabels.push_back("TDR emulator with loose Tk WP");
-  vColors.push_back(kBlue);
+  // TGraphAsymmErrors *tight_d = calculateEfficiency("genPt", treePath, rootFileDirectory,  
+  //                                                 l1Cut + redCutString,
+  //                                                 genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(tight_d);
+  // vLabels.push_back("TDR emulator with loose Tk WP");
+  // vColors.push_back(kBlue);
 
 
-  TGraphAsymmErrors *all2_d = calculateEfficiency("genPt", treePath2, rootFileDirectory2,
-              l1Cut,
-              genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(all2_d);
-  vLabels.push_back("Phase 2 emulator w/o WP");
-  vColors.push_back(kBlack);
+  // TGraphAsymmErrors *all2_d = calculateEfficiency("genPt", treePath2, rootFileDirectory2,
+  //             l1Cut,
+  //             genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(all2_d);
+  // vLabels.push_back("Phase 2 emulator w/o WP");
+  // vColors.push_back(kBlack);
 
-  TGraphAsymmErrors *tight2_d = calculateEfficiency("genPt", treePath2, rootFileDirectory2,  
-                                                  l1Cut + redCutString,
-                                                  genCut, xMin, xMax, useVariableBinning);
-  vGraphs.push_back(tight2_d);
-  vLabels.push_back("Phase 2 emulator with loose Tk WP");
-  vColors.push_back(kRed);
+  // TGraphAsymmErrors *tight2_d = calculateEfficiency("genPt", treePath2, rootFileDirectory2,  
+  //                                                 l1Cut + redCutString,
+  //                                                 genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(tight2_d);
+  // vLabels.push_back("Phase 2 emulator with loose Tk WP");
+  // vColors.push_back(kRed);
 
-  plotNEfficiencies(vGraphs, vLabels, vColors,
-                    "Gen Electron p_{T}",
-                    "Emulators",   
-                    outputPlotName + "_looseTkWP_gt5GeV",                                                             
-                    outputDirectory, "L1 p_{T} > 5 GeV, |#eta^{Gen}| < 1.4841", 0.0, 1.02);  
+  // plotNEfficiencies(vGraphs, vLabels, vColors,
+  //                   "Gen Electron p_{T}",
+  //                   "Emulators",   
+  //                   outputPlotName + "_looseTkWP_gt5GeV",                                                             
+  //                   outputDirectory, "L1 p_{T} > 5 GeV, |#eta^{Gen}| < 1.4841", 0.0, 1.02);  
 
 //  /*******************************************************/
 //   /* loose Tk > 25 GeV          */
@@ -418,38 +418,102 @@ void makeEfficienciesPlotForOneScheme(TString mode, bool useOwnIsolationFlag, bo
 
 
 
-  // /*******************************************************/
-  // /* efficiency as a function of genEta: GCT             */
-  // // /*******************************************************/
+  // /***************************************************************/
+  // /* efficiency as a function of genEta: GCT > 5 GeV pT          */
+  // /***************************************************************/
 
   // vGraphs.clear();  vLabels.clear();  vColors.clear();
   // xMin = -1.5;
   // xMax = 1.5;
 
   // genCut  = "(abs(genEta) < 1.4841)";
-  // l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 25)";
+  // l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 5)";
   // useVariableBinning = false;
 
   // TGraphAsymmErrors *allEta = calculateEfficiency("genEta", treePath, rootFileDirectory,
   //             l1Cut,
   //             genCut, xMin, xMax, useVariableBinning);
   // vGraphs.push_back(allEta);
-  // vLabels.push_back("w/o iso and shower shape");
-  // vColors.push_back(kBlack);
+  // vLabels.push_back("TDR emulator w/o WP");
+  // vColors.push_back(kGray);
 
   // TGraphAsymmErrors *tightEta = calculateEfficiency("genEta", treePath, rootFileDirectory,
-  //                                                 l1Cut + "&& gct_is_iso && gct_is_ss",
+  //                                                 l1Cut + redCutString,
   //                                                 genCut, xMin, xMax, useVariableBinning);
   // vGraphs.push_back(tightEta);
-  // vLabels.push_back("with iso and shower shape");
-  // vColors.push_back(kRed);
+  // vLabels.push_back("TDR emulator with standalone WP");
+  // vColors.push_back(kBlue);
 
+  // TGraphAsymmErrors *allEta2 = calculateEfficiency("genEta", treePath2, rootFileDirectory2,
+  //                                                  l1Cut,
+  //                                                  genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(allEta2);
+  // vLabels.push_back("Phase 2 emulator w/o WP");
+  // vColors.push_back(kBlack);
+
+  // TGraphAsymmErrors *tightEta2 = calculateEfficiency("genEta", treePath2, rootFileDirectory2,
+  //                                                  l1Cut + redCutString,
+  //                                                  genCut, xMin, xMax, useVariableBinning);
+  // vGraphs.push_back(tightEta2);
+  // vLabels.push_back("Phase 2 emulator with standalone WP");
+  // vColors.push_back(kRed); 
 
   // plotNEfficiencies(vGraphs, vLabels, vColors,
   //                   "Gen Electron #eta",
-  //                   "Phase 2 GCT",                                                                
-  //                   "efficiency_genEta_barrel_GCT",        
-  //                   outputDirectory, "L1 p_{T} > 25, |#eta^{Gen}| < 1.4841", 0.0, 1.1);    
+  //                   "Emulators",                                                                
+  //                   "efficiency_genEta_barrel_standaloneWP_gt5GeV",        
+  //                   outputDirectory, "L1 p_{T} > 5 GeV, |#eta^{Gen}| < 1.4841", 0.0, 1.02);    
+
+  /***************************************************************/
+  /* efficiency as a function of genEta: GCT > 3 GeV pT          */
+  /***************************************************************/
+
+  vGraphs.clear();  vLabels.clear();  vColors.clear();
+  xMin = -1.5;
+  xMax = 1.5;
+
+  genCut  = "(abs(genEta) < 1.4841) && (genPt > 10)";
+  l1Cut   = "(abs(genEta) < 1.4841) && (gct_cPt > 3) && (genPt > 10)";
+  useVariableBinning = false;
+
+  // Use loose tk
+  // redCutString = " && gct_is_looseTkiso && gct_is_looseTkss ";
+  // Use standalone WP
+  redCutString = " && gct_is_iso && gct_is_ss ";
+
+  TGraphAsymmErrors *allEta = calculateEfficiency("genEta", treePath, rootFileDirectory,
+              l1Cut,
+              genCut, xMin, xMax, useVariableBinning);
+  vGraphs.push_back(allEta);
+  vLabels.push_back("TDR emulator w/o WP");
+  vColors.push_back(kGray);
+
+  TGraphAsymmErrors *tightEta = calculateEfficiency("genEta", treePath, rootFileDirectory,
+                                                  l1Cut + redCutString,
+                                                  genCut, xMin, xMax, useVariableBinning);
+  vGraphs.push_back(tightEta);
+  vLabels.push_back("TDR emulator with standalone WP");
+  vColors.push_back(kBlue);
+
+  TGraphAsymmErrors *allEta2 = calculateEfficiency("genEta", treePath2, rootFileDirectory2,
+                                                   l1Cut,
+                                                   genCut, xMin, xMax, useVariableBinning);
+  vGraphs.push_back(allEta2);
+  vLabels.push_back("Phase 2 emulator w/o WP");
+  vColors.push_back(kBlack);
+
+  TGraphAsymmErrors *tightEta2 = calculateEfficiency("genEta", treePath2, rootFileDirectory2,
+                                                   l1Cut + redCutString,
+                                                   genCut, xMin, xMax, useVariableBinning);
+  vGraphs.push_back(tightEta2);
+  vLabels.push_back("Phase 2 emulator with standalone WP");
+  vColors.push_back(kRed); 
+
+  plotNEfficiencies(vGraphs, vLabels, vColors,
+                    "Gen Electron #eta",
+                    "Emulators",                                                                
+                    "efficiency_genEta_barrel_standaloneWP_l1Pt_gt3GeV_and_genPt_gt10GeV",        
+                    outputDirectory, "L1 p_{T} > 3 GeV, |#eta^{Gen}| < 1.4841", 0.0, 1.02, "Gen p_{T} > 10 GeV");    
 
   /*******************************************************/
   /* Additional studies                                  */
