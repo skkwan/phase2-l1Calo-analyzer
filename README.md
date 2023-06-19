@@ -2,58 +2,82 @@
 
 ## Description
 
-   This emulator is for the Phase 2 RCT and GCT firmware-based emulators. It corresponds to PR#1069 in cms-l1t-offline (https://github.com/cms-l1t-offline/cmssw/pull/1069) and PR#41224 in cms-sw/cmssw (https://github.com/cms-sw/cmssw/pull/41224).
+   This emulator is for the Phase 2 RCT and GCT firmware-based emulators for the standalone barrel EGamma algorithm. It corresponds to PR#1069 in cms-l1t-offline (https://github.com/cms-l1t-offline/cmssw/pull/1069) (to be updated) and PR#41224 in cms-sw/cmssw (https://github.com/cms-sw/cmssw/pull/41224) (merged to CMSSW master branch as of June 16, 2023).
 
 
-## Setup emulator (do only once)
-   Set up CMSSW release for the emulators (only do once, and word of warning: because of `cms-merge-topic`, opening PRs to CMSSW may be bad)
+## Setting up 
+   1. Set up CMSSW release and check out the emulator branch that was merged into CMSSW.
+
+   ```bash
+   % cmsrel CMSSW_12_5_2_patch1
+   % cd CMSSW_12_5_2_patch1/src
+   % cmsenv
+   % git cms-init
+   % git cms-checkout-topic -u cms-l1t-offline:phase2-l1t-integration-1252patch1 
+   % scram b -j 8
+   % # No longer need this command because my branch was added to the "phase2-l1t-integration-1252patch1" branch, but generally if you want s% omeone's changes that aren't, do: git cms-rebase-topic -u skkwan:devel-phase2egStandaloneBarrelEmulator
+   % git cms-addpkg L1Trigger/L1CaloTrigger
+   % git cms-addpkg Configuration/Geometry
+   % scram b -j 8
    ```
-   cmsrel CMSSW_12_5_2_patch1
-   cd CMSSW_12_5_2_patch1/src
-   cmsenv
-   git cms-init
-   git cms-merge-topic -u cms-l1t-offline:l1t-phase2-v56
-   scram b -j 8
-   git cms-rebase-topic -u skkwan:devel-phase2egStandaloneBarrelEmulator
-   git cms-addpkg L1Trigger/L1CaloTrigger
-   git cms-addpkg Configuration/Geometry
-   scram b -j 8
+
+   2. Set up the analyzer (to make n-tuples, plots, etc.)
+
+   ```bash
+   % cmsenv
+   % cd ${CMSSW_BASE}/src/L1Trigger/
+   % git clone https://github.com/skkwan/phase2-l1Calo-analyzer.git
+   % mv phase2-l1Calo-analyzer/ L1CaloPhase2Analyzer/ 
+   % scram b -j 8
    ```
 
-## To run the Phase 2 emulator only
+   So now in `${CMSSW_BASE}/src/L1Trigger`, there should be two folders `L1CaloTrigger/` (where the actual emulator lives) and `L1CaloPhase2Analyzer/` (where the analyzer to call the emulator and make CMSSW collections and n-tuples lives).
+   3. To start developing on top of this, I
+
+## Running the analyzers interactively (calls both the old and new emulator)
+
+   1. To run the efficiency analyzer, which reads in ECAL and HCAL crystal-level hits, and runs the old emulator and new emulator separately. Each emulator produces a collection of EGamma objects and tower objects. Then the analyzer gets the generator-level particles, and matches the emulators' output EGamma objects with generator-level electrons. The leading matched clusters are saved to an n-tuple.
+   ```bash
+   % cmsenv
+   % cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
+   % voms-proxy-init --voms cms 
+   % cmsRun test-singleAnalyzer.py
+   ```
+   2. To run the rates analyzer, which fills histograms to calculate the rates:
+   ```bash
+   % cmsenv
+   % cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
+   % voms-proxy-init --voms cms 
+   ```
+
+## To develop additional code
+
+   1. To develop code in the emulators, you need to have your own branch and fork of CMSSW. If you have never forked CMSSW, go to https://github.com/cms-sw/cmssw and click "Fork" in the top right corner.
+   For instance, my fork is https://github.com/skkwan/cmssw. 
+   Now in the working area (e.g. on lxplus), we need to create a new local branch, and then set up a remote branch on our fork of CMSSW to track it (standard GitHub stuff):
+   ```bash
+   % cmsenv
+   % cd ${CMSSW_BASE}/src/
+   % # If you just did the setup steps, running "git branch" should show that you are on the `phase2-l1t-integration-1252patch1` branch
+   % git checkout -b devel-testCheckoutInstructions  # or replace "devel-testCheckoutInstructions" with whatever you want it to be named
+   % # It should say "Switched to a new branch 'devel-testCheckoutInstructions'".
+   % # Next, add your fork of CMSSW as a remote, replacing the URL with whatever your fork is. Can also call it something other than my-cmssw.
+   % git remote add my-cmssw git@github.com:skkwan/cmssw.git  
+   ```
+   Now if you change any code in the emulator (`L1CaloTrigger/` or `DataFormats/` directories for instance), commit and push to your branch
+   ```
+   git push my-cmssw devel-testCheckoutInstructions
+   ```
+
+   2. To develop code in the analyzers, fork this repository on GitHub, add the GitHub repo as a remote, create a branch locally, and whenever you change your code, push to your remote.
+   ```bash
+   % cmsenv
+   % cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/
+   % git checkout -b devel-Branchname
+   % git remote add my-analyzer [link to your fork on GitHub]
+   % git push my-analyzer devel-Branchname
+   ```
    
-   To run the Phase 2 emulator:
-   ```
-   cmsenv
-   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloTrigger/test
-   cmsRun test_Phase2L1CaloEGammaEmulator.py
-   ```
-
-## To set up the analyzer (which calls the old and new emulator)
-
-1. Get the analyzer repository: git clone the analyzer repo and then manually move it:
-   ```
-   cmsenv
-   cd ${CMSSW_BASE}/src/L1Trigger/
-   git clone https://github.com/skkwan/phase2-l1Calo-analyzer.git
-   mv phase2-l1Calo-analyzer/ L1CaloPhase2Analyzer/ 
-   ```
-
-
-## To run the analyzer (calls both the old and new emulator)
-
-1. To run the analyzer:
-   ```
-   cmsenv
-   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
-   cmsRun test-singleAnalyzer.py
-   ```
-2. To run the rates analyzer:
-   ```
-   cmsenv
-   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
-
-   ```
 
 ## (Developers only) To identify pathological MinBias events
 
@@ -71,7 +95,7 @@
 5. Submit the resulting CRAB config file and wait for skimmed n-tuples to show up in T2.
 6. Then run the single analyzer and the event display (housed in a different directory, `/afs/cern.ch/work/s/skkwan/private/phase2RCTDev/eventDisplay`.
 
-## (Developers only) To run the emulator and analyzer to make a TTree for distributions, efficiencies, rates, etc.
+## (Developers only) To run the emulator and analyzer in CRAB to make a TTree for distributions, efficiencies, rates, etc.
 
 1. CRAB to the rescue:
    ```
@@ -117,3 +141,15 @@
 ## (Developers only) To run the unit tests for the digitized collections
 
 In the `devel-digitizedCollections` branch of the CMSSW release, at the top-level, run `scram b runtests`.
+
+## (Developers only) To make a CMSSW PR area
+
+   ```
+   cmsrel CMSSW_13_2_0_pre1
+   cd CMSSW_13_2_0_pre1
+   cmsenv && git cms-init
+   # ignore the warning in the command below
+   git cms-checkout-topic -u skkwan:phase2Emulator
+   # this step will take a long time at first
+   scram b -j 8
+   ```
