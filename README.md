@@ -1,4 +1,4 @@
-# Phase 2 L1 Calo Emulator and Analyzer
+p# Phase 2 L1 Calo Emulator and Analyzer
 
 ## Description
 
@@ -48,6 +48,7 @@
    % cmsenv
    % cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
    % voms-proxy-init --voms cms 
+   % cmsRun test-analyzer-rates.py 
    ```
 
 ## To develop additional code
