@@ -837,6 +837,16 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Unit test: Check that each L1EG is matched to a GCT cluster (ordinarily, should be trivial because one L1EG is created for each GCT)
   //************************************************************************************/ 
   for (const auto & newl1eg : *gct_l1eg) {
+    std::cout << "L1 eg at eta, phi " << newl1eg.eta << ", " << newl1eg.phi << " with pT " << newl1eg.pt << std::endl;
+  }
+  for (const auto & gctCluster : *gctClusterInfo) {
+    std::cout << "GCT cluster at eta, phi " << gctCluster.p4.Eta() << ", " << gctCluster.p4.Phi() << " with pT " << gctCluster.p4.Pt() << std::endl;
+  }
+
+
+  for (const auto & newl1eg : *gct_l1eg) {
+
+    
     bool deltaRmatched = false;
     bool hasSimilarPt = false;
     for (const auto & gctCluster : *gctClusterInfo) {
