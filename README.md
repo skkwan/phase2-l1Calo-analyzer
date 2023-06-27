@@ -9,17 +9,13 @@ p# Phase 2 L1 Calo Emulator and Analyzer
    1. Set up CMSSW release and check out the emulator branch that was merged into CMSSW.
 
    ```bash
-   % cmsrel CMSSW_12_5_2_patch1
-   % cd CMSSW_12_5_2_patch1/src
-   % cmsenv
-   % git cms-init
-   % git cms-checkout-topic -u cms-l1t-offline:phase2-l1t-integration-1252patch1 
-   % scram b -j 8
-   % # see n.b. below
+   % cmsrel https://github.com/cms-sw/cmssw/releases/tag/CMSSW_13_2_X_2023-06-26-1100
+   % cd https://github.com/cms-sw/cmssw/releases/tag/CMSSW_13_2_X_2023-06-26-1100/src/
+   % cmsenv && git cms-init
    % git cms-addpkg L1Trigger/L1CaloTrigger
-   % git cms-addpkg Configuration/Geometry
-   % scram b -j 8
+   % git cms-addpkg DataFormats/L1TCalorimeterPhase2
    ```
+
    n.b. In general, if you want someone's changes that are not officially part of the cms-l1t-offline repo, at the step noted above, you would do `git cms-rebase-topic -u username:branchname`. For instance if you do some development and you need to pass it on to someone else, they should run `git cms-rebase-topic -u yourUsername:yourBranchName`.
 
    2. Set up the analyzer (to make n-tuples, plots, etc.)
@@ -142,15 +138,3 @@ p# Phase 2 L1 Calo Emulator and Analyzer
 ## (Developers only) To run the unit tests for the digitized collections
 
 In the `devel-digitizedCollections` branch of the CMSSW release, at the top-level, run `scram b runtests`.
-
-## (Developers only) To make a CMSSW PR area
-
-   ```
-   cmsrel CMSSW_13_2_0_pre1
-   cd CMSSW_13_2_0_pre1
-   cmsenv && git cms-init
-   # ignore the warning in the command below
-   git cms-checkout-topic -u skkwan:phase2Emulator
-   # this step will take a long time at first
-   scram b -j 8
-   ```
