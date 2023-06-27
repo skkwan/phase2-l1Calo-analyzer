@@ -843,8 +843,9 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       if (reco::deltaR(newl1eg.eta, newl1eg.phi, gctCluster.p4.Eta(), gctCluster.p4.Phi()) < 0.05) {
         deltaRmatched = true;
         // If pT difference is greater than 20%, throw an error
-        hasSimilarPt = ( (abs(newl1eg.pt - gctCluster.p4.Pt()) / gctCluster.p4.Pt()) < 0.20);
-        continue;
+        if (!hasSimilarPt){
+          hasSimilarPt = ( (abs(newl1eg.pt - gctCluster.p4.Pt()) / gctCluster.p4.Pt()) < 0.20);
+        }
       } 
     }
     if (!deltaRmatched) {
