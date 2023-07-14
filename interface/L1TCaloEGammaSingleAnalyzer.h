@@ -344,6 +344,8 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> fullTowersSrc_;
 
   edm::EDGetTokenT<l1tp2::DigitizedClusterGTCollection> digitizedClustersGTSrc_;
+  edm::EDGetTokenT<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelatorSrc_;
+  edm::EDGetTokenT<l1tp2::DigitizedTowerCorrelatorCollection> digitizedTowersCorrelatorSrc_;
 
   edm::InputTag genSrc_;
   std::string folderName_;
@@ -557,6 +559,10 @@ int get5x5TPGs(const int maxTPGPt_eta,
     return (lhs.p4.Pt() > rhs.p4.Pt());
   }
 
+  static bool compareL1EGPt( const l1egInfo& lhs, const l1egInfo& rhs) {
+    return (lhs.pt > rhs.pt);
+  }
+
   // Unit tests
   /*
    * Check that a tower collection has 34 * 72 towers, or that, plus # of towers in overlap region.
@@ -618,6 +624,13 @@ int get5x5TPGs(const int maxTPGPt_eta,
 
     return true;
   }
+
 };
+
+/*
+ * Helper for tests
+ */
+double round_to(double value, double precision = 1.0) { return std::round(value / precision) * precision; };
+
 
 #endif
