@@ -819,13 +819,10 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
         efficiencyTree->Fill();
 
       }
-
-    // Only fill once per event
-    dispTree->Fill();
-
-
       
   }
+  // Only fill once per event
+  dispTree->Fill();
 
   // Fill the L1EG tree   
 
