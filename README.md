@@ -1,19 +1,23 @@
-p# Phase 2 L1 Calo Emulator and Analyzer
+# Phase 2 L1 Calo Emulator and Analyzer
 
 ## Description
 
    This emulator is for the Phase 2 RCT and GCT firmware-based emulators for the standalone barrel EGamma algorithm. It corresponds to PR#1069 in cms-l1t-offline (https://github.com/cms-l1t-offline/cmssw/pull/1069) (to be updated) and PR#41224 in cms-sw/cmssw (https://github.com/cms-sw/cmssw/pull/41224) (merged to CMSSW master branch as of June 16, 2023).
 
+   Currently the samples used are [Phase2Fall22DRMiniAOD](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TPhase2Instructions#Phase2Fall22_Campaign_125X_sampl).
 
 ## Setting up 
+
+
    1. Set up CMSSW release and check out the emulator branch that was merged into CMSSW.
 
+
    ```bash
-   % cmsrel https://github.com/cms-sw/cmssw/releases/tag/CMSSW_13_2_X_2023-06-26-1100
-   % cd https://github.com/cms-sw/cmssw/releases/tag/CMSSW_13_2_X_2023-06-26-1100/src/
-   % cmsenv && git cms-init
-   % git cms-addpkg L1Trigger/L1CaloTrigger
-   % git cms-addpkg DataFormats/L1TCalorimeterPhase2
+   cmsrel CMSSW_13_3_0_pre3
+   cd CMSSW_13_3_0_pre3/src/
+   cmsenv && git cms-init
+   git cms-checkout-topic -u cms-l1t-offline:phase2-l1t-1330pre3_v13
+   scram b -j 8
    ```
 
    n.b. In general, if you want someone's changes that are not officially part of the cms-l1t-offline repo, at the step noted above, you would do `git cms-rebase-topic -u username:branchname`. For instance if you do some development and you need to pass it on to someone else, they should run `git cms-rebase-topic -u yourUsername:yourBranchName`.
@@ -21,11 +25,11 @@ p# Phase 2 L1 Calo Emulator and Analyzer
    2. Set up the analyzer (to make n-tuples, plots, etc.)
 
    ```bash
-   % cmsenv
-   % cd ${CMSSW_BASE}/src/L1Trigger/
-   % git clone https://github.com/skkwan/phase2-l1Calo-analyzer.git
-   % mv phase2-l1Calo-analyzer/ L1CaloPhase2Analyzer/ 
-   % scram b -j 8
+   cmsenv
+   cd ${CMSSW_BASE}/src/L1Trigger/
+   git clone https://github.com/skkwan/phase2-l1Calo-analyzer.git
+   mv phase2-l1Calo-analyzer/ L1CaloPhase2Analyzer/ 
+   scram b -j 8
    ```
 
    So now in `${CMSSW_BASE}/src/L1Trigger`, there should be two folders `L1CaloTrigger/` (where the actual emulator lives) and `L1CaloPhase2Analyzer/` (where the analyzer to call the emulator and make CMSSW collections and n-tuples lives).
@@ -34,17 +38,17 @@ p# Phase 2 L1 Calo Emulator and Analyzer
 
    1. To run the efficiency analyzer, which reads in ECAL and HCAL crystal-level hits, and runs the old emulator and new emulator separately. Each emulator produces a collection of EGamma objects and tower objects. Then the analyzer gets the generator-level particles, and matches the emulators' output EGamma objects with generator-level electrons. The leading matched clusters are saved to an n-tuple.
    ```bash
-   % cmsenv
-   % cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
-   % voms-proxy-init --voms cms 
-   % cmsRun test-singleAnalyzer.py
+   cmsenv
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
+   voms-proxy-init --voms cms 
+   cmsRun test-singleAnalyzer.py
    ```
    2. To run the rates analyzer, which fills histograms to calculate the rates:
    ```bash
-   % cmsenv
-   % cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
-   % voms-proxy-init --voms cms 
-   % cmsRun test-analyzer-rates.py 
+   cmsenv
+   cd ${CMSSW_BASE}/src/L1Trigger/L1CaloPhase2Analyzer/test
+   voms-proxy-init --voms cms 
+   cmsRun test-analyzer-rates.py 
    ```
 
 ## To develop additional code

@@ -5,49 +5,49 @@
 requestname: "Analyzer"
 
 signal_singleEmulator:
-  year: 2023
+  year: 2024
   script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_single.py
   prodtag: Phase2Fall22DRMiniAOD
   inputDBS: global
   outputName: singleAnalyzer.root
   datasets:
-    DoubleElectron_FlatPt-1To100-gun_singleEmulator: /DoubleElectron_FlatPt-1To100-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD
+    DoubleElectron_FlatPt-1To100-gun_singleEmulator: /DoubleElectron_FlatPt-1To100-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD 
 
 signal_oldEmulator:
-  year: 2023
+  year: 2024
   script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_signal_oldEmulator.py
   prodtag: Phase2Fall22DRMiniAOD
   inputDBS: global
   outputName: analyzer-oldEmulator.root
   datasets:
-    DoubleElectron_FlatPt-1To100-gun_oldEmulator: /DoubleElectron_FlatPt-1To100-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD
+    DoubleElectron_FlatPt-1To100-gun_oldEmulator: /DoubleElectron_FlatPt-1To100-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD 
 
 signal:
-  year: 2023
+  year: 2024
   # Path within CMSSW_BASE
   script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_signal.py
   prodtag: Phase2Fall22DRMiniAOD
   inputDBS: global
   outputName: analyzer.root
   datasets:
-    DoubleElectron_FlatPt-1To100-gun: /DoubleElectron_FlatPt-1To100-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD
+    DoubleElectron_FlatPt-1To100-gun: /DoubleElectron_FlatPt-1To100-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD 
 
 rates:
-  year: 2022
+  year: 2024
   # Path within CMSSW_BASE
   script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_rates.py
   prodtag: Phase2Fall22DRMiniAOD
   inputDBS: global
   outputName: analyzer-rates.root
   datasets:
-    Rates_MinBias_TuneCP5_14TeV-pythia8: /MinBias_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD
+    Rates_MinBias_TuneCP5_14TeV-pythia8: /MinBias_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD 
 
 rates_oldEmulator:
-  year: 2022
+  year: 2024
   # Path within CMSSW_BASE
   script: src/L1Trigger/L1CaloPhase2Analyzer/test/crab/crab_script_rates_oldEmulator.py
   prodtag: Phase2Fall22DRMiniAOD
   inputDBS: global
   outputName: analyzer-rates_oldEmulator.root
   datasets:
-    Rates_MinBias_TuneCP5_14TeV-pythia8_oldEmulator: /MinBias_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD
+    Rates_MinBias_TuneCP5_14TeV-pythia8_oldEmulator: /MinBias_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD 

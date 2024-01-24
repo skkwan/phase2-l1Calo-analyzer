@@ -1,7 +1,8 @@
 # README.md for CRAB anlyzer submission
 
 ## Basic steps
-Performed on lxplus. 
+Performed on lxplus. There is one single `cmsRun` config file for the old and new emulators' efficiencies, one `cmsRun` config file for just the old emulator's rates, and lastly 
+one other `cmsRun` config file for just the new emulator's rates.
 
 1. Edit `datasetConfig.yml` which lists all the input DAS datasets and says
    which cmsRun script to use, the CRAB production tag, etc.
@@ -12,18 +13,18 @@ Performed on lxplus.
    In `datasetConfig.yml`, it says the signal datasets will use the cmsRun config file `crab_script_signal.py`, so make sure the contents of that file are correct.
 2. Now create one CRAB `_cfg.py` per dataset, by running this:
    ```
-   python parseYaml.py
+   python3 parseYaml.py
    ```
 3. Set up
    ```
    cmsenv
    voms-proxy-init
-   cd crabJobConfigs/2022/
+   cd crabJobConfigs/2024/
    ```
 4. Submit the CRAB jobs.
    ``` 
    # In the crab/ directory
-   crab submit -c [path-to-file-in-crabJobConfigs/2022/]
+   crab submit -c [path-to-file-in-crabJobConfigs/2024/]
    # May need to type GRID password again even if you did voms-proxy-init earlier
    ```
 
