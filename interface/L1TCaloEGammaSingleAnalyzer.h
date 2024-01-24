@@ -584,7 +584,7 @@ int get5x5TPGs(const int maxTPGPt_eta,
   bool passesTowerIndexCoverage(const std::vector<Tower> myTowerCollection, bool allowOverlap) {
     int nInstances[N_TOWERS_ETA][N_TOWERS_PHI] = {};
     
-    for (const auto t : myTowerCollection) {
+    for (const auto &t : myTowerCollection) {
       // printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.et(), t.iEta(), t.iPhi(), t.eta(), t.phi());
       assert(t.iEta() >= 0);
       assert(t.iPhi() >= 0);
