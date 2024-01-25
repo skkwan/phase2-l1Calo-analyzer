@@ -13,17 +13,19 @@ one other `cmsRun` config file for just the new emulator's rates.
    In `datasetConfig.yml`, it says the signal datasets will use the cmsRun config file `crab_script_signal.py`, so make sure the contents of that file are correct.
 2. Now create one CRAB `_cfg.py` per dataset, by running this:
    ```
+   cmsenv
    python3 parseYaml.py
    ```
 3. Set up
    ```
-   cmsenv
    voms-proxy-init
    cd crabJobConfigs/2024/
    ```
-4. Submit the CRAB jobs.
+4. Submit the CRAB jobs from a CMSSW-el7 singularity (since CRAB does not support el9 as of January 25 2024)
    ``` 
    # In the crab/ directory
+   cmssw-el7 
+   cmsenv
    crab submit -c [path-to-file-in-crabJobConfigs/2024/]
    # May need to type GRID password again even if you did voms-proxy-init earlier
    ```

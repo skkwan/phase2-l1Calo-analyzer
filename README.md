@@ -9,10 +9,11 @@
 ## Setting up 
 
 
-   1. Set up CMSSW release and check out the emulator branch that was merged into CMSSW.
-
+   1. Set up CMSSW release and check out the emulator branch that was merged into CMSSW. If you plan on running CRAB jobs to make figures, do this inside a singularity container for el7 since CRAB
+      does not support el9 yet ([see this thread](https://cms-talk.web.cern.ch/t/problems-running-crab3-on-lxplus9/32984/9)).
 
    ```bash
+   cmssw-el7
    cmsrel CMSSW_13_3_0_pre3
    cd CMSSW_13_3_0_pre3/src/
    cmsenv && git cms-init
@@ -112,7 +113,7 @@
    ```
    has all the entries in the `.yml` that we want to process.
 4. Then `python parseYaml.py` which should create one CRAB config file per `eraType`.
-5. Submit the crab config file as normal, e.g. `crab submit crabJobConfigs/2023crabTest_DoubleElectron_FlatPt-1To100-gun_singleEmulator_Phase2Fall22DRMiniAOD_cfg.py`.
+5. Submit the crab config file as normal. On lxplus9, since CRAB currently does not support lxplus9 (see this thread [on O&C](https://cms-talk.web.cern.ch/t/problems-running-crab3-on-lxplus9/32984/9)), we need to set up a `CMSSW` area and `scram b` etc. (i.e. all of the "Setting Up" steps) inside a singularity container. Then you can do e.g. `crab submit -c crabJobConfigs/2023crabTest_DoubleElectron_FlatPt-1To100-gun_singleEmulator_Phase2Fall22DRMiniAOD_cfg.py`.
 6. On the T2/T3 data storage, once the CRAB jobs have completed, `hadd -f -j -k` the files and continue. 
 
 ## (Developers only) To make distributions and efficiencies 
