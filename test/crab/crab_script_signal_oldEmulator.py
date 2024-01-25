@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('REPR',eras.Phase2C9)
+process = cms.Process('REPR',eras.Phase2C17I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,8 +10,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -20,9 +20,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring( 
-                                'root://cms-xrd-global.cern.ch///store/mc/Phase2HLTTDRWinter20DIGI/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/20000/00F57906-175B-1F45-8E1E-4695880ADE12.root',
-),
+                            fileNames = cms.untracked.vstring(
+                                'root://cms-xrd-global.cern.ch///store/mc/Phase2Fall22DRMiniAOD/DoubleElectron_FlatPt-1To100-gun/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2-v1/30000/0024ebea-73de-496a-9d75-6f0a7c3b2ba4.root'
+                                                      ),
                             inputCommands = cms.untracked.vstring(
                                 "keep *"
                             )
@@ -31,10 +31,9 @@ process.source = cms.Source("PoolSource",
 # --------------------------------------------------------------------------------------------                                                    
 #                                                                                                                                                            
 # ----   Run the relevant algorithms
-
 # ---- Global Tag :
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '123X_mcRun4_realistic_v3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '131X_mcRun4_realistic_v6', '')
 
 
 # Add HCAL Transcoder
