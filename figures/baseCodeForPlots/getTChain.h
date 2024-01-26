@@ -35,7 +35,7 @@ TChain* getTChainFromListOfFiles(TString inputListOfFiles, TString treeName, int
         const char *filename = line.c_str();
         int result = ch->Add(filename); 
         if (result == 0) {
-          std::cout << "[ERROR:] getTChain.h: Failed to find " << treeName << "in " << file << ", exiting " << std::endl;
+          std::cout << "[ERROR:] getTChain.h: Failed to find " << treeName << "in " << inputListOfFiles << ", exiting " << std::endl;
           return NULL;
         }
         std::cout << "... Added " << treeName << " from " << filename << std::endl; 
