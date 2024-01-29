@@ -1,8 +1,7 @@
 # README.md for CRAB anlyzer submission
 
 ## Basic steps
-Performed on lxplus. There is one single `cmsRun` config file for the old and new emulators' efficiencies, one `cmsRun` config file for just the old emulator's rates, and lastly 
-one other `cmsRun` config file for just the new emulator's rates.
+Performed on lxplus. There is one `cmsRun` config file for the old emulator efficiency, one `cmsRun` config file for the new emulator efficiency, one `cmsRun` config file for just the old emulator's rates, and lastly, one other `cmsRun` config file for just the new emulator's rates.
 
 1. Edit `datasetConfig.yml` which lists all the input DAS datasets and says
    which cmsRun script to use, the CRAB production tag, etc.
