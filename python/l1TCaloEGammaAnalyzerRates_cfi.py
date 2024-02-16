@@ -9,8 +9,8 @@ l1NtupleProducer = cms.EDAnalyzer("L1TCaloEGammaAnalyzerRates",
                                   
                                   ecalDigis = cms.InputTag("simEcalEBTriggerPrimitiveDigis"),
                                   hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
-                                  rctClusters = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "RCT", "REPR"),
-                                  gctClusters = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCT", "REPR"),
+                                  rctClusters = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "RCTClusters", "REPR"),
+                                  gctClusters = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTClusters", "REPR"),
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
