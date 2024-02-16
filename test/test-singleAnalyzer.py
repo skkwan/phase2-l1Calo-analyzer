@@ -28,7 +28,8 @@ process.source = cms.Source("PoolSource",
        
                                                       ),
                             inputCommands = cms.untracked.vstring(
-                                "keep *"
+                                "keep *",
+                                "drop l1tPFJets_*_*_*",
                             )
                         )
 # process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:594")
@@ -66,11 +67,12 @@ process.TFileService = cms.Service("TFileService",
 process.Out = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "phase2L1EGammaAnalyzer.root" ),
     outputCommands = cms.untracked.vstring(
-        "keep *"
+        "keep *",
 #        "keep *_Phase2L1CaloEGammaEmulator_*_*",
 #        "keep *_TriggerResults_*_*",
 #        "keep *_simHcalTriggerPrimitiveDigis_*_*",
 #        "keep *_EcalEBTrigPrimProducer_*_*"
+        "drop l1tPFJets_*_*_*"
     )
 )
 
