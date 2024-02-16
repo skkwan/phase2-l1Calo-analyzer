@@ -66,8 +66,8 @@ process.TFileService = cms.Service("TFileService",
 process.Out = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "phase2L1EGammaAnalyzer.root" ),
     outputCommands = cms.untracked.vstring(
-
-        "keep *_Phase2L1CaloEGammaEmulator_*_*",
+        "keep *"
+#        "keep *_Phase2L1CaloEGammaEmulator_*_*",
 #        "keep *_TriggerResults_*_*",
 #        "keep *_simHcalTriggerPrimitiveDigis_*_*",
 #        "keep *_EcalEBTrigPrimProducer_*_*"
@@ -77,7 +77,7 @@ process.Out = cms.OutputModule( "PoolOutputModule",
 
 process.end = cms.EndPath( process.Out )
 
-process.schedule = cms.Schedule(process.pL1EG)
+process.schedule = cms.Schedule(process.pL1EG, process.end)
 
 # dump_file = open("dump_file.py", "w")
 # dump_file.write(process.dumpPython())
