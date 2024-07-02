@@ -178,6 +178,8 @@ class L1TCaloEGammaSingleAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
   std::vector<TLorentzVector> *gctClusters  = new std::vector<TLorentzVector>;
   std::vector<TLorentzVector> *gctTowers    = new std::vector<TLorentzVector>;
 
+  std::vector<TLorentzVector> *caloPFClusters = new std::vector<TLorentzVector>;
+
   std::vector<l1egInfo> *gct_l1eg = new std::vector<L1TCaloEGammaSingleAnalyzer::l1egInfo>;
   std::vector<l1egInfo> *old_l1eg = new std::vector<L1TCaloEGammaSingleAnalyzer::l1egInfo>;
 
@@ -338,6 +340,7 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> gctClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> rctTowersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> gctTowersSrc_;
+  edm::EDGetTokenT<l1tp2::CaloPFClusterCollection> caloPFClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> oldClustersSrc_;
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> oldTowersSrc_;
   edm::EDGetTokenT<BXVector<l1t::EGamma>> l1EGammasSrc_;
@@ -348,7 +351,6 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelatorSrc_;
   edm::EDGetTokenT<l1tp2::DigitizedTowerCorrelatorCollection> digitizedTowersCorrelatorSrc_;
 
-  edm::EDGetTokenT<l1tp2::CaloPFClusterCollection> gctPfClustersSrc_;
   edm::InputTag genSrc_;
   std::string folderName_;
   double recoPt_;

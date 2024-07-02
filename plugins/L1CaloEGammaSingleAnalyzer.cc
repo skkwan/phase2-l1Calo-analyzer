@@ -70,6 +70,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   gctClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("gctClusters"))),
   rctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("rctTowers"))),
   gctTowersSrc_(consumes<l1tp2::CaloTowerCollection >(cfg.getParameter<edm::InputTag>("gctTowers"))),
+  caloPFClustersSrc_(consumes<l1tp2::CaloPFClusterCollection>(cfg.getParameter<edm::InputTag>("PFclusters"))),
   oldClustersSrc_(consumes<l1tp2::CaloCrystalClusterCollection >(cfg.getParameter<edm::InputTag>("oldClusters"))),
   l1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("l1EGammas"))),
   oldL1EGammasSrc_(consumes<BXVector<l1t::EGamma>>(cfg.getParameter<edm::InputTag>("oldL1EGammas"))),
@@ -77,7 +78,6 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   digitizedClustersGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersGT"))),
   digitizedClustersCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersCorrelator"))),
   digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
-  gctPfClustersSrc_(consumes<l1tp2::CaloPFClusterCollection>(cfg.getParameter<edm::InputTag>("gctPfClusters"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -172,7 +172,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   edm::Handle<l1tp2::CaloCrystalClusterCollection> gctCaloCrystalClusters;
   edm::Handle<l1tp2::CaloTowerCollection> gctCaloTowers;
 
-  edm::Handle<l1tp2::CaloPFClusterCollection> gctPfClusters; 
+edm::Handle<l1tp2::CaloPFClusterCollection> PFClusters;
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
   edm::Handle<BXVector<l1t::EGamma>> oldL1EGammas;
@@ -193,6 +193,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   gctClusters->clear();
   gctClusterInfo->clear();
   gctTowers->clear();
+  caloPFClusters->clear();
   allEcalTPGs->clear(); 
   allHcalTPGs->clear(); 
 
@@ -458,9 +459,14 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
 
   // Get the PFClusters
-  if (evt.getByToken(gctPfClustersSrc_, gctPfClusters)) {
-    for (const auto & pfCluster : *gctPfClusters) {
-      std::cout << "Found a pfCluster with energy: " << pfCluster.clusterEt() << " at (eta, phi) " << pfCluster.clusterEta() << ", " << pfCluster.clusterPhi() << std::endl;
+  if (evt.getByToken(caloPFClustersSrc_, PFClusters)) {
+    for (const auto & PFCluster : *PFClusters) {
+      std::cout << "PF cluster found: ET " << PFCluster.clusterEt()  << ", "
+                << "iEta, iPhi " << PFCluster.clusterIEta() << " " << PFCluster.clusterIPhi() << ", "
+                << "eta, phi " << PFCluster.clusterEta() << " " << PFCluster.clusterPhi() << std::endl;
+      TLorentzVector temp;
+      temp.SetPtEtaPhiE(PFCluster.clusterEt(), PFCluster.clusterEta(), PFCluster.clusterPhi(), PFCluster.clusterEt());
+      caloPFClusters->push_back(temp);
     }
   }
   else {
