@@ -56,9 +56,12 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 process.load('L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi')
 process.load('L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi')
 process.load('L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi')
 process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloEGammaSingleAnalyzer_cfi')
 
-process.pL1EG = cms.Path( process.l1tPhase2L1CaloEGammaEmulator * process.l1tEGammaClusterEmuProducer * process.l1tPhase2CaloPFClusterEmulator * process.l1NtupleSingleProducer)
+process.pL1EG = cms.Path( process.l1tPhase2L1CaloEGammaEmulator * process.l1tEGammaClusterEmuProducer * process.l1tPhase2CaloPFClusterEmulator \
+                            * process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator \
+                            * process.l1NtupleSingleProducer)
 
 # output file
 process.TFileService = cms.Service("TFileService",

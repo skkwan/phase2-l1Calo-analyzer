@@ -69,6 +69,7 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTBarrelDigiClusterToCorrLayer1.h"
 
 //
 // class declaration
@@ -351,6 +352,7 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelatorSrc_;
   edm::EDGetTokenT<l1tp2::DigitizedTowerCorrelatorCollection> digitizedTowersCorrelatorSrc_;
 
+  edm::EDGetTokenT<l1tp2::GCTBarrelDigiClustersToCorrLayer1Collection> gctBarrelDigiClustersToCorrLayer1Src_;
   edm::InputTag genSrc_;
   std::string folderName_;
   double recoPt_;
