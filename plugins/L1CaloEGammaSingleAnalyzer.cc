@@ -79,7 +79,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   digitizedClustersGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersGT"))),
   digitizedClustersCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersCorrelator"))),
   digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
-  gctBarrelDigiClustersToCorrLayer1Src_(consumes<l1tp2::GCTBarrelDigiClustersToCorrLayer1Collection>(cfg.getParameter<edm::InputTag>("gctBarrelDigiClustersToCorrLayer1"))),
+  gctBarrelDigiClustersToCorrLayer1Src_(consumes<l1tp2::GCTBarrelDigiClusterToCorrLayer1CollectionFullDetector>(cfg.getParameter<edm::InputTag>("gctBarrelDigiClustersToCorrLayer1"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -176,7 +176,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
   edm::Handle<l1tp2::CaloPFClusterCollection> PFClusters;
 
-  edm::Handle<l1tp2::GCTBarrelDigiClustersToCorrLayer1Collection> gctBarrelToCorrL1Clusters; 
+  edm::Handle<l1tp2::GCTBarrelDigiClusterToCorrLayer1CollectionFullDetector> gctBarrelToCorrL1Clusters; 
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
   edm::Handle<BXVector<l1t::EGamma>> oldL1EGammas;
@@ -477,10 +477,12 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     std::cout << "[ERROR: ] Did not find any PF Clusters" << std::endl;
   }
 
-  // Get the clusters going from GCT barrel to correlator layer 1  
+  // Get the clusters going from GCT barrel to correlator layer 1. TODO: check this again when I am filling with non-zero values
   if (evt.getByToken(gctBarrelDigiClustersToCorrLayer1Src_, gctBarrelToCorrL1Clusters)) {
-    for (const auto & cluster : *gctBarrelToCorrL1Clusters) {
-      std::cout << "To Correlator Layer 1: pT " << cluster.pt() << " eta, phi " << cluster.eta() << ", " << cluster.phi() << std::endl;
+    for (int i = 0; i < 6; i++) {
+      for (const auto & cluster : (*gctBarrelToCorrL1Clusters).at(i)) {
+        std::cout << "To Correlator Layer 1, region " << i << ": pT " << cluster.pt() << " eta, phi " << cluster.eta() << ", " << cluster.phi() << std::endl;
+      }
     }
   }
   else {
