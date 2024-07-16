@@ -43,11 +43,13 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
 #include "L1Trigger/L1CaloTrigger/interface/ParametricCalibration.h"
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h"  // p2eg namespace
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 #include "L1Trigger/L1CaloPhase2Analyzer/interface/L1TCaloEGammaSingleAnalyzer.h" 
+
 #include "DataFormats/Math/interface/deltaR.h"
 
 
@@ -176,6 +178,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
   edm::Handle<l1tp2::CaloPFClusterCollection> PFClusters;
 
+  edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelator;
   edm::Handle<l1tp2::GCTBarrelDigiClusterToCorrLayer1CollectionFullDetector> gctBarrelToCorrL1Clusters; 
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
@@ -477,17 +480,40 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     std::cout << "[ERROR: ] Did not find any PF Clusters" << std::endl;
   }
 
+  // Cross-check: check the DigitizedClusterCorrelator
+  if (evt.getByToken(digitizedClustersCorrelatorSrc_, digitizedClustersCorrelator)) {
+    for (const auto & cluster: *digitizedClustersCorrelator) {
+      std::cout << "DigitizedClusterCorrelator: pT " << cluster.pt() 
+        << " real eta, real phi " << cluster.realEta() << ", " << cluster.realPhi() 
+        << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
+    }
+  }
+
   // Get the clusters going from GCT barrel to correlator layer 1. TODO: check this again when I am filling with non-zero values
+  float regionCentersInDegrees[6] = {10.0, 70.0, 130.0, -170.0, -110.0, -50.0};
+
   if (evt.getByToken(gctBarrelDigiClustersToCorrLayer1Src_, gctBarrelToCorrL1Clusters)) {
     for (int i = 0; i < 6; i++) {
       for (const auto & cluster : (*gctBarrelToCorrL1Clusters).at(i)) {
-        std::cout << "To Correlator Layer 1, region " << i << ": pT " << cluster.pt() << " eta, phi " << cluster.eta() << ", " << cluster.phi() << std::endl;
+        // Example code of how to get to the real eta and phi from the position 
+        float realEta;
+        float realPhi;
+
+        realEta = cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
+        realPhi = (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
+
+
+        std::cout << "To Correlator Layer 1, region " << i << ": pT " << cluster.pt() 
+        << " real eta, phi " << realEta << ", " << realPhi
+        << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
+
       }
     }
   }
   else {
     std::cout << "[ERROR: ] Did not find any GCT Barrel clusters for correlator layer 1" << std::endl;
   }
+
 
   // get the ECAL inputs (i.e. ECAL crystals)
   if(!evt.getByToken(ecalSrc_, ecalTPGs))
