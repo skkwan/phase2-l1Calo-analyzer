@@ -281,7 +281,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Unit tests for full towers
   if (evt.getByToken(fullTowersSrc_, fullTowers)) {
     for (const auto & t : *fullTowers ) {
-      printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
+      // printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
       Tower tower;
       TLorentzVector temp_p4;
       temp_p4.SetPtEtaPhiE(t.ecalTowerEt(), t.towerEta(), t.towerPhi(), t.ecalTowerEt());
@@ -298,7 +298,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Unit tests for GCT towers
   if (evt.getByToken(gctTowersSrc_, gctCaloTowers)) {
     for (const auto & t : *gctCaloTowers ) {
-      printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
+      // printf("GCT full tower found with ET %f, ieta %i, iphi %i, eta %f, phi %f\n", t.ecalTowerEt(), t.towerIEta(), t.towerIPhi(), t.towerEta(), t.towerPhi());
       Tower tower;
       TLorentzVector temp_p4;
       temp_p4.SetPtEtaPhiE(t.ecalTowerEt(), t.towerEta(), t.towerPhi(), t.ecalTowerEt());
@@ -483,7 +483,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Cross-check: check the DigitizedClusterCorrelator
   if (evt.getByToken(digitizedClustersCorrelatorSrc_, digitizedClustersCorrelator)) {
     for (const auto & cluster: *digitizedClustersCorrelator) {
-      std::cout << "DigitizedClusterCorrelator: pT " << cluster.pt() 
+      std::cout << "DigitizedClusterCorrelator: pT " << cluster.ptFloat()
+        << " crystal iEta, iPhi " << cluster.eta() << ", " << cluster.phi() 
         << " real eta, real phi " << cluster.realEta() << ", " << cluster.realPhi() 
         << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
     }
@@ -494,18 +495,19 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
   if (evt.getByToken(gctBarrelDigiClustersToCorrLayer1Src_, gctBarrelToCorrL1Clusters)) {
     for (int i = 0; i < 6; i++) {
-      for (const auto & cluster : (*gctBarrelToCorrL1Clusters).at(i)) {
-        // Example code of how to get to the real eta and phi from the position 
-        float realEta;
-        float realPhi;
+        for (const auto & cluster : (*gctBarrelToCorrL1Clusters).at(i)) {
+          // Example code of how to get to the real eta and phi from the position 
+          float realEta;
+          float realPhi;
 
-        realEta = cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
-        realPhi = (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
+          realEta = cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
+          realPhi = (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
 
-
-        std::cout << "To Correlator Layer 1, region " << i << ": pT " << cluster.pt() 
-        << " real eta, phi " << realEta << ", " << realPhi
-        << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
+          std::cout << "To Correlator Layer 1, region " << i  
+          << ": pT " << cluster.ptFloat()
+          << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
+          << " real eta, phi " << realEta << ", " << realPhi
+          << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
 
       }
     }
