@@ -24,7 +24,8 @@ l1NtupleSingleProducer = cms.EDAnalyzer("L1TCaloEGammaSingleAnalyzer",
                                         digitizedClustersCorrelator = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTDigitizedClusterToCorrelator", "REPR"),
                                         digitizedTowersCorrelator = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTDigitizedTowerToCorrelator", "REPR"),
 
-                                        gctBarrelDigiClustersToCorrLayer1 = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "GCTBarrelDigiClustersToCorrLayer1", "REPR")
+                                        gctBarrelDigiClustersToCorrLayer1 = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "GCTBarrelDigiClustersToCorrLayer1", "REPR"),
+                                        pfBarrelDigiClustersToCorrLayer1 = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "CaloPFDigiClusterToCorrLayer1", "REPR"),
 
 )
 

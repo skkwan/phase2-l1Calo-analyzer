@@ -35,8 +35,8 @@
 // HCAL TPs
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
-// Output tower collection
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFDigiClusterToCorrLayer1.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTBarrelDigiClusterToCorrLayer1.h"
@@ -82,6 +82,7 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   digitizedClustersCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersCorrelator"))),
   digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
   gctBarrelDigiClustersToCorrLayer1Src_(consumes<l1tp2::GCTBarrelDigiClusterToCorrLayer1CollectionFullDetector>(cfg.getParameter<edm::InputTag>("gctBarrelDigiClustersToCorrLayer1"))),
+  caloPFClustersDigiSrc_(consumes<l1tp2::CaloPFDigiClusterToCorrLayer1CollectionFullDetector>(cfg.getParameter<edm::InputTag>("pfBarrelDigiClustersToCorrLayer1"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -180,6 +181,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
   edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelator;
   edm::Handle<l1tp2::GCTBarrelDigiClusterToCorrLayer1CollectionFullDetector> gctBarrelToCorrL1Clusters; 
+  edm::Handle<l1tp2::CaloPFDigiClusterToCorrLayer1CollectionFullDetector> PFDigiClustersToCorrL1;
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
   edm::Handle<BXVector<l1t::EGamma>> oldL1EGammas;
@@ -500,10 +502,11 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
           float realEta;
           float realPhi;
 
-          realEta = cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
-          realPhi = (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
+          // Add offset of half-crystal size to get center of crystal in eta
+          realEta = ((cluster.eta() / std::abs(cluster.eta())) * p2eg::half_crystal_size) + cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
+          realPhi = ((cluster.phi() / std::abs(cluster.phi())) * p2eg::half_crystal_size) + (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
 
-          std::cout << "To Correlator Layer 1, region " << i  
+          std::cout << "EG to Correlator Layer 1, region " << i  
           << ": pT " << cluster.ptFloat()
           << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
           << " real eta, phi " << realEta << ", " << realPhi
@@ -514,6 +517,29 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   }
   else {
     std::cout << "[ERROR: ] Did not find any GCT Barrel clusters for correlator layer 1" << std::endl;
+  }
+
+    // TODO: add PF Clusters digitized
+  if (evt.getByToken(caloPFClustersDigiSrc_, PFDigiClustersToCorrL1)) {
+    for (int i = 0; i < 6; i++) {
+        for (const auto & cluster : (*PFDigiClustersToCorrL1).at(i)) {
+          // Example code of how to get to the real eta and phi from the position 
+          float realEta;
+          float realPhi;
+
+          // Add offset of half-crystal size to get center of crystal in eta and phi
+          realEta = ((cluster.eta() / std::abs(cluster.eta())) * p2eg::half_crystal_size) + cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
+          realPhi = ((cluster.phi() / std::abs(cluster.phi())) * p2eg::half_crystal_size) + (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
+
+          std::cout << "PF to Correlator Layer 1, region " << i  
+          << ": pT " << cluster.ptFloat()
+          << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
+          << " real eta, phi " << realEta << ", " << realPhi << std::endl;
+        }
+    }
+  }
+  else {
+    std::cout << "[ERROR: ] Did not find any PFDigi Clusters" << std::endl;
   }
 
 
