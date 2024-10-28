@@ -43,7 +43,8 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
 #include "L1Trigger/L1CaloTrigger/interface/ParametricCalibration.h"
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h"  // p2eg namespace
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloBarrelToCorrelator.h" // p2eg function definitions
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h"  // p2eg namespace and function definitions
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -485,32 +486,43 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Cross-check: check the DigitizedClusterCorrelator
   if (evt.getByToken(digitizedClustersCorrelatorSrc_, digitizedClustersCorrelator)) {
     for (const auto & cluster: *digitizedClustersCorrelator) {
-      std::cout << "DigitizedClusterCorrelator: pT " << cluster.ptFloat()
+      std::cout << "DigitizedClusterCorrelator: pT " << cluster.pt() * cluster.ptLSB()
         << " crystal iEta, iPhi " << cluster.eta() << ", " << cluster.phi() 
         << " real eta, real phi " << cluster.realEta() << ", " << cluster.realPhi() 
         << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
     }
   }
 
-  // Get the clusters going from GCT barrel to correlator layer 1. TODO: check this again when I am filling with non-zero values
-  float regionCentersInDegrees[6] = {10.0, 70.0, 130.0, -170.0, -110.0, -50.0};
+  // Get the clusters going from GCT barrel to correlator layer 1
+  float slrCentersInDegrees[6] = {10.0, 70.0, 130.0, -170.0, -110.0, -50.0};
 
   if (evt.getByToken(gctBarrelDigiClustersToCorrLayer1Src_, gctBarrelToCorrL1Clusters)) {
-    for (int i = 0; i < 6; i++) {
-        for (const auto & cluster : (*gctBarrelToCorrL1Clusters).at(i)) {
+    for (int iLink = 0; iLink < 12; iLink++) {
+      // in order: GCT1 SLR1 positive eta, GCT SLR1 negative eta, GCT1 SLR3 positive eta, etc. 
+      int iSLR = (iLink/2);
+      // Eta: positive or negative depends on the link. If iLink is even, it is in positive eta
+      bool isNegativeEta = (iLink % 2);
+
+        for (const auto & cluster : (*gctBarrelToCorrL1Clusters).at(iLink)) {
           // Example code of how to get to the real eta and phi from the position 
-          float realEta;
-          float realPhi;
-
           // Add offset of half-crystal size to get center of crystal in eta
-          realEta = ((cluster.eta() / std::abs(cluster.eta())) * p2eg::half_crystal_size) + cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
-          realPhi = ((cluster.phi() / std::abs(cluster.phi())) * p2eg::half_crystal_size) + (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
+          // Eta is stored as an unsigned quantity, the sign is inferred from the link
+          float realEta = p2eg::half_crystal_size + (cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA)));
+          if (isNegativeEta) {
+            realEta *= -1;
+          }
+          // else {
+          //   // positive eta: add offset when getting real eta (so that iEta = 0 in negative eta and iEta = 0 in positive eta map to different real eta)
+          //   realEta += ((cluster.eta() / std::abs(cluster.eta())) * p2eg::half_crystal_size);
+          // }
+          // Phi is signed. Units are in degrees. Add half a degree for offset. Use the p2eg::wrappedPhi helper to make sure it returns a value between -180 and +180, and lastly convert to radians
+          float realPhi = p2eg::wrappedPhiInDegrees(slrCentersInDegrees[iSLR] + cluster.phi() + 0.5) * (M_PI / 180.);
 
-          std::cout << "EG to Correlator Layer 1, region " << i  
-          << ": pT " << cluster.ptFloat()
-          << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
-          << " real eta, phi " << realEta << ", " << realPhi
-          << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
+          std::cout << "EG to Correlator Layer 1, SLR " << iSLR << ", link " << iLink
+                    << ": pT " << cluster.ptFloat()
+                    << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
+                    << " real eta, phi " << realEta << ", " << realPhi
+                    << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
 
       }
     }
@@ -521,21 +533,30 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
 
     // TODO: add PF Clusters digitized
   if (evt.getByToken(caloPFClustersDigiSrc_, PFDigiClustersToCorrL1)) {
-    for (int i = 0; i < 6; i++) {
-        for (const auto & cluster : (*PFDigiClustersToCorrL1).at(i)) {
-          // Example code of how to get to the real eta and phi from the position 
-          float realEta;
-          float realPhi;
+    for (int iLink = 0; iLink < 12; iLink++) {
+      // in order: GCT1 SLR1 positive eta, GCT SLR1 negative eta, GCT1 SLR3 positive eta, etc. 
+      int iGCT = (iLink/2);
+      // Eta: positive or negative depends on the link. If iLink is even, it is in positive eta
+      bool isNegativeEta = (iLink % 2);
 
-          // Add offset of half-crystal size to get center of crystal in eta and phi
-          realEta = ((cluster.eta() / std::abs(cluster.eta())) * p2eg::half_crystal_size) + cluster.eta() * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
-          realPhi = ((cluster.phi() / std::abs(cluster.phi())) * p2eg::half_crystal_size) + (regionCentersInDegrees[i] + cluster.phi()) * (M_PI / 180.);
+      for (const auto & cluster : (*PFDigiClustersToCorrL1).at(iLink)) {
+        // Example code of how to get to the real eta and phi from the position 
+        float realEta;
+        float realPhi;
 
-          std::cout << "PF to Correlator Layer 1, region " << i  
-          << ": pT " << cluster.ptFloat()
-          << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
-          << " real eta, phi " << realEta << ", " << realPhi << std::endl;
+        // Add offset of half-crystal size to get center of crystal in eta and phi
+        realEta = (cluster.eta() + 0.5) * (p2eg::ECAL_eta_range / (p2eg::n_towers_cardEta * p2eg::CRYSTALS_IN_TOWER_ETA));
+        if (isNegativeEta) {
+          realEta *= -1;
         }
+        // Add 0.5 to get offset of half a crystal (0.5 degrees in phi)
+        realPhi = p2eg::wrappedPhiInDegrees(slrCentersInDegrees[iGCT] + cluster.phi() + 0.5) * (M_PI / 180.);
+
+        std::cout << "PF to Correlator Layer 1, GCT " << iGCT << ", SLR " << iLink
+                  << ": pT " << cluster.ptFloat()
+                  << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
+                  << " real eta, phi " << realEta << ", " << realPhi << std::endl;
+      }
     }
   }
   else {
