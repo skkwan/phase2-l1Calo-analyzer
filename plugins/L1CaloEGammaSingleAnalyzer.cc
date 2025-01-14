@@ -36,10 +36,11 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFDigiClusterToCorrLayer1.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/GCTBarrelDigiClusterToCorrLayer1.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/EmDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/HadDigiCluster.h"
+
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
 #include "L1Trigger/L1CaloTrigger/interface/ParametricCalibration.h"
@@ -82,8 +83,8 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   digitizedClustersGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersGT"))),
   digitizedClustersCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersCorrelator"))),
   digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
-  gctBarrelDigiClustersToCorrLayer1Src_(consumes<l1tp2::GCTBarrelDigiClusterToCorrLayer1CollectionFullDetector>(cfg.getParameter<edm::InputTag>("gctBarrelDigiClustersToCorrLayer1"))),
-  caloPFClustersDigiSrc_(consumes<l1tp2::CaloPFDigiClusterToCorrLayer1CollectionFullDetector>(cfg.getParameter<edm::InputTag>("pfBarrelDigiClustersToCorrLayer1"))),
+  emDigiClustersSrc_(consumes<l1tp2::EmDigiClusterCollection>(cfg.getParameter<edm::InputTag>("emDigiClusters"))),
+  hadDigiClustersSrc_(consumes<l1tp2::HadDigiClusterCollection>(cfg.getParameter<edm::InputTag>("hadDigiClusters"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -181,8 +182,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   edm::Handle<l1tp2::CaloPFClusterCollection> PFClusters;
 
   edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelator;
-  edm::Handle<l1tp2::GCTBarrelDigiClusterToCorrLayer1CollectionFullDetector> gctBarrelToCorrL1Clusters; 
-  edm::Handle<l1tp2::CaloPFDigiClusterToCorrLayer1CollectionFullDetector> PFDigiClustersToCorrL1;
+  edm::Handle<l1tp2::EmDigiClusterCollection> emDigiClusters; 
+  edm::Handle<l1tp2::HadDigiClusterCollection> hadDigiClusters;
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
   edm::Handle<BXVector<l1t::EGamma>> oldL1EGammas;
@@ -496,14 +497,16 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Get the clusters going from GCT barrel to correlator layer 1
   float slrCentersInDegrees[6] = {10.0, 70.0, 130.0, -170.0, -110.0, -50.0};
 
-  if (evt.getByToken(gctBarrelDigiClustersToCorrLayer1Src_, gctBarrelToCorrL1Clusters)) {
+  if (evt.getByToken(emDigiClustersSrc_, emDigiClusters)) {
     for (int iLink = 0; iLink < 12; iLink++) {
       // in order: GCT1 SLR1 positive eta, GCT SLR1 negative eta, GCT1 SLR3 positive eta, etc. 
       int iSLR = (iLink/2);
       // Eta: positive or negative depends on the link. If iLink is even, it is in positive eta
       bool isNegativeEta = (iLink % 2);
 
-        for (const auto & cluster : (*gctBarrelToCorrL1Clusters).at(iLink)) {
+        int i = 0;
+        for (const auto & cluster : (*emDigiClusters).at(iLink)) {
+          i++;
           // Example code of how to get to the real eta and phi from the position 
           // Add offset of half-crystal size to get center of crystal in eta
           // Eta is stored as an unsigned quantity, the sign is inferred from the link
@@ -522,24 +525,31 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
                     << ": pT " << cluster.ptFloat()
                     << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
                     << " real eta, phi " << realEta << ", " << realPhi
-                    << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
+                    << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << ", " 
+                    << "Access underlying float cluster pT " << cluster.base()->ptFloat() << std::endl;
+                    // << " eta, phi " << cluster.base().get()->realEta() << ", " << cluster.base().get()->realPhi() << std::endl;
 
       }
+      std::cout << ">>> I found " << i << " EM Digi clusters in iLink " << iLink << std::endl;
+
     }
   }
   else {
-    std::cout << "[ERROR: ] Did not find any GCT Barrel clusters for correlator layer 1" << std::endl;
+    std::cout << "[ERROR: ] Did not find any EM Digi clusters for correlator layer 1" << std::endl;
   }
 
     // TODO: add PF Clusters digitized
-  if (evt.getByToken(caloPFClustersDigiSrc_, PFDigiClustersToCorrL1)) {
+  if (evt.getByToken(hadDigiClustersSrc_, hadDigiClusters)) {
     for (int iLink = 0; iLink < 12; iLink++) {
+      int i = 0;
       // in order: GCT1 SLR1 positive eta, GCT SLR1 negative eta, GCT1 SLR3 positive eta, etc. 
       int iGCT = (iLink/2);
       // Eta: positive or negative depends on the link. If iLink is even, it is in positive eta
       bool isNegativeEta = (iLink % 2);
 
-      for (const auto & cluster : (*PFDigiClustersToCorrL1).at(iLink)) {
+      for (const auto & cluster : (*hadDigiClusters).at(iLink)) {
+        i++;
+
         // Example code of how to get to the real eta and phi from the position 
         float realEta;
         float realPhi;
@@ -555,12 +565,15 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
         std::cout << "PF to Correlator Layer 1, GCT " << iGCT << ", SLR " << iLink
                   << ": pT " << cluster.ptFloat()
                   << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
-                  << " real eta, phi " << realEta << ", " << realPhi << std::endl;
+                  << " real eta, phi " << realEta << ", " << realPhi  << ", "
+                  << " underlying float cluster pT " << cluster.base().get()->clusterEt() << " at " 
+                  << cluster.base().get()->clusterEta() << ", " << cluster.base().get()->clusterPhi() << std::endl;
       }
+      std::cout << ">>> I found " << i << " digitized PF clusters in iLink " << iLink << std::endl;
     }
   }
   else {
-    std::cout << "[ERROR: ] Did not find any PFDigi Clusters" << std::endl;
+    std::cout << "[ERROR: ] Did not find any HadDigiClusters" << std::endl;
   }
 
 
