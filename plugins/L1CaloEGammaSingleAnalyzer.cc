@@ -525,10 +525,21 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
                     << ": pT " << cluster.ptFloat()
                     << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
                     << " real eta, phi " << realEta << ", " << realPhi
-                    << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << ", " 
-                    << "Access underlying float cluster pT " << cluster.base()->ptFloat() << std::endl;
-                    // << " eta, phi " << cluster.base().get()->realEta() << ", " << cluster.base().get()->realPhi() << std::endl;
-
+                    << " iso flags " << cluster.isoFlags() << " shape flags " << cluster.shapeFlags() << std::endl;
+          if (cluster.clusterRef().isNonnull()) {
+            std::cout << "\t ... Access underlying float cluster pT " << cluster.clusterRef()->pt() 
+                      << " eta, phi " << cluster.clusterRef()->eta() << ", " << cluster.clusterRef()->phi()
+                      << " with standalone WP shower shape " << cluster.clusterRef()->experimentalParam("standaloneWP_showerShape")
+                      << " with standalone WP isolation " << cluster.clusterRef()->experimentalParam("standaloneWP_isolation") 
+                      << std::endl;
+          }
+          if (cluster.digiClusterRef().isNonnull()) {
+                      std::cout << "\t ... Access underlying digitized cluster pT " << cluster.digiClusterRef()->ptFloat() 
+                      << " eta, phi " << cluster.digiClusterRef()->realEta() << ", " << cluster.digiClusterRef()->realPhi() << std::endl;
+          }
+          else {
+            std::cout << "\t ... Base cluster reference is null, continuing" << std::endl;
+          }
       }
       std::cout << ">>> I found " << i << " EM Digi clusters in iLink " << iLink << std::endl;
 
@@ -538,7 +549,6 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     std::cout << "[ERROR: ] Did not find any EM Digi clusters for correlator layer 1" << std::endl;
   }
 
-    // TODO: add PF Clusters digitized
   if (evt.getByToken(hadDigiClustersSrc_, hadDigiClusters)) {
     for (int iLink = 0; iLink < 12; iLink++) {
       int i = 0;
@@ -565,9 +575,15 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
         std::cout << "PF to Correlator Layer 1, GCT " << iGCT << ", SLR " << iLink
                   << ": pT " << cluster.ptFloat()
                   << " crystal iEta, iPhi " << cluster.eta() << "," << cluster.phi() 
-                  << " real eta, phi " << realEta << ", " << realPhi  << ", "
-                  << " underlying float cluster pT " << cluster.base().get()->clusterEt() << " at " 
-                  << cluster.base().get()->clusterEta() << ", " << cluster.base().get()->clusterPhi() << std::endl;
+                  << " real eta, phi " << realEta << ", " << realPhi  << std::endl;
+
+          if (cluster.clusterRef().isNonnull()) {
+                  std::cout << "\t ... Underlying float cluster pT " << cluster.clusterRef()->clusterEt() << " at " 
+                            << cluster.clusterRef()->clusterEta() << ", " << cluster.clusterRef()->clusterPhi() << std::endl;
+          }
+          else {
+            std::cout << "\t ... No associated cluster" << std::endl;
+          }
       }
       std::cout << ">>> I found " << i << " digitized PF clusters in iLink " << iLink << std::endl;
     }
