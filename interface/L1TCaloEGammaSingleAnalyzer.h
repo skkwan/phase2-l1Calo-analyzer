@@ -69,8 +69,8 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/EmDigiCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/HadDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
 
 //
 // class declaration
@@ -353,8 +353,8 @@ int get5x5TPGs(const int maxTPGPt_eta,
   edm::EDGetTokenT<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelatorSrc_;
   edm::EDGetTokenT<l1tp2::DigitizedTowerCorrelatorCollection> digitizedTowersCorrelatorSrc_;
 
-  edm::EDGetTokenT<l1tp2::EmDigiClusterCollection> emDigiClustersSrc_;
-  edm::EDGetTokenT<l1tp2::HadDigiClusterCollection> hadDigiClustersSrc_;
+  edm::EDGetTokenT<l1tp2::GCTEmDigiClusterCollection> gctEmDigiClustersSrc_;
+  edm::EDGetTokenT<l1tp2::GCTHadDigiClusterCollection> gctHadDigiClustersSrc_;
   edm::InputTag genSrc_;
   std::string folderName_;
   double recoPt_;

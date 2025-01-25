@@ -24,8 +24,8 @@ l1NtupleSingleProducer = cms.EDAnalyzer("L1TCaloEGammaSingleAnalyzer",
                                         digitizedClustersCorrelator = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTDigitizedClusterToCorrelator", "REPR"),
                                         digitizedTowersCorrelator = cms.InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTDigitizedTowerToCorrelator", "REPR"),
 
-                                        emDigiClusters = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "emDigiClusters", "REPR"),
-                                        hadDigiClusters = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "hadDigiClusters", "REPR"),
+                                        gctEmDigiClusters = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "GCTEmDigiClusters", "REPR"),
+                                        gctHadDigiClusters = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "GCTHadDigiClusters", "REPR"),
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

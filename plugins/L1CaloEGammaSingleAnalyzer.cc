@@ -38,8 +38,8 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/EmDigiCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/HadDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
@@ -83,8 +83,8 @@ L1TCaloEGammaSingleAnalyzer::L1TCaloEGammaSingleAnalyzer(const edm::ParameterSet
   digitizedClustersGTSrc_(consumes<l1tp2::DigitizedClusterGTCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersGT"))),
   digitizedClustersCorrelatorSrc_(consumes<l1tp2::DigitizedClusterCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedClustersCorrelator"))),
   digitizedTowersCorrelatorSrc_(consumes<l1tp2::DigitizedTowerCorrelatorCollection>(cfg.getParameter<edm::InputTag>("digitizedTowersCorrelator"))),
-  emDigiClustersSrc_(consumes<l1tp2::EmDigiClusterCollection>(cfg.getParameter<edm::InputTag>("emDigiClusters"))),
-  hadDigiClustersSrc_(consumes<l1tp2::HadDigiClusterCollection>(cfg.getParameter<edm::InputTag>("hadDigiClusters"))),
+  gctEmDigiClustersSrc_(consumes<l1tp2::GCTEmDigiClusterCollection>(cfg.getParameter<edm::InputTag>("gctEmDigiClusters"))),
+  gctHadDigiClustersSrc_(consumes<l1tp2::GCTHadDigiClusterCollection>(cfg.getParameter<edm::InputTag>("gctHadDigiClusters"))),
   genSrc_ (( cfg.getParameter<edm::InputTag>( "genParticles")))
 {
     genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -182,8 +182,8 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   edm::Handle<l1tp2::CaloPFClusterCollection> PFClusters;
 
   edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digitizedClustersCorrelator;
-  edm::Handle<l1tp2::EmDigiClusterCollection> emDigiClusters; 
-  edm::Handle<l1tp2::HadDigiClusterCollection> hadDigiClusters;
+  edm::Handle<l1tp2::GCTEmDigiClusterCollection> gctEmDigiClusters; 
+  edm::Handle<l1tp2::GCTHadDigiClusterCollection> gctHadDigiClusters;
 
   edm::Handle<BXVector<l1t::EGamma>> l1EGammas;
   edm::Handle<BXVector<l1t::EGamma>> oldL1EGammas;
@@ -497,7 +497,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
   // Get the clusters going from GCT barrel to correlator layer 1
   float slrCentersInDegrees[6] = {10.0, 70.0, 130.0, -170.0, -110.0, -50.0};
 
-  if (evt.getByToken(emDigiClustersSrc_, emDigiClusters)) {
+  if (evt.getByToken(gctEmDigiClustersSrc_, gctEmDigiClusters)) {
     for (int iLink = 0; iLink < 12; iLink++) {
       // in order: GCT1 SLR1 positive eta, GCT SLR1 negative eta, GCT1 SLR3 positive eta, etc. 
       int iSLR = (iLink/2);
@@ -505,7 +505,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       bool isNegativeEta = (iLink % 2);
 
         int i = 0;
-        for (const auto & cluster : (*emDigiClusters).at(iLink)) {
+        for (const auto & cluster : (*gctEmDigiClusters).at(iLink)) {
           i++;
           // Example code of how to get to the real eta and phi from the position 
           // Add offset of half-crystal size to get center of crystal in eta
@@ -549,7 +549,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     std::cout << "[ERROR: ] Did not find any EM Digi clusters for correlator layer 1" << std::endl;
   }
 
-  if (evt.getByToken(hadDigiClustersSrc_, hadDigiClusters)) {
+  if (evt.getByToken(gctHadDigiClustersSrc_, gctHadDigiClusters)) {
     for (int iLink = 0; iLink < 12; iLink++) {
       int i = 0;
       // in order: GCT1 SLR1 positive eta, GCT SLR1 negative eta, GCT1 SLR3 positive eta, etc. 
@@ -557,7 +557,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
       // Eta: positive or negative depends on the link. If iLink is even, it is in positive eta
       bool isNegativeEta = (iLink % 2);
 
-      for (const auto & cluster : (*hadDigiClusters).at(iLink)) {
+      for (const auto & cluster : (*gctHadDigiClusters).at(iLink)) {
         i++;
 
         // Example code of how to get to the real eta and phi from the position 
@@ -589,7 +589,7 @@ void L1TCaloEGammaSingleAnalyzer::analyze(const Event& evt, const EventSetup& iS
     }
   }
   else {
-    std::cout << "[ERROR: ] Did not find any HadDigiClusters" << std::endl;
+    std::cout << "[ERROR: ] Did not find any gctHadDigiClusters" << std::endl;
   }
 
 
