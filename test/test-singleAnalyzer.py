@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
-process = cms.Process('REPR',Phase2C17I13M9)
+process = cms.Process('L1P2GT',Phase2C17I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,9 +10,11 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D95Reco_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.SimPhase2L1GlobalTriggerEmulator_cff')
+process.load('L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1_2024.l1tGTMenu_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -23,12 +25,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
                                 # Signal events (just want to get one with good agreement)
-                                'root://cms-xrd-global.cern.ch///store/mc/Phase2Spring23DIGIRECOMiniAOD/DoubleElectron_FlatPt-1To100-gun/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_131X_mcRun4_realistic_v5-v1/30000/0083e06c-959e-4ea5-9190-fd73667fcc00.root'
-       
+#                                'root://cms-xrd-global.cern.ch///store/mc/Phase2Spring23DIGIRECOMiniAOD/DoubleElectron_FlatPt-1To100-gun/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_131X_mcRun4_realistic_v5-v1/30000/0083e06c-959e-4ea5-9190-fd73667fcc00.root'
+                                 'file:DoubleElectron_FlatPt-1To100-gun_Phase2Spring24DIGIRECOMiniAOD_PU200_GEN-SIM-DIGI-RAW-MINIAOD.root'      
                                                       ),
                             inputCommands = cms.untracked.vstring(
                                 "keep *",
-                                "drop l1tPFJets_*_*_*",
+                                'drop l1tPFJets_*_*_*',
+                                'drop l1tTrackerMuons_l1tTkMuonsGmt*_*_HLT'
                             )
                         )
 # process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:594")
@@ -40,10 +43,10 @@ process.source = cms.Source("PoolSource",
 # ----   Run the relevant algorithms
 # ---- Global Tag :
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '131X_mcRun4_realistic_v6', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 
-# Add HCAL Transcoder
+# # Add HCAL Transcoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
@@ -54,9 +57,14 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
 process.load('L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi')
 process.load('L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi')
+process.load('L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi')
 process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloEGammaSingleAnalyzer_cfi')
 
-process.pL1EG = cms.Path( process.l1tPhase2L1CaloEGammaEmulator * process.l1tEGammaClusterEmuProducer * process.l1NtupleSingleProducer)
+
+process.pL1EG = cms.Path( process.l1tPhase2L1CaloEGammaEmulator * process.l1tEGammaClusterEmuProducer * process.l1tPhase2CaloPFClusterEmulator \
+                            * process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator \
+                            * process.l1NtupleSingleProducer)
 
 # output file
 process.TFileService = cms.Service("TFileService",
