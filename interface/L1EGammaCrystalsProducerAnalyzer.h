@@ -62,8 +62,6 @@
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
-#include "L1Trigger/L1TCaloLayer1/src/UCTRegion.hh"
-#include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 
 
